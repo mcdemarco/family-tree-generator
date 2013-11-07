@@ -4,7 +4,7 @@ Family Tree Generator
 Based on Random Family Tree Generator v.1.3  by Todd Stumpf:
 http://code.google.com/p/random-family-tree-generator/
 which in turn was based on an older version of Random Family Tree Generator
-by Jeff Partridge, since been updated to v2.0:
+by Jeff Partridge, updated since to v2.0:
 http://partridgez.com/japartridge/lineage2.html
 
 All versions are under a

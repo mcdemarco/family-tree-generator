@@ -1,22 +1,14 @@
-// Grabbed off of http://ja.partridgez.com/lineage.html
-// apparently (C) Jeff Partridge,
-// from a Create Commons Attribution-Noncommercial-Share Alike-3.0 United States License
-// ...
-// Then I fixed a lot of bugs, added code to give Females names that are more
-// asian (appropriate to my campaign), and made use of a seedable rand so trees can
-// be consistently regenerated.  Saves on printing them out and wasting paper.
-// -- Todd Stumpf 2010, Feb 20
+// Based on Random Family Tree Generator v.1.3
+// http://code.google.com/p/random-family-tree-generator/
+// apparently by Tood Stumpf,
+// which in turn was based on Random Family Tree Generator 
+// http://partridgez.com/japartridge/lineage2.html
+// by Jeff Partridge, which has since been updated to v2.0:
+// http://partridgez.com/japartridge/lineage2.html
+// All versions under a
+// Creative Commons Attribution-Noncommercial-Share Alike-3.0 United States License
 
-function getRequestParameter(name) {
-    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-    var regexS = "[\\?&]"+name+"=([^&#]*)";
-    var regex = new RegExp( regexS );
-    var results = regex.exec( window.location.href );
-    if( results == null )
-	return "";
-    else
-	return results[1];
-}
+// This version by M.C.DeMarco adds parameters for non-human or otherwise non-medieval family trees.
 
 var RATE_married = 97;
 var RATE_remarry_barren = 15;
@@ -24,12 +16,101 @@ var RATE_remarry_single = 5;
 var RATE_remarry_heirs = 3;
 var RATE_bachelor = 4;  // %chance refuse to marry -- applies to both men and women.
 
+var RATE_male = 75; // Male/female ratio at birth.  Should be 51% for humans.
+
+var MEAN_dage = 256; // Average age of death on a normal curve.
+var STD_dage = 36; // Standard deviation in age of death.
+
+//To do: incorporate odds of premature death:
+// 50% dies as a child or teenager
+// 25% die in their 20-30's
+// 12.5% die in their 40-50's
+// 12.5% die in their 60-70's
+
 var pid = 0;     // keeps track of each persons ID
 var lcolor = 0;	 // background color for each generation
+
+var syllables = [
+	["'A","'a","'"],
+	["Ko","ko","k"],
+	["Te","te","t"],
+	["Sae","sae","s"],
+	["Pi","pi","p"],
+	["Qoa","qoa","q"],
+	["Cea","ctea","ct"],
+	["Tsu","tsu","ts"],
+	["Hae","hae","h"],
+	["Goa","goa","g"],
+	["Di","di","d"],
+	["Zea","zea","z"],
+	["Bu","bu","b"],
+	["Ra","rga","rg"],
+	["De","dge","dg"],
+	["Dzo","dzo","dz"],
+	["Hea","hhea","hh"],
+	["Xa","xa","x"],
+	["Thu","thu","th"],
+	["She","she","sh"],
+	["Fo","fo","f"],
+	["Khae","khae","kh"],
+	["Kli","kli","kl"],
+	["Choa","tchoa","tch"],
+	["`E","`e","`"],
+	["Ghae","ghae","gh"],
+	["Dho","dho","dh"],
+	["Zhi","zhi","zh"],
+	["Voa","voa","v"],
+	["Ghea","rghea","rgh"],
+	["Glu","glu","gl"],
+	["Ja","dja","dj"],
+	["Mi","hmi","hm"],
+	["Ngea","ngea","ng"],
+	["Noa","noa","n"],
+	["Snu","snu","sn"],
+	["Ma","ma","m"],
+	["Ne","nhe","nh"],
+	["Nlo","nlo","nl"],
+	["Mbae","mbae","mb"],
+	["Rhu","rrhu","rrh"],
+	["Le","lte","lt"],
+	["Ra","rra","rr"],
+	["Ro","rdo","rd"],
+	["Brae","brae","br"],
+	["Rhi","rhi","rh"],
+	["Rlo","rlo","rl"],
+	["Trea","trea","tr"],
+	["Hro","hro","hr"],
+	["Gwi","gwi","gw"],
+	["Rae","rae","r"],
+	["Swoa","swoa","sw"],
+	["Bhea","bhea","bh"],
+	["Whu","whu","wh"],
+	["Ya","ya","y"],
+	["Tle","tle","tl"],
+	["Hwoa","hwoa","hw"],
+	["Llu","llu","ll"],
+	["Lea","lea","l"],
+	["Zla","zla","zl"],
+	["Ye","yye","yy"],
+	["Wo","wo","w"],
+	["Hlae","hlae","hl"],
+	["Dzli","dzli","dzl"]
+];
 
 // Roll a D-sided dice, resulting in a number from 1 to D.
 function rollD(sides) {
     return Math.round(Math.random() * (sides-1)) + 1;
+}
+
+// Get a normally distributed value from mean and stdev.
+// Source:  http://www.protonfish.com/random.shtml
+function rnd(mean, stdev) {
+	return Math.round(rnd_snd()*stdev+mean);
+
+	// Simulate a normal distribution with three random numbers:
+	function rnd_snd() {
+		return (Math.random()*2-1)+(Math.random()*2-1)+(Math.random()*2-1);
+	}
 }
 
 // *** begin personality type generation code ***
@@ -97,118 +178,45 @@ function getPTypeName(pType) { //apply label to personality type
 }
 // *** end personality type generation code ***
 
-// *** begin lame name generation ***
+// *** begin cool dwarf name generation ***
 function getname(person) {
     if (person.gender == "M") {
-	return getEffname();
+		return getMname(person);
     }
-    return getJalname();
+    return getFname(person);
+}
+
+function getMname(person) {
+	var roll1 = rollD(syllables.length) - 1;
+	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + syllables[0][2];
+}
+
+function getFname(person) {
+	var roll1 = rollD(syllables.length) - 1;
+	return syllables[roll1][0] + syllables[parseInt(person.clan)][1];
 }
 
 function getJalname() {
-    var syl = rollD(2) + rollD(2) + rollD(2) - 2;
-    var count = 0;
-    var jname = "";
-    while (count < syl) {
-	jname = jname + getSyl();
-	count++;
-    }
-    return jname;
-}
-
-function getSyl() {
-    var roll = rollD(75)-1;
-    var sylabs=["ka", "ki", "ku", "ke", "ko",
-		"a", "i", "u", "e", "o",
-		"ta", "chi", "tsu", "te", "to",
-		"ra", "ri", "ru", "re", "ro",
-		"sa", "shi", "su", "se", "so",
-		"ma", "mi", "mu", "me", "mo",
-		"ya", "ya", "yu", "yo", "yo",
-		"na", "ni", "nu", "ne", "no",
-		"ha", "hi", "hu", "he", "ho",
-		"ta", "chi", "tsu", "te", "to",
-		"ra", "ri", "ru", "re", "ro",
-		"sa", "shi", "su", "se", "so",
-		"ma", "mi", "mu", "me", "mo",
-		"wa", "wi", "wu", "we", "wo",
-		"n", "n", "n", "n", "n" ];
-    return sylabs[roll];
+	//return random masculine name
+	var roll1 = rollD(syllables.length) - 1;
+	var roll2 = rollD(syllables.length) - 1;
+	var roll3 = rollD(syllables.length) - 1;
+	return syllables[roll1][0] + syllables[roll2][1] + syllables[roll3][2];
 }
 
 function getEffname() {
-    var ccount = 0;
-    var vcount = 0;
-    var vanna = "";
-    var roll=0;
-    roll=rollD(6);
-    if (roll<4) {
-	vanna=get1vowel(); //does the name start with a vowel or a consonant?
-	vcount++;
-    }
-    else {
-	vanna=get1con();
-	ccount++;
-    }
-    var count = 0;
-    var letLength=rollD(6)+1; //sets length of name from 3 to 8 letters.
-    while (count < letLength)
-    {
-	if (ccount>1) {
-	    vanna=vanna+getvowels();	 //no more than 2 vowels or consonants together
-	    ccount=0;vcount++;
-	}
-	else if (vcount>1) {
-	    vanna=vanna+getcons();
-	    vcount=0;ccount++;
-	}
-	else {
-	    roll=0;
-	    roll=rollD(6);
-	    if (roll<4) {
-		vanna=vanna+getvowels();
-		vcount++;
-	    }
-	    else {
-		vanna=vanna+getcons();
-		ccount++;
-	    }
-	}
-	count++;
-    }
-    return(vanna);
+	//return random feminine name
+	var roll1 = rollD(syllables.length) - 1;
+	var roll2 = rollD(syllables.length) - 1;
+	return syllables[roll1][0] + syllables[roll2][1];
 }
 
-function get1vowel() { // The frequency of letters should roughly approximate their
-    var roll=0;				 // occurance in the English language.
-    roll=rollD(10)-1;
-    var firstvowel=["A","A","A","E","E","I","I","O","U","Y"];
-    return firstvowel[roll];
-}
-function get1con() {
-    var roll=0;
-    roll=rollD(30)-1;
-    var firstcon=["B","C","D","F","G","H","J","K","L","L","L","L","M","N","P","Q","R","R","R","R","S","S","S","T","V","W","X","Y","Y","Z"];
-    return firstcon[roll];
-}
-function getvowels() {
-    var roll=0;
-    roll=rollD(10)-1;
-    var vowels=["a","a","a","e","e","i","i","o","u","y"];
-    return vowels[roll];
-}
-function getcons() {
-    var roll=0;
-    roll=rollD(30)-1;
-    var cons=["b","c","d","f","g","h","j","k","l","l","l","l","m","n","p","q","r","r","r","r","s","s","s","t","v","w","x","y","y","z"];
-    return cons[roll];
-}
 function getNewName(pid) {
     var node = getNodeFromPid(pid);
     var person = getPersonFromNode(node);
     node.firstChild.firstChild.value = getname(person);
 }
-// *** end lame name generation **
+// *** end name generation **
 
 function getOppositeGender(gender) { // flip gender (for the spouse) if one is given
     var newgen = "";
@@ -220,9 +228,9 @@ function getOppositeGender(gender) { // flip gender (for the spouse) if one is g
     return newgen;
 }
 
-function randgen() { // random gender
+function randgen() { // random gender, weighted for dwarves
     var gen;
-    (rollD(6)<4) ? gen ="M" : gen="F";
+    (rollD(100)<RATE_male) ? gen ="M" : gen="F";
     return gen;
 }
 
@@ -244,30 +252,12 @@ function getbyear(married, gender) {
 }
 
 function getmage(gender) {
-    return Math.abs(getbyear(0,gender))
+    return Math.abs(getbyear(0,gender));
 }
 
 function getdage(myear , mage) { // get age they die at
-    var temp1a = rollD(20);
-    var temp1b = rollD(20);
-    var temp1;
-    (temp1a < temp1b) ? temp1=temp1a : temp1=temp1b; // temp1 is the low of 2d20
-
-    var temp2=rollD(8);
-
     var dage;
-    if (temp2<5) {  // 50% dies as a child or teenager
-	dage=temp1;
-    } // this is to shape the prob curve of deaths
-    else if (temp2<7) {
-	dage=temp1a+20;  // 25% die in their 20-30's
-    }
-    else if (temp2==7) { // 12.5% die in their 40-50's
-	dage=temp1a+40;
-    }
-    else if (temp2==8) { // 12.5% die in their 60-70's
-	dage=temp1a+60;
-    }
+	dage = rnd(MEAN_dage,STD_dage);
 
     if (dage && mage) {  // Generating spouse, so should be alive when married...
 	while (dage < mage) {   // if died before married, set to marriage.
@@ -306,7 +296,7 @@ function getKids(person, spouse) { // get kids
     var fertstart; // age of woman at time of marriage
     (person.gender=="F") ? fertstart=person.mage : fertstart=spouse.mage;
 
-    var newcolor=parseInt(spouse.gencolor)+1;
+    var newcolor=parseInt(spouse.generation)+1;
     if (newcolor==14){newcolor=1;}
 
     var yom=0;  // years of marriage
@@ -319,6 +309,10 @@ function getKids(person, spouse) { // get kids
 	    kid.pid = pid;
 
 	    kid.gender=randgen();
+		if (kid.gender == person.gender)
+			kid.clan = person.clan;
+		else 
+			kid.clan = spouse.clan;
 	    kid.name=getname(kid);
 
 	    kid.byear=spouse.myear + yom;
@@ -337,7 +331,7 @@ function getKids(person, spouse) { // get kids
 	    }
 
 	    kid.ptype=goGetPType();
-	    kid.gencolor=newcolor;
+	    kid.generation=newcolor;
 
 	    debug("kid.pid:" + kid.pid);
 	    displayPerson(kid);
@@ -374,7 +368,7 @@ function getPersonFromNode(personnode, pid) {
     debug('gPFN:' + pid);
     var newperson = new Object();
     newperson.pid = pid;
-    newperson.gencolor = personnode.className.substring(personnode.className.indexOf("r")+1,
+    newperson.generation = personnode.className.substring(personnode.className.indexOf("r")+1,
 							personnode.className.length);
 
     var node = personnode.firstChild;
@@ -414,7 +408,7 @@ function getSpouse(person) { // getFamily calls this
     spouse.pid = pid;
 
     spouse.gender=getOppositeGender(person.gender);
-
+	spouse.clan=rollD(syllables.length) - 1;
     spouse.name=getname(spouse);
 
     spouse.myear=person.myear;
@@ -426,7 +420,7 @@ function getSpouse(person) { // getFamily calls this
     spouse.dyear=spouse.byear+spouse.dage;
 
     spouse.ptype=goGetPType();
-    spouse.gencolor=person.gencolor;
+    spouse.generation=person.generation;
     return spouse;
 }
 
@@ -490,6 +484,17 @@ function toggleDebugTxt() {
     }
 }
 
+function getRequestParameter(name) {
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+    var regexS = "[\\?&]"+name+"=([^&#]*)";
+    var regex = new RegExp( regexS );
+    var results = regex.exec( window.location.href );
+    if( results == null )
+	return "";
+    else
+	return results[1];
+}
+
 var do_DEBUG = getRequestParameter("debug");
 var do_BFS = getRequestParameter("bfs");
 
@@ -524,6 +529,7 @@ function enableSeedUi() {
     disableCsvUi();
 
     document.getElementById("seedUi").style.display="block";
+	setSeedByDate();
 }
 
 function enableCsvUi() {
@@ -571,6 +577,7 @@ function populateLineage() {
     pid++;
     person.pid = pid;
 
+	person.clan = document.startform.clan1.value;
     (document.startform.gender1.value != "x") ?
 	person.gender = document.startform.gender1.value : person.gender = randgen();
     (document.startform.name1.value) ?
@@ -590,7 +597,7 @@ function populateLineage() {
     }
 
     person.ptype = goGetPType();
-    person.gencolor = 1;
+    person.generation = 1;
     
     displayPerson(person);
 
@@ -599,6 +606,9 @@ function populateLineage() {
     spouse.parentId = formNodeId(pid);
     pid++;
     spouse.pid = pid;
+
+	spouse.clan = document.startform.clan2.value;
+
     spouse.gender = getOppositeGender(person.gender);
     (document.startform.name2.value) ?
 	spouse.name=document.startform.name2.value : spouse.name = getname(spouse);
@@ -616,7 +626,7 @@ function populateLineage() {
     }
 
     spouse.ptype=goGetPType();
-    spouse.gencolor=1;
+    spouse.generation=1;
     displayPerson(spouse);
 
     // Generate their direct desendants ...
@@ -649,7 +659,7 @@ function displayPerson(person) { // create and append nodes with person info
     // Create a new element (a <UL/>, as it turns out) for the person.
     var personHtml = document.createElement("ul");
     personHtml.setAttribute("id",formNodeId(person.pid));
-    personHtml.className="color"+person.gencolor;
+    personHtml.className="color" + ( (parseInt(person.generation) - 1)%13 + 1);
 
     // Create the name (and rename UI)
     var namebox = document.createElement("input");
@@ -669,9 +679,9 @@ function displayPerson(person) { // create and append nodes with person info
     var colGender = appendColumn('gender', '',  person.gender);
     var colBorn = appendColumn('byear', 'lived ', person.byear);
     var colDied = appendColumn('dyear', '-', person.dyear);
-    var colWed = appendColumn('myear', ', married in year ', person.myear);
-    var colPop = appendColumn('mage', 'at age of ', person.mage);
-    var colRip = appendColumn('dage', ', passed at the age of ', person.dage);
+    var colWed = appendColumn('myear', ', married in the year ', person.myear);
+    var colPop = appendColumn('mage', 'at the age of ', person.mage);
+    var colRip = appendColumn('dage', ', passed away at the age of ', person.dage);
     var colPType = appendColumn('ptype', '. Personality:', person.ptype);
     var colGoals = appendColumn('goals', ' ', getPTypeName(person.ptype));
 
@@ -847,4 +857,19 @@ function addCsvRow(person, bloodline, spouse) {
     var rowtxt = buildCsvRow(person, bloodline, spouse);
     csvtxt.value += rowtxt;
 }
+
+function setSeedByDate() {
+	$("input#seed").val(new Date().getTime());
+}
+
+$( document ).ready(function() {
+	//initialize the form
+	setSeedByDate();
+	var appendage = "";
+	for  (var i = 0; i < syllables.length; i++) {
+		appendage = "<option value='" + i + "'>" + syllables[i][0];
+		$("select#clan1SELECT").append(appendage + "foaf</option>");
+		$("select#clan2SELECT").append(appendage + "khaekh</option>");
+	}
+});
 
