@@ -180,7 +180,7 @@ function getPTypeName(pType) { //apply label to personality type
 // *** begin cool dwarf name generation ***
 function getname(person) {
 	var roll1 = rollD(syllables.length) - 1;
-	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? syllables[0][2] : "");
+	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? syllables[parseInt(person.generation)%syllables.length][2] : "");
 }
 
 function getJalname() {
@@ -283,9 +283,6 @@ function getKids(person, spouse) { // get kids
     var fertstart; // age of woman at time of marriage
     (person.gender=="F") ? fertstart=person.mage : fertstart=spouse.mage;
 
-    var newcolor=parseInt(spouse.generation)+1;
-    if (newcolor==14){newcolor=1;}
-
     var yom=0;  // years of marriage
     while (yom <= mspan) {
 	if ( rollD(100) <= getfert(fertstart+yom) ) {
@@ -296,10 +293,13 @@ function getKids(person, spouse) { // get kids
 	    kid.pid = pid;
 
 	    kid.gender=randgen();
-		if (kid.gender == person.gender)
+		if (kid.gender == person.gender) {
 			kid.clan = person.clan;
-		else 
+			kid.generation = parseInt(person.generation) + 1;
+		} else { 
 			kid.clan = spouse.clan;
+			kid.generation = parseInt(spouse.generation) + 1;
+		}
 	    kid.name=getname(kid);
 
 	    kid.byear=spouse.myear + yom;
@@ -334,7 +334,6 @@ function getKids(person, spouse) { // get kids
 		}
 
 	    kid.ptype=goGetPType();
-	    kid.generation=newcolor;
 
 	    debug("kid.pid:" + kid.pid);
 	    displayPerson(kid);
@@ -371,14 +370,15 @@ function getPersonFromNode(personnode, pid) {
     debug('gPFN:' + pid);
     var newperson = new Object();
     newperson.pid = pid;
-    newperson.generation = personnode.className.substring(personnode.className.indexOf("r")+1,
-							personnode.className.length);
 
     var node = personnode.firstChild;
     newperson.name = node.firstChild.value;
     node = node.nextSibling;
 
     newperson.gender = node.firstChild.nextSibling.nodeValue;
+    node = node.nextSibling;
+
+    newperson.generation = parseInt(node.firstChild.nextSibling.nodeValue);
     node = node.nextSibling;
 
     newperson.clan = parseInt(node.firstChild.nextSibling.nodeValue);
@@ -415,6 +415,7 @@ function getSpouse(person) { // getFamily calls this
 
     spouse.gender=getOppositeGender(person.gender);
 	spouse.clan=rollD(syllables.length) - 1;
+    spouse.generation = person.generation;
     spouse.name=getname(spouse);
 
     spouse.myear=person.myear;
@@ -426,7 +427,6 @@ function getSpouse(person) { // getFamily calls this
     spouse.dyear=spouse.byear+spouse.dage;
 
     spouse.ptype=goGetPType();
-    spouse.generation=person.generation;
     return spouse;
 }
 
@@ -459,7 +459,7 @@ function getFamily(pid) {
 			newparent.myear = grief; // make sure remarriage date is correct
 			
 			if (newparent.myear <= newparent.dyear) {
-				var offspring = countKids(pid)
+				var offspring = countKids(pid);
 				debug("offspring:" + offspring);
 				var newchance;
 				switch(offspring) {
@@ -586,6 +586,9 @@ function populateLineage() {
 	person.clan = document.startform.clan1.value;
     (document.startform.gender1.value != "x") ?
 	person.gender = document.startform.gender1.value : person.gender = randgen();
+
+    person.generation = 1;
+
     (document.startform.name1.value) ?
 	person.name = document.startform.name1.value : person.name=getname(person);
     (document.startform.married1.value) ?
@@ -603,7 +606,6 @@ function populateLineage() {
     }
 
     person.ptype = goGetPType();
-    person.generation = 1;
     
     displayPerson(person);
 
@@ -614,6 +616,7 @@ function populateLineage() {
     spouse.pid = pid;
 
 	spouse.clan = document.startform.clan2.value;
+    spouse.generation = 1;
 
     spouse.gender = getOppositeGender(person.gender);
     (document.startform.name2.value) ?
@@ -632,7 +635,6 @@ function populateLineage() {
     }
 
     spouse.ptype=goGetPType();
-    spouse.generation=1;
     displayPerson(spouse);
 
     // Generate their direct desendants ...
@@ -683,6 +685,7 @@ function displayPerson(person) { // create and append nodes with person info
 
     // Add in the attributes for the person
     var colGender = appendColumn('gender', '',  person.gender);
+    var colGener = appendColumn('generation', 'Gen: ', person.generation);
     var colClan = appendColumn('clan', 'Clan: ', person.clan);
     var colBorn = appendColumn('byear', 'lived ', person.byear);
     var colDied = appendColumn('dyear', '- ', person.dyear);
@@ -693,6 +696,7 @@ function displayPerson(person) { // create and append nodes with person info
     var colGoals = appendColumn('goals', '', getPTypeName(person.ptype));
 
     personHtml.appendChild(colGender);
+    personHtml.appendChild(colGener);
     personHtml.appendChild(colClan);
     personHtml.appendChild(colBorn);
     personHtml.appendChild(colDied);
@@ -832,6 +836,7 @@ function buildCsvRow(person, peer, parent) {
     var pid = person.pid;
     var name = person.name;
     var gender = person.gender;
+    var gener = person.generation;
     var clan = person.clan;
     var byear = person.byear;
     var dyear = person.dyear;
@@ -846,7 +851,7 @@ function buildCsvRow(person, peer, parent) {
 	family = families++;
     }
 
-    var row = [pid, name, gender, clan, byear, dyear, myear,
+    var row = [pid, name, gender, gener, clan, byear, dyear, myear,
 	       mage, dage, ptype, peer, parent, family].join(',');
     // Adjusting this?  Adjust addCsvRow() below...
 
@@ -858,7 +863,7 @@ function addCsvRow(person, bloodline, spouse) {
     var csvtxt = document.getElementById('csvtxt');
     if (csvtxt.value.length == 0) {
 	// Adjust this?  Adjust buildCsvRow() above...
-	csvtxt.value = "# pid, name, gender, clan, byear, myear, mage, dage, ptype, peer, parent, family\n";
+	csvtxt.value = "# pid, name, gender, gener, clan, byear, myear, mage, dage, ptype, peer, parent, family\n";
     } else {
 	csvtxt.value += "\n";
     }
