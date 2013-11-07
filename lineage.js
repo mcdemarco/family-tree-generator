@@ -10,11 +10,10 @@
 
 // This version by M.C.DeMarco adds parameters for non-human or otherwise non-medieval family trees.
 
-var RATE_married = 97;
 var RATE_remarry_barren = 15;
 var RATE_remarry_single = 5;
 var RATE_remarry_heirs = 3;
-var RATE_bachelor = 4;  // %chance refuse to marry -- applies to both men and women.
+var RATE_bachelor_ette = 4;  //chance of refusal to marry, both sexes; otherwise married at available spouse rate
 
 var RATE_male = 75; // Male/female ratio at birth.  Should be 51% for humans.
 
@@ -180,20 +179,8 @@ function getPTypeName(pType) { //apply label to personality type
 
 // *** begin cool dwarf name generation ***
 function getname(person) {
-    if (person.gender == "M") {
-		return getMname(person);
-    }
-    return getFname(person);
-}
-
-function getMname(person) {
 	var roll1 = rollD(syllables.length) - 1;
-	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + syllables[0][2];
-}
-
-function getFname(person) {
-	var roll1 = rollD(syllables.length) - 1;
-	return syllables[roll1][0] + syllables[parseInt(person.clan)][1];
+	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? syllables[0][2] : "");
 }
 
 function getJalname() {
@@ -322,13 +309,29 @@ function getKids(person, spouse) { // get kids
 	    kid.mage = getmage(kid.gender);
 	    kid.myear = kid.byear + kid.mage;
 
-	    kid.family = true;
+	    //kid.family = true;
+	    if ((kid.myear > kid.dyear) || (rollD(100) <= RATE_bachelor_ette)) {
+			//voluntary or accidental non-marriage
+			kid.family = false;
+	    } else if (kid.gender == 'M') {
+			if (RATE_male > 50) {
+				kid.family = (rollD(100) <= (100 - RATE_male));
+			} else {
+				kid.family = true;
+			}
+		} else {//gender is F
+			if (RATE_male < 50) {
+				kid.family = (rollD(100) <= (RATE_male));
+			} else {
+				kid.family = true;
+			}
+		}
 
-	    if ((kid.myear > kid.dyear) || (rollD(100) <= RATE_bachelor)) {
-		kid.mage =null;
-		kid.myear =null;
-		kid.family =null;
-	    }
+		if (kid.family == false) {
+			kid.family = null;
+			kid.mage = null;
+			kid.myear = null;
+		}
 
 	    kid.ptype=goGetPType();
 	    kid.generation=newcolor;
@@ -376,6 +379,9 @@ function getPersonFromNode(personnode, pid) {
     node = node.nextSibling;
 
     newperson.gender = node.firstChild.nextSibling.nodeValue;
+    node = node.nextSibling;
+
+    newperson.clan = parseInt(node.firstChild.nextSibling.nodeValue);
     node = node.nextSibling;
 
     newperson.byear = parseInt(node.firstChild.nextSibling.nodeValue);
@@ -440,38 +446,38 @@ function getFamily(pid) {
     var newparent = getPersonFromPid(pid);
     debug("newparent:" + newparent);
 
-    if( rollD(100) > (100-RATE_married)) { // need to make sure marriage isn't automatic
-	var spouse = getSpouse(newparent); // get spouse
-	debug("new spouse");
-	debug("spouse.pid:" + spouse.pid);
-	displayPerson(spouse); // display spouse
-	getKids(newparent, spouse); // get kids
-
-	var grief = spouse.dyear;
-	while (newparent.dyear >= grief) { // check for remarriage until death
-	    grief += rollD(2)+rollD(2)+rollD(2)-2; // delay before remarriage
-	    newparent.myear = grief; // make sure remarriage date is correct
-
-	    if (newparent.myear <= newparent.dyear) {
-		var offspring = countKids(pid)
-		debug("offspring:" + offspring);
-		var newchance;
-		switch(offspring) {
-		case "0": newchance = (newparent.dyear - grief) * RATE_remarry_barren; break;
-		case "1": newchance = (newparent.dyear - grief) * RATE_remarry_single; break;
-		default: newchance = (newparent.dyear - grief) * RATE_remarry_heirs; break;
+    //if( rollD(100) > (100-RATE_married)) { // already did a marriage check to generate the family button
+		var spouse = getSpouse(newparent); // get spouse
+		debug("new spouse");
+		debug("spouse.pid:" + spouse.pid);
+		displayPerson(spouse); // display spouse
+		getKids(newparent, spouse); // get kids
+		
+		var grief = spouse.dyear;
+		while (newparent.dyear >= grief) { // check for remarriage until death
+			grief += rollD(2)+rollD(2)+rollD(2)-2; // delay before remarriage
+			newparent.myear = grief; // make sure remarriage date is correct
+			
+			if (newparent.myear <= newparent.dyear) {
+				var offspring = countKids(pid)
+				debug("offspring:" + offspring);
+				var newchance;
+				switch(offspring) {
+				case "0": newchance = (newparent.dyear - grief) * RATE_remarry_barren; break;
+				case "1": newchance = (newparent.dyear - grief) * RATE_remarry_single; break;
+				default: newchance = (newparent.dyear - grief) * RATE_remarry_heirs; break;
+				}
+				if(rollD(100) < newchance) {
+					debug("Remarried!");
+					spouse = getSpouse(newparent); // get spouse
+					debug("spouse.pid:" + spouse.pid);
+					displayPerson(spouse); // display spouse
+					getKids(newparent,spouse); // get kids
+					grief = spouse.dyear;
+				}
+			}
 		}
-		if(rollD(100) < newchance) {
-		    debug("Remarried!");
-		    spouse = getSpouse(newparent); // get spouse
-		    debug("spouse.pid:" + spouse.pid);
-		    displayPerson(spouse); // display spouse
-		    getKids(newparent,spouse); // get kids
-		    grief = spouse.dyear;
-		}
-	    }
-	}
-    }
+    //}
 }
 
 function toggleDebugTxt() {
@@ -641,8 +647,8 @@ function appendColumn(colclass, colname, colvalue) {
     var value = document.createTextNode(colvalue);
 
     var item = document.createElement('li');
-    item.appendChild(moniker)
-    item.appendChild(value)
+    item.appendChild(moniker);
+    item.appendChild(value);
 
     if (colvalue == null) {
 	item.style.display="none";
@@ -677,15 +683,17 @@ function displayPerson(person) { // create and append nodes with person info
 
     // Add in the attributes for the person
     var colGender = appendColumn('gender', '',  person.gender);
+    var colClan = appendColumn('clan', 'Clan: ', person.clan);
     var colBorn = appendColumn('byear', 'lived ', person.byear);
-    var colDied = appendColumn('dyear', '-', person.dyear);
-    var colWed = appendColumn('myear', ', married in the year ', person.myear);
+    var colDied = appendColumn('dyear', '- ', person.dyear);
+    var colWed = appendColumn('myear', '- married in the year ', person.myear);
     var colPop = appendColumn('mage', 'at the age of ', person.mage);
-    var colRip = appendColumn('dage', ', passed away at the age of ', person.dage);
-    var colPType = appendColumn('ptype', '. Personality:', person.ptype);
-    var colGoals = appendColumn('goals', ' ', getPTypeName(person.ptype));
+    var colRip = appendColumn('dage', ' died at the age of ', person.dage);
+    var colPType = appendColumn('ptype', '- MBTI: ', person.ptype);
+    var colGoals = appendColumn('goals', '', getPTypeName(person.ptype));
 
     personHtml.appendChild(colGender);
+    personHtml.appendChild(colClan);
     personHtml.appendChild(colBorn);
     personHtml.appendChild(colDied);
     personHtml.appendChild(colWed);
@@ -824,6 +832,7 @@ function buildCsvRow(person, peer, parent) {
     var pid = person.pid;
     var name = person.name;
     var gender = person.gender;
+    var clan = person.clan;
     var byear = person.byear;
     var dyear = person.dyear;
     var myear = person.myear;
@@ -837,7 +846,7 @@ function buildCsvRow(person, peer, parent) {
 	family = families++;
     }
 
-    var row = [pid, name, gender, byear, dyear, myear,
+    var row = [pid, name, gender, clan, byear, dyear, myear,
 	       mage, dage, ptype, peer, parent, family].join(',');
     // Adjusting this?  Adjust addCsvRow() below...
 
@@ -849,7 +858,7 @@ function addCsvRow(person, bloodline, spouse) {
     var csvtxt = document.getElementById('csvtxt');
     if (csvtxt.value.length == 0) {
 	// Adjust this?  Adjust buildCsvRow() above...
-	csvtxt.value = "# pid, name, gender, byear, myear, mage, dage, ptype, peer, parent, family\n";
+	csvtxt.value = "# pid, name, gender, clan, byear, myear, mage, dage, ptype, peer, parent, family\n";
     } else {
 	csvtxt.value += "\n";
     }
