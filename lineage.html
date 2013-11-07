@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>Random Family Tree Generator</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <link rel="stylesheet" type="text/css" href="lineage.css"/>
+<!-- A seedable random number generator that replaces Math.Random().  Allows reproducible trees. -->
+<script language="JavaScript" src="http://davidbau.com/encode/seedrandom.js"></script>
+<script language="JavaScript" src="lineage.js"></script>
+      </head>
+      <body>
+        <h1 align="center">Random Family Tree Generator 1.3</h1>
+        <div id="intro">Have a long lineage of kings you need to flesh out, or perhaps a character with a big family and you need to figure out how big?	This tool may be able to help.	If you have a patriarch/matriarch in mind, just put in as much information you have and click on "generate".	The program will fill in the rest of their biographic information and determine their offspring using pre-modern actuarial information.	 (At least the best I could find.)	The tool includes a (very) crude name generator and will randomly generate a <a href="http://en.wikipedia.org/wiki/Myers-Briggs_Type_Indicator">Myers-Briggs Type Indicator</a> to help give some feel of what these people might be like. (In the case of royal dynasties this may help describe the nature of their rule.)</div>
+
+        <!-- This is where the lineage tree gets hooked on: -->
+        <div id="lineageUi" style="display:none">
+          <form action="#" method="post" name="reseedform">
+            <input name="reseed" type="button" value="Reseed"
+                   onclick="enableSeedUi();" />
+          </form>
+          <div id="person0"></div>
+          <form action="#" method="post" name="csvform">
+            <input name="csv" type="button" value="CSV"
+                   onclick="enableCsvUi(); populateCsv()" />
+          </form>
+        </div>
+
+        <!-- This is where the CSV textfield is populated: -->
+        <div id="csvUi" style="display:none">
+          <textarea id="csvtxt" cols="80" rows="25"></textarea>
+          <form action="#" method="post" name="lineageform">
+            <input name="lineage" type="button" value="Tree"
+                   onclick="enableLineageUi();" />
+          </form>
+        </div>
+
+        <!-- This is where the geneology settings are controlled: -->
+        <div id="seedUi">
+          <form action="#" method="post" name="startform">
+            <p>Name1: <input name="name1" type="text" /> Gender: <select name="gender1" ><option value="x" selected="selected">?</option><option value="M">M</option><option value="F">F</option></select> Year Born: <input name="born1" type="text" size="4" /> Year Married: <input name="married1" type="text" size="4" /> Year Died: <input name="died1" type="text" size="4" /></p>
+            <p>Name2: <input name="name2" type="text" /> Year Born: <input name="born2" type="text" size="4" /> Year Died: <input name="died2" type="text" size="4" /></p>
+            <p>Random Sequence: <input id="seed" name="seed" type="text" value="1122334332211"/></p>
+            <input name="generate" type="button" value="Generate"
+                   onclick="enableLineageUi(); populateLineage();" />
+          </form>
+        </div>
+        <div id="footer"><a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/"><img alt="Creative Commons License" style="border-width:0" src="http://creativecommons.org/images/public/somerights20.png" align="left" /></a> &nbsp;&nbsp;<span xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/InteractiveResource" property="dc:title" rel="dc:type"> Random Family Tree  Generator 1.3</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://ja.partridgez.com" property="cc:attributionName" rel="cc:attributionURL">Jeff Partridge</a> and <a xmlns:cc="http://creativecommons.org/ns#" href="http://ja.partridgez.com" property="cc:attributionName" rel="cc:attributionURL">Todd Stumpf</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">Creative Commons Attribution-Noncommercial-Share Alike 3.0 United States License</a>.</div>
+        <div id="debuglog" style="display:none">
+          <form action="#" method="post" name="debugform">
+            <input name="togglelog" type="button" value="debug.txt"
+                   onclick="toggleDebugTxt();" />
+          </form>
+          <div id="debugtxt" style="display:none; background-color:#AAA">start()<br/></div>
+        </div>
+      </body>
+    </html>
