@@ -43,7 +43,7 @@ ul a {text-decoration:none;
 .color13 {background-color:#f99;}
 
 #footer {
-          position:absolute;
+          position:relative;
           bottom:0px;
           left:0px;
           right:0px;
@@ -60,6 +60,10 @@ ul a {text-decoration:none;
                                     color:#900;
                                     }
 
-#footer a:hover, #footer a:active{color:#f54242;}
+#footer a:hover, #footer a:active {color:#f54242;}
 
 .goals, .clan, .generation {display:none;}
+
+div#nameTables table table {border: 2px solid #7ebb9c; border-radius:5px;background-color: #efe;}
+
+div#nameTables table table table {background-color: white;}

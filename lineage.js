@@ -543,7 +543,7 @@ function enableLineageUi() {
     enableDebugUi();
 
     debug("enableLineageUI()");
-    disableSeedUi();
+    //disableSeedUi();
     disableCsvUi();
 
     document.getElementById("lineageUi").style.display="block";
@@ -894,6 +894,30 @@ function addCsvRow(person, bloodline, spouse) {
 
 function setSeedByDate() {
 	$("input#seed").val(new Date().getTime());
+}
+
+function generateNameTable() {
+	var table = "<table>";
+	for (i=0; i<syllables.length; i++) {
+		if (i%8 == 0) table = table + "<tr>";
+		table = table + "<td><table>";
+		for (j=0; j<syllables.length; j++) {
+			if (j%8 == 0) table = table + "<tr>";
+			var tableId = "table-" + i + "-" + j;
+			table = table + "<td><span onclick='$(\"#" + tableId + "\").show()" + "'>" + syllables[j][0] + syllables[i][1] + "</span><table id = '" + tableId + "' style='display:none;' onclick='$(\"#" + tableId + "\").hide();'>";
+			for (k=0; k<syllables.length; k++) {
+				if (k%8 == 0) table = table + "<tr>";
+				table = table + "<td>" + syllables[j][0] + syllables[i][1] + syllables[k][2] + "</td>";
+				if (k%8 == 7) table = table + "</tr>";
+			}
+			table = table + "</table></td>";
+			if (j%8 == 7) table = table + "</tr>";
+		}
+		table = table + "</table></td>";
+		if (i%8 == 7) table = table + "</tr>";
+	}
+	table = table + "</table>";
+	$("div#nameTables").append(table);
 }
 
 $( document ).ready(function() {
