@@ -247,17 +247,16 @@ function getdage(myear , mage) { // get age they die at
 	dage = rnd(MEAN_dage,STD_dage);
 
     if (dage && mage) {  // Generating spouse, so should be alive when married...
-	while (dage < mage) {   // if died before married, set to marriage.
-	    dage = mage;
-	}
+		while (dage < mage) {   // if died before married, set to marriage.
+			dage = mage;
+		}
     }
-
-    var death = dage;
-    return death;
+    return dage;
 }
 
-function getfert(fertyear) { // return fertility based on age
+function getfert(fertyear, girl) { // return fertility based on age
     var chance = 0;
+/*
     if (fertyear<14) {chance=10;}
     if (fertyear==14) {chance=20;}
     if (fertyear==15) {chance=40;}
@@ -269,8 +268,26 @@ function getfert(fertyear) { // return fertility based on age
     if (fertyear>40 && fertyear<45) {chance=20;}
     if (fertyear>44) {chance=3;}
     if (fertyear>52) {chance=1;}  // Only non-zero because of magic.
-
-    return chance;
+*/
+	if (fertyear > 16 && fertyear <= 20) chance = 10;
+	if (fertyear > 20 && fertyear <= 24) chance = 20;
+	if (fertyear > 24 && fertyear <= 28) chance = 30;
+	if (fertyear > 28 && fertyear <= 30) chance = 60;
+	if (fertyear > 30 && fertyear <= 32) chance = 80;
+	if (fertyear > 32 && fertyear <= 48) chance = 98;
+	if (fertyear > 48 && fertyear <= 64) chance = 80;
+	if (fertyear > 64 && fertyear <= 96) chance = 60;
+	if (fertyear > 96 && fertyear <= 110) chance = 40;
+	if (fertyear > 110 && fertyear <= 128) chance = 30;
+	if (fertyear > 128 && fertyear <= 146) chance = 20;
+	if (fertyear > 146 && fertyear <= 164) chance = 10;
+	if (fertyear > 164 && fertyear <= 200) chance = 5;
+	if (fertyear > 200 && fertyear <= 236) chance = 3;
+	if (fertyear > 236) chance = 1;
+	if (girl > 0)
+		return chance/(8 * girl);
+	else
+		return chance;
 }
 
 function getKids(person, spouse) { // get kids
@@ -284,8 +301,9 @@ function getKids(person, spouse) { // get kids
     (person.gender=="F") ? fertstart=person.mage : fertstart=spouse.mage;
 
     var yom=0;  // years of marriage
+	var girl=0;
     while (yom <= mspan) {
-	if ( rollD(100) <= getfert(fertstart+yom) ) {
+	if ( rollD(100) <= getfert(fertstart+yom,girl) ) {
 	    var kid = new Object();
 
 	    kid.parentId = formNodeId(spouse.pid);
@@ -293,6 +311,8 @@ function getKids(person, spouse) { // get kids
 	    kid.pid = pid;
 
 	    kid.gender=randgen();
+		if (kid.gender == 'F')
+			girl = girl + 1;
 		if (kid.gender == person.gender) {
 			kid.clan = person.clan;
 			kid.generation = parseInt(person.generation) + 1;
@@ -338,7 +358,7 @@ function getKids(person, spouse) { // get kids
 	    debug("kid.pid:" + kid.pid);
 	    displayPerson(kid);
 
-	    yom += rollD(2)+rollD(2)+rollD(2)-2;  // delay before trying for kid.
+	    yom += 8 + rollD(8);  // delay before trying for another kid.
 	}
 	yom++;
     }
@@ -686,7 +706,7 @@ function displayPerson(person) { // create and append nodes with person info
     // Add in the attributes for the person
     var colGender = appendColumn('gender', '',  person.gender);
     var colGener = appendColumn('generation', 'Gen: ', person.generation);
-    var colClan = appendColumn('clan', 'Clan: ', person.clan);
+    var colClan = appendColumn('clan', 'Clan: ' + syllables[parseInt(person.clan)][0] + (person.gender == 'M' ? "foaf" : "khaekh") + " -", person.clan);
     var colBorn = appendColumn('byear', 'lived ', person.byear);
     var colDied = appendColumn('dyear', '- ', person.dyear);
     var colWed = appendColumn('myear', '- married in the year ', person.myear);

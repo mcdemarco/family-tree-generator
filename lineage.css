@@ -1,5 +1,6 @@
 body {
        background-color:#dfd;
+       overflow:auto;
        }
 
 #intro {
@@ -61,3 +62,4 @@ ul a {text-decoration:none;
 
 #footer a:hover, #footer a:active{color:#f54242;}
 
+.goals, .clan, .generation {display:none;}
