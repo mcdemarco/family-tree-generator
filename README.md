@@ -13,6 +13,10 @@ https://code.google.com/p/random-family-tree-generator/wiki/TODO
 This version by M.C.DeMarco will eventually support non-human or otherwise non-medieval family trees,
 but for the moment I recommend using one of the original versions.
 
+Tree style adapted from http://thecodeplayer.com/walkthrough/css3-family-tree, 
+http://thecodeplayer.com/experiments/css3-family-tree-multiple-parents.html.
+
+
 Licensing
 =========
 

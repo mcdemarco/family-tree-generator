@@ -13,52 +13,39 @@
         <h1 align="center">Dwerrow Family Tree Generator 1.0</h1>
         <div id="intro">Enter (optional) information about a patriarch and/or matriarch, then click the Generate button to create their family tree.  Names will be generated automatically along with a random personality type from the <a href="http://en.wikipedia.org/wiki/Myers-Briggs_Type_Indicator">Myers-Briggs Type Indicator</a>.</div>
 
-
-
         <!-- This is where the geneology settings are controlled: -->
         <div id="seedUi">
           <form action="#" method="post" name="startform">
-            <p>Name1: <input name="name1" type="text" /> Gender: <select name="gender1" ><option value="x" selected="selected">?</option><option value="M">M</option><option value="F">F</option></select> Year Born: <input name="born1" type="text" size="4" /> Year Married: <input name="married1" type="text" size="4" /> Year Died: <input name="died1" type="text" size="4" /> Clan: <select name="clan1" id="clan1SELECT"></select></p>
-            <p>Name2: <input name="name2" type="text" /> Year Born: <input name="born2" type="text" size="4" /> Year Died: <input name="died2" type="text" size="4" /> Clan: <select name="clan2" id="clan2SELECT"></select></p>
-            <p>Random Seed: <input id="seed" name="seed" type="text" value="112233332211"/></p>
-            <input name="generate" type="button" value="Generate"
-                   onclick="enableLineageUi(); populateLineage();" />
+            <p>P/Matriarch: <input name="name1" type="text" /> Gender: <select name="gender1" ><option value="x" selected="selected">?</option><option value="M">M</option><option value="F">F</option></select> Year Born: <input name="born1" type="text" size="4" /> Year Married: <input name="married1" type="text" size="4" /> Year Died: <input name="died1" type="text" size="4" /> Clan: <select name="clan1" id="clan1SELECT"></select>
+            <br>Spouse: <input name="name2" type="text" /> Year Born: <input name="born2" type="text" size="4" /> Year Died: <input name="died2" type="text" size="4" /> Clan: <select name="clan2" id="clan2SELECT"></select> <span style="padding-left:10%;white-space:nowrap;">Random Seed: <input id="seed" name="seed" type="text" value="112233332211"/></span> <button onclick="enableSeedUi();">Reseed</button></p>
           </form>
-	  <button onclick="generateNameTable();">View Names</button>
+          <button name="generate" onclick="enableLineageUi(); populateLineage();">Generate</button>
+	  <button id="namesButton" onclick="generateNameTable();">View Names</button>
+	  <span class="resultsUi" style="display:none;">
+	    <button onclick="enableLineageUi();">Show List</button>
+            <button onclick="enableTreeUi();">Show Tree</button>
+            <button onclick="enableCsvUi();">Show CSV</button>
+            <input name="csvTree" type="radio" value="DFS" checked="checked">DFS</input>
+            <input name="csvTree" type="radio" value="BFS">BFS</input>
+ 	  </span>
         </div>
 
         <!-- This is where the lineage tree gets hooked on: -->
-        <div id="lineageUi" style="display:none">
-          <form action="#" method="post" name="reseedform">
-            <input name="reseed" type="button" value="Reseed"
-                   onclick="enableSeedUi();" />
-          </form>
-          <div id="person0"></div>
-          <form action="#" method="post" name="csvform">
-            <input name="csv" type="button" value="CSV"
-                   onclick="enableCsvUi(); populateCsv()" />
-          </form>
-        </div>
-
-        <!-- This is where the CSV textfield is populated: -->
-        <div id="csvUi" style="display:none">
-          <textarea id="csvtxt" cols="80" rows="25"></textarea>
-          <form action="#" method="post" name="lineageform">
-            <input name="lineage" type="button" value="Tree"
-                   onclick="enableLineageUi();" />
-          </form>
+        <div class="resultsUi" style="display:none;">
+	  <hr/>
+          <div id="lineageUi" class="list" style="display:none;">
+            <div id="person0"></div>
+          </div>
+          <div id="treeUi" class="tree" style="display:none;"></div>
+          <div id="csvUi" style="display:none;">
+            <!-- This is where the CSV textfield is populated: -->
+            <textarea id="csvtxt" cols="80" rows="25"></textarea>
+          </div>
         </div>
 
 	<!-- This is where the nameset can be seen/manipulated. -->
 	<div id="nameTables"></div>
 
         <div id="footer">Based on <span xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/InteractiveResource" property="dc:title" rel="dc:type"> <a href="https://code.google.com/p/random-family-tree-generator/">Random Family Tree  Generator 1.3</a></span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://ja.partridgez.com" property="cc:attributionName" rel="cc:attributionURL">Jeff Partridge</a> and <a xmlns:cc="http://creativecommons.org/ns#" href="http://ja.partridgez.com" property="cc:attributionName" rel="cc:attributionURL">Todd Stumpf</a>.  The source code is available at <a href="https://github.com/mcdemarco/family-tree-generator">github</a>. <br/> Myers-Briggs Type Indicator, Myers-Briggs, and MBTI are trademarks or registered trademarks of the MBTI<sup>&reg;</sup> Trust, Inc., in the United States and other countries.</div>
-        <div id="debuglog" style="display:none">
-          <form action="#" method="post" name="debugform">
-            <input name="togglelog" type="button" value="debug.txt"
-                   onclick="toggleDebugTxt();" />
-          </form>
-          <div id="debugtxt" style="display:none; background-color:#AAA">start()<br/></div>
-        </div>
       </body>
     </html>

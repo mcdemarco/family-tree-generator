@@ -9,6 +9,9 @@
 // Creative Commons Attribution-Noncommercial-Share Alike-3.0 United States License
 
 // This version by M.C.DeMarco adds parameters for non-human or otherwise non-medieval family trees.
+// Tree style from http://thecodeplayer.com/walkthrough/css3-family-tree
+// http://thecodeplayer.com/experiments/css3-family-tree-multiple-parents.html.
+
 
 var RATE_remarry_barren = 15;
 var RATE_remarry_single = 5;
@@ -17,10 +20,17 @@ var RATE_bachelor_ette = 4;  //chance of refusal to marry, both sexes; otherwise
 
 var RATE_male = 75; // Male/female ratio at birth.  Should be 51% for humans.
 
+var MIN_fmage = 16; // Minimum age of marriage; cut off below this.
+var MEAN_fmage = 32; // Average age of marriage on a normal curve. % should be 13-21 for medieval human women
+var STD_fmage = 5; // Standard deviation in age of marriage.
+var MIN_mmage = 16; // Minimum age of marriage; cut off below this.
+var MEAN_mmage = 36; // Average age of marriage on a normal curve.
+var STD_mmage = 10; // Standard deviation in age of marriage.
+
 var MEAN_dage = 256; // Average age of death on a normal curve.
 var STD_dage = 36; // Standard deviation in age of death.
 
-//To do: incorporate odds of premature death:
+//To do: incorporate odds of human premature death:
 // 50% dies as a child or teenager
 // 25% die in their 20-30's
 // 12.5% die in their 40-50's
@@ -28,6 +38,8 @@ var STD_dage = 36; // Standard deviation in age of death.
 
 var pid = 0;     // keeps track of each persons ID
 var lcolor = 0;	 // background color for each generation
+
+var linData = [];
 
 var syllables = [
 	["'A","'a","'"],
@@ -183,27 +195,27 @@ function getname(person) {
 	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? syllables[parseInt(person.generation)%syllables.length][2] : "");
 }
 
-function getJalname() {
-	//return random masculine name
-	var roll1 = rollD(syllables.length) - 1;
-	var roll2 = rollD(syllables.length) - 1;
-	var roll3 = rollD(syllables.length) - 1;
-	return syllables[roll1][0] + syllables[roll2][1] + syllables[roll3][2];
-}
-
-function getEffname() {
-	//return random feminine name
-	var roll1 = rollD(syllables.length) - 1;
-	var roll2 = rollD(syllables.length) - 1;
-	return syllables[roll1][0] + syllables[roll2][1];
-}
-
 function getNewName(pid) {
     var node = getNodeFromPid(pid);
     var person = getPersonFromNode(node);
     node.firstChild.firstChild.value = getname(person);
 }
 // *** end name generation **
+
+
+// Random number functions
+
+function randgen() { // random gender, weighted for dwarves
+    var gen;
+    (rollD(100)<RATE_male) ? gen ="M" : gen="F";
+    return gen;
+}
+
+function randclan() { // random clan
+    return rollD(syllables.length) - 1;
+}
+
+//Person construction functions
 
 function getOppositeGender(gender) { // flip gender (for the spouse) if one is given
     var newgen = "";
@@ -215,31 +227,18 @@ function getOppositeGender(gender) { // flip gender (for the spouse) if one is g
     return newgen;
 }
 
-function randgen() { // random gender, weighted for dwarves
-    var gen;
-    (rollD(100)<RATE_male) ? gen ="M" : gen="F";
-    return gen;
-}
-
-// Determine birth year based on year of marriage and person's gender
-function getbyear(married, gender) {
-    var mage;
-
-    mage = rollD(9)+12; // women (who are likely to produce progeny) marry from age 13-21
-
-    if (gender=="M") {	 // if male, potentially add a few years
-	for (var i=0; i < 5; i++) {
-	    mage += rollD(4)-1;
-	}
-    }
-
-    var birth = married - mage;
-
-    return birth;
-}
-
 function getmage(gender) {
-    return Math.abs(getbyear(0,gender));
+    var mage;
+    if (gender=="M") {	 // if male, potentially add a few years
+		mage = rnd(MEAN_mmage,STD_mmage);
+		if (mage < MIN_mmage) 
+			mage = MIN_mmage;
+    } else {
+		mage = rnd(MEAN_fmage,STD_fmage); // women 
+		if (mage < MIN_fmage) 
+			mage = MIN_fmage;
+	}
+	return mage;
 }
 
 function getdage(myear , mage) { // get age they die at
@@ -256,7 +255,7 @@ function getdage(myear , mage) { // get age they die at
 
 function getfert(fertyear, girl) { // return fertility based on age
     var chance = 0;
-/*
+/* humans
     if (fertyear<14) {chance=10;}
     if (fertyear==14) {chance=20;}
     if (fertyear==15) {chance=40;}
@@ -306,7 +305,7 @@ function getKids(person, spouse) { // get kids
 	if ( rollD(100) <= getfert(fertstart+yom,girl) ) {
 	    var kid = new Object();
 
-	    kid.parentId = formNodeId(spouse.pid);
+	    kid.parentId = spouse.pid;
 	    pid++;
 	    kid.pid = pid;
 
@@ -355,8 +354,8 @@ function getKids(person, spouse) { // get kids
 
 	    kid.ptype=goGetPType();
 
-	    debug("kid.pid:" + kid.pid);
 	    displayPerson(kid);
+		linData[pid-1] = kid;
 
 	    yom += 8 + rollD(8);  // delay before trying for another kid.
 	}
@@ -366,7 +365,7 @@ function getKids(person, spouse) { // get kids
 
 // Recover a 'person' node from HTML based on its pid
 function getNodeFromPid(pid) {
-    return document.getElementById(formNodeId(pid));
+    return document.getElementById("person" + pid);
 }
 
 // Recover a 'person' object from the HTML properties/attributes/elements.
@@ -376,18 +375,17 @@ function getPersonFromPid(pid) { // recreate person info from text nodes
 }
 
 function getPidFromNode(node) {
-    return node.id.slice(formNodeId("").length); 
+    return node.id.slice(("person").length); 
 }
 
 function getPersonFromNode(personnode, pid) {
     if (personnode.nodeName != "UL"  ) {
-	debug("person built from node that wasn't UL ..." + personnode.nodeName);
+	console.log("person built from node that wasn't UL ..." + personnode.nodeName);
     }
     if (!pid) {
 	pid = getPidFromNode(personnode);
     }
 
-    debug('gPFN:' + pid);
     var newperson = new Object();
     newperson.pid = pid;
 
@@ -428,48 +426,46 @@ function getPersonFromNode(personnode, pid) {
 function getSpouse(person) { // getFamily calls this
     var spouse = new Object();
 
-    spouse.parentId = formNodeId(person.pid);
+    spouse.parentId = person.pid;
+    spouse.spouseId = person.pid;
 
     pid++;
     spouse.pid = pid;
 
-    spouse.gender=getOppositeGender(person.gender);
-	spouse.clan=rollD(syllables.length) - 1;
+    spouse.gender = getOppositeGender(person.gender);
+	spouse.clan = randclan();
     spouse.generation = person.generation;
-    spouse.name=getname(spouse);
+    spouse.name = getname(spouse);
 
-    spouse.myear=person.myear;
-    spouse.byear=getbyear(spouse.myear,spouse.gender);
+    spouse.myear = person.myear;
+	spouse.mage = getmage(spouse.gender);
+    spouse.byear = spouse.myear - spouse.mage;
 
-    spouse.mage=spouse.myear-spouse.byear;
+    spouse.dage = getdage(spouse.myear,spouse.mage);
+    spouse.dyear = spouse.byear+spouse.dage;
 
-    spouse.dage=getdage(spouse.myear,spouse.mage);
-    spouse.dyear=spouse.byear+spouse.dage;
+    spouse.ptype = goGetPType();
 
-    spouse.ptype=goGetPType();
+	linData[pid-1] = spouse;
     return spouse;
 }
 
 // Determine current number of kids for parent
 function countKids(pid) {
-    var node = document.getElementById(formNodeId(pid));
+    var node = document.getElementById("person" + pid);
     return (node.childNodes.length - 5);
 }
 
 // Generate a person's geneological contribution to the family tree,
 // including children and remarriages (and further children).
 function getFamily(pid) {
-    debug("getFamily:"+ pid);
     // As we are generating their descendents, hide their 'generate' button
     document.getElementById("family"+pid).style.display="none";
 
     var newparent = getPersonFromPid(pid);
-    debug("newparent:" + newparent);
 
     //if( rollD(100) > (100-RATE_married)) { // already did a marriage check to generate the family button
 		var spouse = getSpouse(newparent); // get spouse
-		debug("new spouse");
-		debug("spouse.pid:" + spouse.pid);
 		displayPerson(spouse); // display spouse
 		getKids(newparent, spouse); // get kids
 		
@@ -480,7 +476,6 @@ function getFamily(pid) {
 			
 			if (newparent.myear <= newparent.dyear) {
 				var offspring = countKids(pid);
-				debug("offspring:" + offspring);
 				var newchance;
 				switch(offspring) {
 				case "0": newchance = (newparent.dyear - grief) * RATE_remarry_barren; break;
@@ -488,9 +483,8 @@ function getFamily(pid) {
 				default: newchance = (newparent.dyear - grief) * RATE_remarry_heirs; break;
 				}
 				if(rollD(100) < newchance) {
-					debug("Remarried!");
+					console.log("Remarried!");
 					spouse = getSpouse(newparent); // get spouse
-					debug("spouse.pid:" + spouse.pid);
 					displayPerson(spouse); // display spouse
 					getKids(newparent,spouse); // get kids
 					grief = spouse.dyear;
@@ -498,16 +492,6 @@ function getFamily(pid) {
 			}
 		}
     //}
-}
-
-function toggleDebugTxt() {
-    var debugtxt = document.getElementById("debugtxt");
-    var style = debugtxt.style.display;
-    if (style == "block") {
-	debugtxt.style.display = "none";
-    } else {
-	debugtxt.style.display ="block";	
-    }
 }
 
 function getRequestParameter(name) {
@@ -521,65 +505,52 @@ function getRequestParameter(name) {
 	return results[1];
 }
 
-var do_DEBUG = getRequestParameter("debug");
-var do_BFS = getRequestParameter("bfs");
-
-function debug(output) {
-    if (do_DEBUG) {
-	var debugtxt = document.getElementById("debugtxt");
-	var line = document.createTextNode(output + "\n");
-	debugtxt.appendChild(line);
-	debugtxt.appendChild(document.createElement("br"));
-    }
-}
-
-function enableDebugUi() {
-    if (do_DEBUG) {
-	document.getElementById("debuglog").style.display="block";
-    }
-}
-
 function enableLineageUi() {
-    enableDebugUi();
-
-    debug("enableLineageUI()");
+	$(".resultsUi").show();
     //disableSeedUi();
     disableCsvUi();
 
-    document.getElementById("lineageUi").style.display="block";
+    $("#lineageUi").show();
 }
 
 function enableSeedUi() {
-    debug("enableSeedUi()");
     disableLineageUi();
     disableCsvUi();
 
-    document.getElementById("seedUi").style.display="block";
+    $("#seedUi").show();
 	setSeedByDate();
 }
 
 function enableCsvUi() {
-    enableDebugUi();
-
-    debug("enableCsvUi()");
     disableLineageUi();
     disableSeedUi();
 
-    document.getElementById("csvUi").style.display="block";
+    $("#csvUi").show();
+	if ($("#csvtxt").val() == "")
+		populateCsv();
+}
+
+function enableTreeUi() {
+    disableLineageUi();
+    disableCsvUi();
+    $("#intro").hide();
+    $("#footer").hide();
+
+    $("#treeUi").show();
 }
 
 function disableCsvUi() {
-    document.getElementById("csvUi").style.display="none";
+    $("#csvUi").hide();
 }
 
 function disableLineageUi() {
-    document.getElementById("lineageUi").style.display="none";
+    $("#lineageUi").hide();
 }
 
 function disableSeedUi() {
-    document.getElementById("seedUi").style.display="none";
-    document.getElementById("intro").style.display="none";
-    document.getElementById("footer").style.display="none";
+    $("#seedUi").hide();
+    //$("#intro").hide();
+    //$("#footer").hide();
 }
 
 // populateLineage():
@@ -591,71 +562,78 @@ function populateLineage() {
 
     // Clear out the lineage...
     pid = 0;
+	linData = [];
     var oldLineage = getNodeFromPid(pid);
     var newLineage = document.createElement("div");
-    newLineage.id =  formNodeId(pid);
+    newLineage.id =  "person" + pid;
     oldLineage.parentNode.replaceChild(newLineage, oldLineage);
 
     // Read in form data for person #1, add them to top of lineage chart.
     var person = new Object();
-    person.parentId = formNodeId(pid);
+    person.parentId = pid;
 
     pid++;
     person.pid = pid;
 
-	person.clan = document.startform.clan1.value;
-    (document.startform.gender1.value != "x") ?
-	person.gender = document.startform.gender1.value : person.gender = randgen();
-
+	person.clan = (document.startform.clan1.value > -1) ? document.startform.clan1.value : randclan();
+	person.gender = (document.startform.gender1.value != "x") ? document.startform.gender1.value : randgen();
     person.generation = 1;
+    person.name = (document.startform.name1.value) ? document.startform.name1.value : getname(person);
+    person.byear = (document.startform.born1.value) ? parseInt(document.startform.born1.value) : 0;
 
-    (document.startform.name1.value) ?
-	person.name = document.startform.name1.value : person.name=getname(person);
-    (document.startform.married1.value) ?
-	person.myear = parseInt(document.startform.married1.value) : person.myear = 0;
-    (document.startform.born1.value) ?
-	person.byear = parseInt(document.startform.born1.value) : person.byear = getbyear(person.myear,
-											  person.gender);
-    person.mage = person.myear - person.byear;
+	if (document.startform.married1.value) {
+		person.myear = document.startform.married1.value;
+		person.mage = person.myear - person.byear;
+	} else {
+		person.mage = getmage(person.gender);
+		person.myear = person.byear + person.mage;
+	}
+
     if (document.startform.died1.value) {
-	person.dyear = parseInt(document.startform.died1.value);
-	person.dage = person.dyear - person.byear;
+		person.dyear = parseInt(document.startform.died1.value);
+		person.dage = person.dyear - person.byear;
     } else {
-	person.dage = getdage(person.myear, person.mage);
-	person.dyear = person.byear + person.dage;
+		person.dage = getdage(person.myear, person.mage);
+		person.dyear = person.byear + person.dage;
     }
 
     person.ptype = goGetPType();
     
     displayPerson(person);
+	linData[pid-1] = person;
 
     // Read in (or produce) person #2, their spouse, and add them to the chart.
     var spouse = new Object();
-    spouse.parentId = formNodeId(pid);
+    spouse.parentId = pid;
+    spouse.spouseId = pid;
     pid++;
     spouse.pid = pid;
 
-	spouse.clan = document.startform.clan2.value;
+	spouse.clan = (document.startform.clan2.value > -1) ? document.startform.clan2.value : randclan();
     spouse.generation = 1;
 
     spouse.gender = getOppositeGender(person.gender);
-    (document.startform.name2.value) ?
-	spouse.name=document.startform.name2.value : spouse.name = getname(spouse);
+    spouse.name = (document.startform.name2.value) ? document.startform.name2.value : getname(spouse);
     spouse.myear = person.myear;
-    (document.startform.born2.value) ?
-	spouse.byear=parseInt(document.startform.born2.value) : spouse.byear = getbyear(spouse.myear,
-											spouse.gender);
-    spouse.mage = spouse.myear - spouse.byear;
+
+	if (document.startform.born2.value) {
+		spouse.byear = parseInt(document.startform.born2.value);
+		spouse.mage = spouse.myear - spouse.byear;
+	} else {
+		spouse.mage = getmage(spouse.gender);
+		spouse.byear = spouse.myear - spouse.mage;
+	}
     if (document.startform.died2.value) {
-	spouse.dyear = parseInt(document.startform.died2.value);
-	spouse.dage = spouse.dyear - spouse.byear;
+		spouse.dyear = parseInt(document.startform.died2.value);
+		spouse.dage = spouse.dyear - spouse.byear;
     } else {
-	spouse.dage = getdage(spouse.myear, spouse.mage);
-	spouse.dyear = spouse.byear + spouse.dage;
+		spouse.dage = getdage(spouse.myear, spouse.mage);
+		spouse.dyear = spouse.byear + spouse.dage;
     }
 
     spouse.ptype=goGetPType();
     displayPerson(spouse);
+	linData[pid-1] = spouse;
 
     // Generate their direct desendants ...
     getKids(person, spouse);
@@ -680,23 +658,27 @@ function appendColumn(colclass, colname, colvalue) {
     return item;
 }
 
+function getColor(person) {
+	return "color" +  ( (parseInt(person.generation) - 1)%13 + 1);
+}
+
 // Add a person to the HTML lineage tree
 function displayPerson(person) { // create and append nodes with person info
-    var goeshere = document.getElementById(person.parentId);
+    var goeshere = document.getElementById("person" + person.parentId);
 
     // Create a new element (a <UL/>, as it turns out) for the person.
     var personHtml = document.createElement("ul");
-    personHtml.setAttribute("id",formNodeId(person.pid));
-    personHtml.className="color" + ( (parseInt(person.generation) - 1)%13 + 1);
+    personHtml.setAttribute("id","person" + person.pid);
+    personHtml.className=getColor(person);
 
     // Create the name (and rename UI)
     var namebox = document.createElement("input");
     namebox.setAttribute("type","text");
     namebox.setAttribute("size","8");
     namebox.value = person.name;
-    var rename = document.createElement("a");
-    rename.setAttribute("href","javascript:getNewName(\""+person.pid+"\");");
-    var atext=document.createTextNode(" Rename ");
+    var rename = document.createElement("button");
+    rename.setAttribute("onclick","getNewName(\""+person.pid+"\");");
+    var atext=document.createTextNode("Rename");
     rename.appendChild(atext);
     var colName = document.createElement("li");
     colName.appendChild(namebox);
@@ -727,19 +709,28 @@ function displayPerson(person) { // create and append nodes with person info
     personHtml.appendChild(colGoals);
 
     if (person.family) {
-	var getfam = document.createElement("a");
-	getfam.setAttribute("href","javascript:getFamily(\""+person.pid+"\");");
+	var getfam = document.createElement("button");
+	getfam.setAttribute("onclick","getFamily(\""+person.pid+"\");");
 	getfam.setAttribute("id","family"+person.pid);
-	var getfamtext = document.createTextNode(" Get Family ");
+	var getfamtext = document.createTextNode("Get Family");
 	getfam.appendChild(getfamtext);
 	personHtml.appendChild(getfam);
     }
 
     goeshere.appendChild(personHtml);
-}
 
-function formNodeId(pid) {
-    return "person" + pid;
+	//Tree section.
+	var treepLink = "<a href='#' id='treep" + person.pid + "' class='" + getColor(person) + "'>" + person.name + "</a>";
+	var treepHtml = "<li>" + treepLink + "</li>";
+	if (person.pid == 1) 
+		$("div#treeUi").append("<ul>" + treepHtml + "</ul>");
+	else if (person.spouseId)
+		$("#treep" + person.spouseId).after(treepLink);
+	else if ($("#treep" + person.parentId).siblings("ul").length > 0)
+		$("#treep" + person.parentId).siblings("ul").append(treepHtml);
+	else
+		$("#treep" + person.parentId).after("<ul>" + treepHtml + "</ul>");
+
 }
 
 // Take the current tree and produce a CSV file that represents it.
@@ -747,18 +738,17 @@ function formNodeId(pid) {
 function populateCsv() {
     resetCsvTxt();
 
-    if (do_BFS) {
-	debug('Bredth First');
+    if ($('input[name=csvTree]:checked').val() == 'BFS') {
+	console.log('Breadth First');
 	var queue = Array();
 	crawlTreeBf(queue, 1);
     } else {
-	debug('Depth First');
-	crawlTreeDf(1);		
+	console.log('Depth First');
+	crawlTreeDf(1);
     }
 }
 
 function crawlTreeDf(pid, bloodline, spouse) {
-    debug("crawlTreeDf(" + pid + ")");
     var node = getNodeFromPid(pid);
     var person = getPersonFromNode(node, pid);
 
@@ -767,13 +757,10 @@ function crawlTreeDf(pid, bloodline, spouse) {
     addCsvRow(person, bloodline, spouse);
 
     // Do Depth-First traversal of lineage tree.
-    debug('node.childNodes = ' + node.childNodes);
-    debug('node.childNodes.length = ' + node.childNodes.length);
     var nextKin;
     for (var kin = node.firstChild; kin != null; kin = nextKin) {
 	nextKin = kin.nextSibling;
 	if (kin.nodeName == "UL") {
-	    debug('kin:' + kin);
 	    var kith = getPersonFromNode(kin, getPidFromNode(kin));
 	    if (bloodline != null && spouse == null) {
 		// Spouse: add self as other parent
@@ -786,28 +773,26 @@ function crawlTreeDf(pid, bloodline, spouse) {
 		crawlTreeDf(kith.pid, pid);
 		// NOTE: could combine Root&Child using diff boolean logic .. but who cares.
 	    } else {
-		debug("Whoa! Orphan in the bloodline!");
+		console.log("Whoa! Orphan in the bloodline!");
 	    }
 	}
     }
 }
 
 function crawlTreeBf(queue, pid, bloodline, spouse) {
-    debug("crawlTreeBf(" + queue + "," + pid + "" + bloodline + "," + spouse + ")");
+    //debug("crawlTreeBf(" + queue + "," + pid + "" + bloodline + "," + spouse + ")");
     var node = getNodeFromPid(pid);
     var person = getPersonFromNode(node, pid);
 
     addCsvRow(person, bloodline, spouse);
 
     // Do Breadth-First traversal of lineage tree.
-    debug('BF.person.childNodes = ' + node.childNodes);
-    debug('BF.person.childNodes.length = ' + node.childNodes.length);
+    //debug('BF.person.childNodes = ' + node.childNodes);
+    //debug('BF.person.childNodes.length = ' + node.childNodes.length);
     if (node.childNodes && node.childNodes.length > 0) {
 	var nextKith;
 	for (var kith = node.firstChild; kith != null; kith = nextKith) {
-	    debug('kith:' + kith);
 	    nextKith = kith.nextSibling;
-	    debug('kith.nodeName:' + kith.nodeName);
 	    if (kith.nodeName == "UL") {
 		var lineage = new Object();
 		lineage.pid = getPidFromNode(kith);
@@ -825,20 +810,16 @@ function crawlTreeBf(queue, pid, bloodline, spouse) {
 		    lineage.bloodline = pid;		
 		    lineage.spouse = null;
 		} else {
-		    debug("Whoa! Orphan in the bloodline!");
+		    console.log("Whoa! Orphan in the bloodline!");
 		}
-		debug('queue:' + lineage);
 		queue.push(lineage);
 	    }
 	}
     }
-    debug('queue.length:' + queue.length);
     
     // Pull off head element and recurse...
     if (queue.length > 0) {
-	debug('pop!');
 	var relative = queue.shift();
-	debug('relative: ' + relative);
 	crawlTreeBf(queue, relative.pid, relative.bloodline, relative.spouse);
     }
 }
@@ -852,11 +833,10 @@ function resetCsvTxt() {
 }
 
 function buildCsvRow(person, peer, parent) {
-    debug("buildCsvRow(" + person + ")");
     var pid = person.pid;
     var name = person.name;
     var gender = person.gender;
-    var gener = person.generation;
+    var generation = person.generation;
     var clan = person.clan;
     var byear = person.byear;
     var dyear = person.dyear;
@@ -871,7 +851,7 @@ function buildCsvRow(person, peer, parent) {
 	family = families++;
     }
 
-    var row = [pid, name, gender, gener, clan, byear, dyear, myear,
+    var row = [pid, name, gender, generation, clan, byear, dyear, myear,
 	       mage, dage, ptype, peer, parent, family].join(',');
     // Adjusting this?  Adjust addCsvRow() below...
 
@@ -879,11 +859,10 @@ function buildCsvRow(person, peer, parent) {
 }
 
 function addCsvRow(person, bloodline, spouse) {
-    debug("addCsvRow(" + person + ")");
     var csvtxt = document.getElementById('csvtxt');
     if (csvtxt.value.length == 0) {
 	// Adjust this?  Adjust buildCsvRow() above...
-	csvtxt.value = "# pid, name, gender, gener, clan, byear, myear, mage, dage, ptype, peer, parent, family\n";
+	csvtxt.value = "# pid, name, gender, generation, clan, byear, myear, mage, dage, ptype, peer, parent, family\n";
     } else {
 	csvtxt.value += "\n";
     }
@@ -897,10 +876,15 @@ function setSeedByDate() {
 }
 
 function generateNameTable() {
+	$("button#namesButton").hide();
+	if ($("div#nameTables").html() != "") {
+		$("div#nameTables").show();
+		return;
+	}
 	var table = "<table>";
 	for (i=0; i<syllables.length; i++) {
 		if (i%8 == 0) table = table + "<tr>";
-		table = table + "<td><table>";
+		table = table + "<td><table title=\"Clan " + syllables[i][0] + "foaf/" + syllables[i][0] + "khaekh\">";
 		for (j=0; j<syllables.length; j++) {
 			if (j%8 == 0) table = table + "<tr>";
 			var tableId = "table-" + i + "-" + j;
@@ -916,13 +900,15 @@ function generateNameTable() {
 		table = table + "</table></td>";
 		if (i%8 == 7) table = table + "</tr>";
 	}
-	table = table + "</table>";
+	table = table + "<br><button onclick='$(\"div#nameTables\").hide();$(\"button#namesButton\").show();'>Hide Names </button></table>";
 	$("div#nameTables").append(table);
 }
 
 $( document ).ready(function() {
 	//initialize the form
 	setSeedByDate();
+	$("select#clan1SELECT").append("<option value='-1'>Random Clan</option>");
+	$("select#clan2SELECT").append("<option value='-1'>Random Clan</option>");
 	var appendage = "";
 	for  (var i = 0; i < syllables.length; i++) {
 		appendage = "<option value='" + i + "'>" + syllables[i][0];
