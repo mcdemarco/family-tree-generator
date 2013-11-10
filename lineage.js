@@ -12,7 +12,6 @@
 // Tree style from http://thecodeplayer.com/walkthrough/css3-family-tree
 // http://thecodeplayer.com/experiments/css3-family-tree-multiple-parents.html.
 
-
 var RATE_remarry_barren = 15;
 var RATE_remarry_single = 5;
 var RATE_remarry_heirs = 3;
@@ -884,11 +883,11 @@ function generateNameTable() {
 	var table = "<table>";
 	for (i=0; i<syllables.length; i++) {
 		if (i%8 == 0) table = table + "<tr>";
-		table = table + "<td><table title=\"Clan " + syllables[i][0] + "foaf/" + syllables[i][0] + "khaekh\">";
+		table = table + "<td><div onclick='$(this).siblings().show();'>Clan " + syllables[i][0] + "khaekh</div><table style='display:none;'>";
 		for (j=0; j<syllables.length; j++) {
 			if (j%8 == 0) table = table + "<tr>";
 			var tableId = "table-" + i + "-" + j;
-			table = table + "<td><span onclick='$(\"#" + tableId + "\").show()" + "'>" + syllables[j][0] + syllables[i][1] + "</span><table id = '" + tableId + "' style='display:none;' onclick='$(\"#" + tableId + "\").hide();'>";
+			table = table + "<td><span onclick='$(\"#" + tableId + "\").show()" + "' title='Clan " + syllables[i][0] + "foaf'>" + syllables[j][0] + syllables[i][1] + "</span><table id = '" + tableId + "' style='display:none;'>";
 			for (k=0; k<syllables.length; k++) {
 				if (k%8 == 0) table = table + "<tr>";
 				table = table + "<td>" + syllables[j][0] + syllables[i][1] + syllables[k][2] + "</td>";
@@ -900,8 +899,12 @@ function generateNameTable() {
 		table = table + "</table></td>";
 		if (i%8 == 7) table = table + "</tr>";
 	}
-	table = table + "<br><button onclick='$(\"div#nameTables\").hide();$(\"button#namesButton\").show();'>Hide Names </button></table>";
+	table = table + "<br><button onclick='resetNameTable();'>Reset Names</button><button onclick='$(\"div#nameTables\").hide();$(\"button#namesButton\").show();'>Hide Names </button></table>";
 	$("div#nameTables").append(table);
+}
+
+function resetNameTable() {
+	$("div#nameTables table table").hide();
 }
 
 $( document ).ready(function() {
