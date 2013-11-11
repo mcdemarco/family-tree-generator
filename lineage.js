@@ -82,7 +82,7 @@ var syllables = [
 	["Mbae","mbae","mb"],
 	["Rhu","rrhu","rrh"],
 	["Le","lte","lt"],
-	["Ra","rra","rr"],
+	["Rra","rra","rr"],
 	["Ro","rdo","rd"],
 	["Brae","brae","br"],
 	["Rhi","rhi","rh"],
@@ -938,5 +938,8 @@ $( document ).ready(function() {
 		$("select#clan1SELECT").append(appendage + "foaf</option>");
 		$("select#clan2SELECT").append(appendage + "khaekh</option>");
 	}
+	$('#startform').submit(function () {
+		return false;
+	});
 });
 
