@@ -12,9 +12,9 @@
 // Tree style from http://thecodeplayer.com/walkthrough/css3-family-tree
 // http://thecodeplayer.com/experiments/css3-family-tree-multiple-parents.html.
 
-var RATE_remarry_barren = 15;
-var RATE_remarry_single = 5;
-var RATE_remarry_heirs = 3;
+var RATE_remarry_barren = 0; //15;
+var RATE_remarry_single = 0; //5;
+var RATE_remarry_heirs = 0; //3;
 var RATE_bachelor_ette = 4;  //chance of refusal to marry, both sexes; otherwise married at available spouse rate
 
 var RATE_male = 75; // Male/female ratio at birth.  Should be 51% for humans.
@@ -36,7 +36,6 @@ var STD_dage = 36; // Standard deviation in age of death.
 // 12.5% die in their 60-70's
 
 var pid = 0;     // keeps track of each persons ID
-var lcolor = 0;	 // background color for each generation
 
 var linData = [];
 
@@ -197,7 +196,9 @@ function getname(person) {
 function getNewName(pid) {
     var node = getNodeFromPid(pid);
     var person = getPersonFromNode(node);
-    node.firstChild.firstChild.value = getname(person);
+	var newname = getname(person);
+    node.firstChild.firstChild.value = newname;
+	$("a#treep" + pid).html(newname);
 }
 // *** end name generation **
 
@@ -508,6 +509,7 @@ function enableLineageUi() {
 	$(".resultsUi").show();
     //disableSeedUi();
     disableCsvUi();
+	disableTreeUi();
 
     $("#lineageUi").show();
 }
@@ -515,14 +517,22 @@ function enableLineageUi() {
 function enableSeedUi() {
     disableLineageUi();
     disableCsvUi();
+	disableTreeUi();
 
     $("#seedUi").show();
 	setSeedByDate();
 }
 
+function reseed() {
+	setSeedByDate();
+	enableLineageUi();
+	populateLineage();
+}
+
 function enableCsvUi() {
     disableLineageUi();
-    disableSeedUi();
+    //disableSeedUi();
+	disableTreeUi();
 
     $("#csvUi").show();
 	if ($("#csvtxt").val() == "")
@@ -552,6 +562,10 @@ function disableSeedUi() {
     //$("#footer").hide();
 }
 
+function disableTreeUi() {
+	$("#treeUi").hide();
+}
+
 // populateLineage():
 //   The big kahuna.  Take the parameters (possibly sparse) and produce a geneology
 // that conforms to the constraints.  Reproducibly.
@@ -567,6 +581,12 @@ function populateLineage() {
     newLineage.id =  "person" + pid;
     oldLineage.parentNode.replaceChild(newLineage, oldLineage);
 
+	//Clear the CSV?
+	resetCsvTxt();
+
+	//Clear the tree
+	$("#treeUi").html("");
+
     // Read in form data for person #1, add them to top of lineage chart.
     var person = new Object();
     person.parentId = pid;
@@ -576,7 +596,7 @@ function populateLineage() {
 
 	person.clan = (document.startform.clan1.value > -1) ? document.startform.clan1.value : randclan();
 	person.gender = (document.startform.gender1.value != "x") ? document.startform.gender1.value : randgen();
-    person.generation = 1;
+    person.generation = (document.startform.generation1.value != "" && !(isNaN(parseInt(document.startform.generation1.value)))) ? parseInt(document.startform.generation1.value) : 0;
     person.name = (document.startform.name1.value) ? document.startform.name1.value : getname(person);
     person.byear = (document.startform.born1.value) ? parseInt(document.startform.born1.value) : 0;
 
@@ -609,7 +629,7 @@ function populateLineage() {
     spouse.pid = pid;
 
 	spouse.clan = (document.startform.clan2.value > -1) ? document.startform.clan2.value : randclan();
-    spouse.generation = 1;
+    spouse.generation = (document.startform.generation2.value != "" && !(isNaN(parseInt(document.startform.generation2.value)))) ? parseInt(document.startform.generation2.value) : person.generation;
 
     spouse.gender = getOppositeGender(person.gender);
     spouse.name = (document.startform.name2.value) ? document.startform.name2.value : getname(spouse);
@@ -658,7 +678,7 @@ function appendColumn(colclass, colname, colvalue) {
 }
 
 function getColor(person) {
-	return "color" +  ( (parseInt(person.generation) - 1)%13 + 1);
+	return "color" +  ( (parseInt(person.generation)%13 + 1));
 }
 
 // Add a person to the HTML lineage tree
