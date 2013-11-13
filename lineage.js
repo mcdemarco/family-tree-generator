@@ -12,6 +12,8 @@
 // Tree style from http://thecodeplayer.com/walkthrough/css3-family-tree
 // http://thecodeplayer.com/experiments/css3-family-tree-multiple-parents.html.
 
+// Needs a hide family for tree trimming.
+
 var RATE_remarry_barren = 0; //15;
 var RATE_remarry_single = 0; //5;
 var RATE_remarry_heirs = 0; //3;
