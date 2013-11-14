@@ -34,13 +34,14 @@ h1 {
     box-sizing:border-box;
 }
 
-#intro a:link, 
-#footer a:visited {
+#intro a:link, #intro a:visited, 
+#footer a:link, #footer a:visited {
     text-decoration:none;
     color:#900;
 }
 
-#intro a:hover, #footer a:active {color:#f54242;}
+#intro a:hover, #intro a:active,
+#footer a:hover, #footer a:active {color:#f54242;}
 
 .list ul {margin:3px 0 0 10px;padding:0;}
 .list li {display:inline;list-style-type:none;}
@@ -64,13 +65,6 @@ div#footer {
     font-size:10px;
     text-align:right;
 }
-
-#footer a:link, #footer a:visited {
-                                    text-decoration:none;
-                                    color:#900;
-                                    }
-
-#footer a:hover, #footer a:active {color:#f54242;}
 
 div#lineageUi li span {
     padding: 0 3px;
