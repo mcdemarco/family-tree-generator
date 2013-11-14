@@ -628,88 +628,30 @@ function populateLineage() {
     generateKids(person, spouse);
 }
 
-function appendColumn(colclass, colname, colvalue) {
-    var moniker = document.createElement('span');
-    moniker.appendChild(document.createTextNode(colname));
-    moniker.className = 'moniker';
+function displayPerson(person) {
+	// Add a person to the HTML lineage list and tree
 
-    var value = document.createTextNode(colvalue);
+	// List section.
+	var personHtml = "";
+    personHtml += "<ul id='person" + person.pid + "' class='" + getColor(person) + "'>";
+	personHtml += "<li><input type='text' size=8 value=\"" + person.name + "\"/>";
+	personHtml += "<button onclick='generateNewName(" + person.pid + ");' title='Rename'>R</button>";
+	personHtml += " <span class='infoSpan'>" + person.gender + "</span> <span class='infoSpan'>" + person.byear + "&ndash;" + person.dyear;
+	if (person.myear)
+		personHtml += ", married in " +  person.myear + " at the age of " + person.mage;
+	personHtml += ", died at the age of " +  person.dage + ".</span>";
+	personHtml += " <span class='clanSpan'>Clan: " + syllables[parseInt(person.clan)][0] + (person.gender == 'M' ? "foaf" : "khaekh") + "</span>";
+	personHtml += " <span title='" + getPTypeName(person.ptype) + "'> MBTI:" + person.ptype + "</span>";
+	if (person.family)
+		personHtml += " <button id='family" + person.pid + "' onclick='generateFamily(" + person.pid + ")' title='Get Family'>Family</button>";
+	personHtml += "</li></ul>";
 
-    var item = document.createElement('li');
-    item.appendChild(moniker);
-    item.appendChild(value);
-
-    if (colvalue == null) {
-	item.style.display="none";
-    }
-
-    item.className = colclass;
-    return item;
-}
-
-
-
-// Add a person to the HTML lineage tree
-function displayPerson(person) { // create and append nodes with person info
-    var goeshere = document.getElementById("person" + person.parentNodeId);
-
-    // Create a new element (a <UL/>, as it turns out) for the person.
-    var personHtml = document.createElement("ul");
-    personHtml.setAttribute("id","person" + person.pid);
-    personHtml.className=getColor(person);
-
-    // Create the name (and rename UI)
-    var namebox = document.createElement("input");
-    namebox.setAttribute("type","text");
-    namebox.setAttribute("size","8");
-    namebox.value = person.name;
-    var rename = document.createElement("button");
-    rename.setAttribute("onclick","generateNewName(\""+person.pid+"\");");
-    var atext=document.createTextNode("Rename");
-    rename.appendChild(atext);
-    var colName = document.createElement("li");
-    colName.appendChild(namebox);
-    colName.appendChild(rename);
-    personHtml.appendChild(colName);
-
-    // Add in the attributes for the person
-    var colGender = appendColumn('gender', '',  person.gender);
-    var colGener = appendColumn('generation', 'Gen: ', person.generation);
-    var colClan = appendColumn('clan', 'Clan: ' + syllables[parseInt(person.clan)][0] + (person.gender == 'M' ? "foaf" : "khaekh") + " -", person.clan);
-    var colBorn = appendColumn('byear', 'lived ', person.byear);
-    var colDied = appendColumn('dyear', '- ', person.dyear);
-    var colWed = appendColumn('myear', '- married in the year ', person.myear);
-    var colPop = appendColumn('mage', 'at the age of ', person.mage);
-    var colRip = appendColumn('dage', ' died at the age of ', person.dage);
-    var colPType = appendColumn('ptype', '- MBTI: ', person.ptype);
-    var colGoals = appendColumn('goals', '', getPTypeName(person.ptype));
-
-    personHtml.appendChild(colGender);
-    personHtml.appendChild(colGener);
-    personHtml.appendChild(colClan);
-    personHtml.appendChild(colBorn);
-    personHtml.appendChild(colDied);
-    personHtml.appendChild(colWed);
-    personHtml.appendChild(colPop);
-    personHtml.appendChild(colRip);
-    personHtml.appendChild(colPType);
-    personHtml.appendChild(colGoals);
-
-    if (person.family) {
-	var getfam = document.createElement("button");
-	getfam.setAttribute("onclick","generateFamily(\""+person.pid+"\");");
-	getfam.setAttribute("id","family"+person.pid);
-	var getfamtext = document.createTextNode("Get Family");
-	getfam.appendChild(getfamtext);
-	personHtml.appendChild(getfam);
-    }
-
-    goeshere.appendChild(personHtml);
+	$("#person" + person.parentNodeId).append(personHtml);
 
 	//Tree section.
 	var treepLink = "<a href='#' id='treep" + person.pid + "' class='" + getColor(person) + "'>" + person.name + "</a>";
 	var treepHtml = "<li>" + treepLink + "</li>";
-	if (person.pid == 1) 
+	if (person.pid == 1)
 		$("div#treeUi").append("<ul>" + treepHtml + "</ul>");
 	else if (person.spouseId)
 		$("#treep" + person.spouseId).after(treepLink);

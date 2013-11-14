@@ -72,7 +72,9 @@ div#footer {
 
 #footer a:hover, #footer a:active {color:#f54242;}
 
-.goals, .clan, .generation {display:none;}
+div#lineageUi li span {
+    padding: 0 3px;
+}
 
 div#nameTables table table {border: 2px solid #7ebb9c; border-radius:5px;background-color: #efe;}
 
