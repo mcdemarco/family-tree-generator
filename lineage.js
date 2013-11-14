@@ -195,12 +195,34 @@ function getname(person) {
 	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? syllables[parseInt(person.generation)%syllables.length][2] : "");
 }
 
+function getUniqueName(person) {
+	//getname with a sibling check
+	//note that the program will hang here if there aren't enough distinct names available
+	var tempSiblings = getSiblingNames(person);
+	var tempName = getname(person);
+	while (tempSiblings.indexOf(tempName) >= 0)
+		tempName = getname(person);
+	return tempName;
+}
+
 function getNewName(pid) {
     var node = getNodeFromPid(pid);
     var person = getPersonFromNode(node);
-	var newname = getname(person);
+	var newname = getUniqueName(person);
     node.firstChild.firstChild.value = newname;
 	$("a#treep" + pid).html(newname);
+}
+
+function getSiblingNames(person) {
+	//Return sibling names (and spouse name in some cases)
+	var siblings = [];
+	//don't need to start i at zero because of the structure of the data
+	for (i=person.parentId;i<linData.length;i++) {
+		if (linData[i].parentId == person.parentId) {
+			siblings.push(linData[i].name);
+		}
+	}
+	return siblings;
 }
 // *** end name generation **
 
@@ -321,7 +343,7 @@ function getKids(person, spouse) { // get kids
 			kid.clan = spouse.clan;
 			kid.generation = parseInt(spouse.generation) + 1;
 		}
-	    kid.name=getname(kid);
+	    kid.name=getUniqueName(kid);
 
 	    kid.byear=spouse.myear + yom;
 	    kid.dage=getdage();
@@ -370,10 +392,9 @@ function getNodeFromPid(pid) {
     return document.getElementById("person" + pid);
 }
 
-// Recover a 'person' object from the HTML properties/attributes/elements.
-function getPersonFromPid(pid) { // recreate person info from text nodes
-    var personnode = getNodeFromPid(pid);
-    return getPersonFromNode(personnode, pid);
+// Recover a 'person' object from the data structure
+function getPersonFromPid(pid) {
+    return linData[pid-1];
 }
 
 function getPidFromNode(node) {
@@ -381,48 +402,10 @@ function getPidFromNode(node) {
 }
 
 function getPersonFromNode(personnode, pid) {
-    if (personnode.nodeName != "UL"  ) {
-	console.log("person built from node that wasn't UL ..." + personnode.nodeName);
-    }
     if (!pid) {
-	pid = getPidFromNode(personnode);
+		pid = getPidFromNode(personnode);
     }
-
-    var newperson = new Object();
-    newperson.pid = pid;
-
-    var node = personnode.firstChild;
-    newperson.name = node.firstChild.value;
-    node = node.nextSibling;
-
-    newperson.gender = node.firstChild.nextSibling.nodeValue;
-    node = node.nextSibling;
-
-    newperson.generation = parseInt(node.firstChild.nextSibling.nodeValue);
-    node = node.nextSibling;
-
-    newperson.clan = parseInt(node.firstChild.nextSibling.nodeValue);
-    node = node.nextSibling;
-
-    newperson.byear = parseInt(node.firstChild.nextSibling.nodeValue);
-    node = node.nextSibling;
-
-    newperson.dyear = parseInt(node.firstChild.nextSibling.nodeValue);
-    node = node.nextSibling;
-
-    newperson.myear = parseInt(node.firstChild.nextSibling.nodeValue);
-    node = node.nextSibling;
-
-    newperson.mage = parseInt(node.firstChild.nextSibling.nodeValue);
-    node = node.nextSibling;
-
-    newperson.dage = parseInt(node.firstChild.nextSibling.nodeValue);
-    node = node.nextSibling;
-
-    newperson.ptype = node.firstChild.nextSibling.nodeValue;
-    // We don't try and parse this ... just use a string
-    
-    return newperson;
+	return linData[pid - 1];
 }
 
 function getSpouse(person) { // getFamily calls this
