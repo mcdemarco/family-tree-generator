@@ -15,8 +15,8 @@
 // Needs a hide family for tree trimming.
 
 var RATE_remarry_barren = 0; //15;
-var RATE_remarry_single = 0; //5;
-var RATE_remarry_heirs = 0; //3;
+var RATE_remarry_singleChild = 0; //5;
+var RATE_remarry_multipleHeirs = 0; //3;
 var RATE_bachelor_ette = 4;  //chance of refusal to marry, both sexes; otherwise married at available spouse rate
 
 var RATE_male = 75; // Male/female ratio at birth.  Should be 51% for humans.
@@ -108,20 +108,85 @@ var syllables = [
 	["Dzli","dzli","dzl"]
 ];
 
-// Roll a D-sided dice, resulting in a number from 1 to D.
+// basic functions
+
+function getPersonFromPid(pid) {
+	// Recover a 'person' object from the data structure by pid
+    return linData[pid-1];
+}
+
+function getColor(person) {
+	return "color" +  ( (parseInt(person.generation)%13 + 1));
+}
+
+// Random trait functions
+
 function rollD(sides) {
+	// Roll a D-sided dice, resulting in a number from 1 to D.
     return Math.round(Math.random() * (sides-1)) + 1;
 }
 
-// Get a normally distributed value from mean and stdev.
-// Source:  http://www.protonfish.com/random.shtml
 function rnd(mean, stdev) {
+	// Get a normally distributed value from mean and stdev.
+	// Source:  http://www.protonfish.com/random.shtml
 	return Math.round(rnd_snd()*stdev+mean);
 
-	// Simulate a normal distribution with three random numbers:
 	function rnd_snd() {
+		// Simulate a normal distribution with three random numbers:
 		return (Math.random()*2-1)+(Math.random()*2-1)+(Math.random()*2-1);
 	}
+}
+
+// *** begin cool dwarf name generation ***
+function generateName(person) {
+	var roll1 = rollD(syllables.length) - 1;
+	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? syllables[parseInt(person.generation)%syllables.length][2] : "");
+}
+
+function generateUniqueName(person) {
+	//generateName with a sibling check
+	//note that the program will hang here if enough distinct names aren't available
+	var tempSiblings = getSiblingNames(person);
+	var tempName = generateName(person);
+	while (tempSiblings.indexOf(tempName) >= 0)
+		tempName = generateName(person);
+	return tempName;
+}
+
+function generateNewName(pid) {
+    var person = getPersonFromPid(pid);
+	var newname = generateUniqueName(person);
+	//update data structure and html
+	linData[pid-1].name = newname;
+    $("ul#person"+pid).children("li:first").children("input").val(newname);
+	$("a#treep" + pid).html(newname);
+}
+
+function getSiblingNames(person) {
+	//Return sibling names.
+	var siblings = [];
+	if (!(person.parentId2)) {
+		//If we don't have a parent recorded then we won't have any siblings for person.
+		return siblings;
+	}
+	//don't need to start i at zero because child pids are always greater than parent pids.
+	for (i=person.parentId2;i<linData.length;i++) {
+		if (linData[i].parentId2 == person.parentId2 && linData[i].pid != person.pid) {
+			siblings.push(linData[i].name);
+		}
+	}
+	return siblings;
+}
+// *** end name generation **
+
+function randgen() { // random gender, weighted for dwarves
+    var gen;
+    (rollD(100)<RATE_male) ? gen ="M" : gen="F";
+    return gen;
+}
+
+function randclan() { // random clan
+    return rollD(syllables.length) - 1;
 }
 
 // *** begin personality type generation code ***
@@ -132,39 +197,37 @@ function generatePersonalityType() {
     var JP=typeJP();
     var pType=EI+SN+TF+JP;
     return pType;
+
+	// these are the 4 axis of the Myers-Briggs personality types
+	// their distribution should approximate their real life frequency
+	function typeEI() { 
+		var EI="";
+		var roll = rollD(4);
+		(roll>1) ? EI="E" :	EI="I";
+		return EI;
+	}
+	function typeSN() {
+		var SN="";
+		var roll = rollD(4);
+		(roll>1) ? SN="S" : SN="N";
+		return SN;
+	}
+	function typeTF() {
+		var TF="";
+		var roll = rollD(2);
+		(roll==2) ?	TF="T" : TF="F";
+		return TF;
+	}
+	function typeJP() {
+		var JP="";
+		var roll = rollD(2);
+		(roll==2) ? JP="J":	JP="P";
+		return JP;
+	}
 }
 
-function typeEI() { // these are the 4 axis of the Myers-Briggs personality types
-    var EI="";
-    var roll=""; // their distribution should approximate the frequency they
-    roll = rollD(4);	// occur in real life.
-    (roll>1) ? EI="E" :	EI="I";
-    return EI;
-}
-function typeSN() {
-    var SN="";
-    var roll="";
-    roll = rollD(4);
-    (roll>1) ? SN="S" : SN="N";
-    return SN;
-}
-function typeTF() {
-    var TF="";
-    var roll="";
-    roll = rollD(2);
-    (roll==2) ?	TF="T" : TF="F";
-    return TF;
-}
-
-function typeJP() {
-    var JP="";
-    var roll="";
-    roll = rollD(2);
-    (roll==2) ? JP="J":	JP="P";
-    return JP;
-}
-
-function getPTypeName(pType) { //apply label to personality type
+function getPTypeName(pType) {
+	// Apply label to personality type.
     var typeName = "";
     switch (pType) {
     case "ISFP": typeName="(Artisan/Composer)"; break;
@@ -188,61 +251,6 @@ function getPTypeName(pType) { //apply label to personality type
     return typeName;
 }
 // *** end personality type generation code ***
-
-// *** begin cool dwarf name generation ***
-function generateName(person) {
-	var roll1 = rollD(syllables.length) - 1;
-	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? syllables[parseInt(person.generation)%syllables.length][2] : "");
-}
-
-function generateUniqueName(person) {
-	//generateName with a sibling check
-	//note that the program will hang here if enough distinct names aren't available
-	var tempSiblings = getSiblingNames(person);
-	var tempName = generateName(person);
-	while (tempSiblings.indexOf(tempName) >= 0)
-		tempName = generateName(person);
-	return tempName;
-}
-
-function generateNewName(pid) {
-    var person = linData[pid-1];
-	var newname = generateUniqueName(person);
-	//update data structure and html
-	linData[pid-1].name = newname;
-    $("ul#person"+pid).children("li:first").children("input").val(newname);
-	$("a#treep" + pid).html(newname);
-}
-
-function getSiblingNames(person) {
-	//Return sibling names.
-	var siblings = [];
-	if (!(person.parentId2)) {
-		//If we don't have a parent recorded then we won't have any siblings.
-		return siblings;
-	}
-	//don't need to start i at zero because child pids are always greater than parent pids.
-	for (i=person.parentId2;i<linData.length;i++) {
-		if (linData[i].parentId2 == person.parentId2 && linData[i].pid != person.pid) {
-			siblings.push(linData[i].name);
-		}
-	}
-	return siblings;
-}
-// *** end name generation **
-
-
-// Random number functions
-
-function randgen() { // random gender, weighted for dwarves
-    var gen;
-    (rollD(100)<RATE_male) ? gen ="M" : gen="F";
-    return gen;
-}
-
-function randclan() { // random clan
-    return rollD(syllables.length) - 1;
-}
 
 //Person construction functions
 
@@ -394,97 +402,83 @@ function generateKids(person, spouse) { // get kids
     }
 }
 
-// Recover a 'person' node from HTML based on its pid
-function getNodeFromPid(pid) {
-    return document.getElementById("person" + pid);
-}
-
-// Recover a 'person' object from the data structure
-function getPersonFromPid(pid) {
-    return linData[pid-1];
-}
-
-function getPidFromNode(node) {
-    return node.id.slice(("person").length); 
-}
-
-function getPersonFromNode(personnode, pid) {
-    if (!pid) {
-		pid = getPidFromNode(personnode);
-    }
-	return linData[pid - 1];
-}
-
-function generateSpouse(person) { // generateFamily calls this
-    var spouse = new Object();
-
-    spouse.parentNodeId = person.pid;
-    spouse.spouseId = person.pid;
-
-    pid++;
-    spouse.pid = pid;
-
-    spouse.gender = getOppositeGender(person.gender);
-	spouse.clan = randclan();
-    spouse.generation = person.generation;
-    spouse.name = generateName(spouse);
-
-    spouse.myear = person.myear;
-	spouse.mage = generateMarriageAge(spouse.gender);
-    spouse.byear = spouse.myear - spouse.mage;
-
-    spouse.dage = generateDeathAge(spouse.myear,spouse.mage);
-    spouse.dyear = spouse.byear+spouse.dage;
-
-    spouse.ptype = generatePersonalityType();
-
-	linData[pid-1] = spouse;
-    return spouse;
-}
-
-// Determine current number of kids for parent
-function countKids(pid) {
-    var node = document.getElementById("person" + pid);
-    return (node.childNodes.length - 5);
-}
-
-// Generate a person's geneological contribution to the family tree,
-// including children and remarriages (and further children).
 function generateFamily(pid) {
+	// Generate a person's geneological contribution to the family tree,
+	// including children and remarriages (and further children).
+    var newparent = getPersonFromPid(pid);
+
     // As we are generating their descendents, hide their 'generate' button
     document.getElementById("family"+pid).style.display="none";
 
-    var newparent = getPersonFromPid(pid);
-
-    //if( rollD(100) > (100-RATE_married)) { // already did a marriage check to generate the family button
-		var spouse = generateSpouse(newparent); // get spouse
-		displayPerson(spouse); // display spouse
-		generateKids(newparent, spouse); // get kids
+	var spouse = generateSpouse(newparent); // get spouse
+	displayPerson(spouse); // display spouse
+	generateKids(newparent, spouse); // get kids
+	
+	var grief = spouse.dyear;
+	while (newparent.dyear >= grief) { // check for remarriage until death
+		grief += rollD(2)+rollD(2)+rollD(2)-2; // delay before remarriage
+		newparent.myear = grief; // make sure remarriage date is correct
 		
-		var grief = spouse.dyear;
-		while (newparent.dyear >= grief) { // check for remarriage until death
-			grief += rollD(2)+rollD(2)+rollD(2)-2; // delay before remarriage
-			newparent.myear = grief; // make sure remarriage date is correct
-			
-			if (newparent.myear <= newparent.dyear) {
-				var offspring = countKids(pid);
-				var newchance;
-				switch(offspring) {
-				case "0": newchance = (newparent.dyear - grief) * RATE_remarry_barren; break;
-				case "1": newchance = (newparent.dyear - grief) * RATE_remarry_single; break;
-				default: newchance = (newparent.dyear - grief) * RATE_remarry_heirs; break;
-				}
-				if(rollD(100) < newchance) {
-					console.log("Remarried!");
-					spouse = generateSpouse(newparent); // get spouse
-					displayPerson(spouse); // display spouse
-					generateKids(newparent,spouse); // get kids
-					grief = spouse.dyear;
-				}
+		if (newparent.myear <= newparent.dyear) {
+			var offspring = countKids(newparent);
+			var newchance;
+			switch(offspring) {
+			case "0": newchance = (newparent.dyear - grief) * RATE_remarry_barren; break;
+			case "1": newchance = (newparent.dyear - grief) * RATE_remarry_singleChild; break;
+			default: newchance = (newparent.dyear - grief) * RATE_remarry_multipleHeirs; break;
+			}
+			if(rollD(100) < newchance) {
+				console.log("Remarried!");
+				spouse = generateSpouse(newparent); // get spouse
+				displayPerson(spouse); // display spouse
+				generateKids(newparent,spouse); // get kids
+				grief = spouse.dyear;
 			}
 		}
-    //}
+	}
+
+	//console.log("Person " + newparent.name + " has " + countKids(newparent) + " kids.");
+
+	function generateSpouse(person) {
+		var spouse = new Object();
+		
+		spouse.parentNodeId = person.pid;
+		spouse.spouseId = person.pid;
+		
+		pid++;
+		spouse.pid = pid;
+
+		spouse.gender = getOppositeGender(person.gender);
+		spouse.clan = randclan();
+		spouse.generation = person.generation;
+		spouse.name = generateName(spouse);
+
+		spouse.myear = person.myear;
+		spouse.mage = generateMarriageAge(spouse.gender);
+		spouse.byear = spouse.myear - spouse.mage;
+		spouse.dage = generateDeathAge(spouse.myear,spouse.mage);
+		spouse.dyear = spouse.byear+spouse.dage;
+		
+		spouse.ptype = generatePersonalityType();
+		
+		linData[pid-1] = spouse;
+		return spouse;
+	}
+
+	function countKids(person) {
+		// Determine current number of kids for parent
+		var kidCount = 0;
+		// As in getSiblingNames, we don't have to start from 0.
+		for (i=person.pid;i<linData.length;i++) {
+			if (linData[i].parentId2 == person.pid || linData[i].parentId1 == person.pid) {
+				kidCount++;
+			}
+		}		
+		return kidCount;
+	}
 }
+
+// UI management 
 
 function enableLineageUi() {
 	$(".resultsUi").show();
@@ -547,7 +541,7 @@ function disableTreeUi() {
 
 // populateLineage():
 //   The big kahuna.  Take the parameters (possibly sparse) and produce a geneology
-// that conforms to the constraints.  Reproducibly.
+//   that conforms to the constraints.  Reproducibly.
 function populateLineage() {
     // Reset/Update our random sequence based on the (possibly new) seed...
     Math.seedrandom(document.getElementById("seed").value);
@@ -555,10 +549,7 @@ function populateLineage() {
     // Clear out the lineage...
     pid = 0;
 	linData = [];
-    var oldLineage = getNodeFromPid(pid);
-    var newLineage = document.createElement("div");
-    newLineage.id =  "person" + pid;
-    oldLineage.parentNode.replaceChild(newLineage, oldLineage);
+	$("div#person0").html("");
 
 	//Clear the CSV?
 	resetCsvTxt();
@@ -656,9 +647,7 @@ function appendColumn(colclass, colname, colvalue) {
     return item;
 }
 
-function getColor(person) {
-	return "color" +  ( (parseInt(person.generation)%13 + 1));
-}
+
 
 // Add a person to the HTML lineage tree
 function displayPerson(person) { // create and append nodes with person info
@@ -731,6 +720,8 @@ function displayPerson(person) { // create and append nodes with person info
 
 }
 
+// Functions for generating the comma-separated value box.
+
 function populateCsv() {
 	//Do it the easy way, using the data structure.
 	var row = "";
@@ -757,9 +748,13 @@ function resetCsvTxt() {
 	$("#csvtxt").val("");
 }
 
+// Down to a single seeding function.
+
 function setSeedByDate() {
 	$("input#seed").val(new Date().getTime());
 }
+
+// Functions for showing the name inventory.
 
 function generateNameTable() {
 	if ($("div#nameTables").html() != "") {
@@ -790,6 +785,8 @@ function generateNameTable() {
 function resetNameTable() {
 	$("div#nameTables table table").hide();
 }
+
+// And we're ready!
 
 $( document ).ready(function() {
 	//initialize the form
