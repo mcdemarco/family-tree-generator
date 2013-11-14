@@ -37,9 +37,12 @@ var STD_dage = 36; // Standard deviation in age of death.
 // 12.5% die in their 40-50's
 // 12.5% die in their 60-70's
 
-var pid = 0;     // keeps track of each persons ID
+var pid = 0;     //keeps track of each persons ID
 
 var linData = [];//full data structure for genealogy
+
+var currentYear; //determines timing of data output
+var currentYearMode = false;
 
 var syllables = [
 	["'A","'a","'"],
@@ -396,6 +399,10 @@ function generateKids(person, spouse) { // get kids
 	    displayPerson(kid);
 		linData[pid-1] = kid;
 
+		//In currentYearMode, we do depth-first generation of people.
+		if (currentYearMode && kid.family && kid.myear <= currentYear)
+			generateFamily(kid.pid);
+
 	    yom += 8 + rollD(8);  // delay before trying for another kid.
 	}
 	yom++;
@@ -408,7 +415,7 @@ function generateFamily(pid) {
     var newparent = getPersonFromPid(pid);
 
     // As we are generating their descendents, hide their 'generate' button
-    document.getElementById("family"+pid).style.display="none";
+    $("#family"+pid).hide();
 
 	var spouse = generateSpouse(newparent); // get spouse
 	displayPerson(spouse); // display spouse
@@ -491,7 +498,7 @@ function enableLineageUi() {
 
 function reseed() {
 	setSeedByDate();
-	enableLineageUi();
+	//enableLineageUi();
 	populateLineage();
 	resetCsvTxt();
 }
@@ -551,6 +558,14 @@ function populateLineage() {
 	linData = [];
 	$("div#person0").html("");
 
+	//Check the mode.
+	if (document.startform.year.value != "" && !(isNaN(parseInt(document.startform.year.value)))) {
+		currentYear = parseInt(document.startform.year.value);
+		currentYearMode = true;
+	} else {
+		currentYearMode = false;
+	}
+
 	//Clear the CSV?
 	resetCsvTxt();
 
@@ -588,7 +603,7 @@ function populateLineage() {
 
     person.ptype = generatePersonalityType();
     
-    displayPerson(person);
+	displayPerson(person);
 	linData[pid-1] = person;
 
     // Read in (or produce) person #2, their spouse, and add them to the chart.
@@ -621,15 +636,22 @@ function populateLineage() {
     }
 
     spouse.ptype=generatePersonalityType();
-    displayPerson(spouse);
+
+	displayPerson(spouse, true);
 	linData[pid-1] = spouse;
 
     // Generate their direct desendants ...
     generateKids(person, spouse);
 }
 
-function displayPerson(person) {
+function displayPerson(person,isSpouse) {
 	// Add a person to the HTML lineage list and tree
+
+	//Don't display some persons in currentYearMode.
+	if (currentYearMode && person.byear > currentYear)
+		return;
+	if (currentYearMode && isSpouse && person.myear > currentYear)
+		return;
 
 	// List section.
 	var personHtml = "";
@@ -642,7 +664,7 @@ function displayPerson(person) {
 	personHtml += ", died at the age of " +  person.dage + ".</span>";
 	personHtml += " <span class='clanSpan'>Clan: " + syllables[parseInt(person.clan)][0] + (person.gender == 'M' ? "foaf" : "khaekh") + "</span>";
 	personHtml += " <span title='" + getPTypeName(person.ptype) + "'> MBTI:" + person.ptype + "</span>";
-	if (person.family)
+	if (!currentYearMode && person.family)
 		personHtml += " <button id='family" + person.pid + "' onclick='generateFamily(" + person.pid + ")' title='Get Family'>Family</button>";
 	personHtml += "</li></ul>";
 
