@@ -480,29 +480,20 @@ function generateFamily(pid) {
     //}
 }
 
-function getRequestParameter(name) {
-    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
-    var regexS = "[\\?&]"+name+"=([^&#]*)";
-    var regex = new RegExp( regexS );
-    var results = regex.exec( window.location.href );
-    if( results == null )
-	return "";
-    else
-	return results[1];
-}
-
 function enableLineageUi() {
 	$(".resultsUi").show();
     //disableSeedUi();
     disableCsvUi();
+	disableNamesUi();
 	disableTreeUi();
 
     $("#lineageUi").show();
 }
 
 function enableSeedUi() {
-    disableLineageUi();
     disableCsvUi();
+    disableLineageUi();
+	disableNamesUi();
 	disableTreeUi();
 
     $("#seedUi").show();
@@ -517,6 +508,7 @@ function reseed() {
 
 function enableCsvUi() {
     disableLineageUi();
+	disableNamesUi();
     //disableSeedUi();
 	disableTreeUi();
 
@@ -525,12 +517,21 @@ function enableCsvUi() {
 		populateCsv();
 }
 
-function enableTreeUi() {
+function enableNamesUi() {
+	disableCsvUi();
     disableLineageUi();
-    disableCsvUi();
-    $("#intro").hide();
-    $("#footer").hide();
+    //disableSeedUi();
+	disableTreeUi();
+	generateNameTable();
+	$(".namesUi").show();
+}
 
+function enableTreeUi() {
+    disableCsvUi();
+    disableLineageUi();
+	disableNamesUi();
+    //$("#intro").hide();
+    $("#footer").hide();
     $("#treeUi").show();
 }
 
@@ -540,6 +541,10 @@ function disableCsvUi() {
 
 function disableLineageUi() {
     $("#lineageUi").hide();
+}
+
+function disableNamesUi() {
+    $(".namesUi").hide();
 }
 
 function disableSeedUi() {
@@ -881,9 +886,7 @@ function setSeedByDate() {
 }
 
 function generateNameTable() {
-	$("button#namesButton").hide();
 	if ($("div#nameTables").html() != "") {
-		$("div#nameTables").show();
 		return;
 	}
 	var table = "<table>";
@@ -905,7 +908,6 @@ function generateNameTable() {
 		table = table + "</table></td>";
 		if (i%8 == 7) table = table + "</tr>";
 	}
-	table = table + "<br><button onclick='resetNameTable();'>Reset Names</button><button onclick='$(\"div#nameTables\").hide();$(\"button#namesButton\").show();'>Hide Names </button></table>";
 	$("div#nameTables").append(table);
 }
 
