@@ -215,11 +215,15 @@ function generateNewName(pid) {
 }
 
 function getSiblingNames(person) {
-	//Return sibling names (and spouse name in some cases)
+	//Return sibling names.
 	var siblings = [];
-	//don't need to start i at zero because of the structure of the data
-	for (i=person.parentId;i<linData.length;i++) {
-		if (linData[i].parentId == person.parentId) {
+	if (!(person.parentId2)) {
+		//If we don't have a parent recorded then we won't have any siblings.
+		return siblings;
+	}
+	//don't need to start i at zero because child pids are always greater than parent pids.
+	for (i=person.parentId2;i<linData.length;i++) {
+		if (linData[i].parentId2 == person.parentId2 && linData[i].pid != person.pid) {
 			siblings.push(linData[i].name);
 		}
 	}
@@ -330,7 +334,9 @@ function generateKids(person, spouse) { // get kids
 	if ( rollD(100) <= generateFertility(fertstart+yom,girl) ) {
 	    var kid = new Object();
 
-	    kid.parentId = spouse.pid;
+	    kid.parentNodeId = spouse.pid;
+	    kid.parentId1 = person.pid;
+	    kid.parentId2 = spouse.pid;
 	    pid++;
 	    kid.pid = pid;
 
@@ -412,7 +418,7 @@ function getPersonFromNode(personnode, pid) {
 function generateSpouse(person) { // generateFamily calls this
     var spouse = new Object();
 
-    spouse.parentId = person.pid;
+    spouse.parentNodeId = person.pid;
     spouse.spouseId = person.pid;
 
     pid++;
@@ -562,7 +568,7 @@ function populateLineage() {
 
     // Read in form data for person #1, add them to top of lineage chart.
     var person = new Object();
-    person.parentId = pid;
+    person.parentNodeId = pid;
 
     pid++;
     person.pid = pid;
@@ -596,7 +602,7 @@ function populateLineage() {
 
     // Read in (or produce) person #2, their spouse, and add them to the chart.
     var spouse = new Object();
-    spouse.parentId = pid;
+    spouse.parentNodeId = pid;
     spouse.spouseId = pid;
     pid++;
     spouse.pid = pid;
@@ -656,7 +662,7 @@ function getColor(person) {
 
 // Add a person to the HTML lineage tree
 function displayPerson(person) { // create and append nodes with person info
-    var goeshere = document.getElementById("person" + person.parentId);
+    var goeshere = document.getElementById("person" + person.parentNodeId);
 
     // Create a new element (a <UL/>, as it turns out) for the person.
     var personHtml = document.createElement("ul");
@@ -718,10 +724,10 @@ function displayPerson(person) { // create and append nodes with person info
 		$("div#treeUi").append("<ul>" + treepHtml + "</ul>");
 	else if (person.spouseId)
 		$("#treep" + person.spouseId).after(treepLink);
-	else if ($("#treep" + person.parentId).siblings("ul").length > 0)
-		$("#treep" + person.parentId).siblings("ul").append(treepHtml);
+	else if ($("#treep" + person.parentNodeId).siblings("ul").length > 0)
+		$("#treep" + person.parentNodeId).siblings("ul").append(treepHtml);
 	else
-		$("#treep" + person.parentId).after("<ul>" + treepHtml + "</ul>");
+		$("#treep" + person.parentNodeId).after("<ul>" + treepHtml + "</ul>");
 
 }
 
@@ -729,7 +735,7 @@ function populateCsv() {
 	//Do it the easy way, using the data structure.
 	var row = "";
 	if ($("#csvtxt").val() == "") 
-		$("#csvtxt").val("# pid, name, gender, generation, clan, byear, myear, mage, dage, ptype, parent\n");
+		$("#csvtxt").val("# pid, name, gender, generation, clan, byear, myear, mage, dage, ptype, parent1, parent2\n");
 	//Assuming there's no way to trim the tree; if you add one, just regenerate the whole thing instead.
 	var lastCount = ($("#csvtxt").data("headcount") > 0) ? $("#csvtxt").data("headcount") : 0;
 	for (i=lastCount;i<linData.length;i++) {
@@ -741,7 +747,7 @@ function populateCsv() {
 
 	function buildCsvRow(p) {
 		var row = [p.pid, p.name, p.gender, p.generation, p.clan, p.byear, p.dyear, p.myear,
-				   p.mage, p.dage, p.ptype, p.parentId].join(',');
+				   p.mage, p.dage, p.ptype, p.parentId1, p.parentId2].join(',');
 		// Adjusting this?  Adjust the header in populateCsv.
 		return row;
 	}
