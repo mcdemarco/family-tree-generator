@@ -39,7 +39,7 @@ var STD_dage = 36; // Standard deviation in age of death.
 
 var pid = 0;     // keeps track of each persons ID
 
-var linData = [];
+var linData = [];//full data structure for genealogy
 
 var syllables = [
 	["'A","'a","'"],
@@ -125,7 +125,7 @@ function rnd(mean, stdev) {
 }
 
 // *** begin personality type generation code ***
-function goGetPType() {
+function generatePersonalityType() {
     var EI=typeEI();
     var SN=typeSN();
     var TF=typeTF();
@@ -190,26 +190,27 @@ function getPTypeName(pType) { //apply label to personality type
 // *** end personality type generation code ***
 
 // *** begin cool dwarf name generation ***
-function getname(person) {
+function generateName(person) {
 	var roll1 = rollD(syllables.length) - 1;
 	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? syllables[parseInt(person.generation)%syllables.length][2] : "");
 }
 
-function getUniqueName(person) {
-	//getname with a sibling check
-	//note that the program will hang here if there aren't enough distinct names available
+function generateUniqueName(person) {
+	//generateName with a sibling check
+	//note that the program will hang here if enough distinct names aren't available
 	var tempSiblings = getSiblingNames(person);
-	var tempName = getname(person);
+	var tempName = generateName(person);
 	while (tempSiblings.indexOf(tempName) >= 0)
-		tempName = getname(person);
+		tempName = generateName(person);
 	return tempName;
 }
 
-function getNewName(pid) {
-    var node = getNodeFromPid(pid);
-    var person = getPersonFromNode(node);
-	var newname = getUniqueName(person);
-    node.firstChild.firstChild.value = newname;
+function generateNewName(pid) {
+    var person = linData[pid-1];
+	var newname = generateUniqueName(person);
+	//update data structure and html
+	linData[pid-1].name = newname;
+    $("ul#person"+pid).children("li:first").children("input").val(newname);
 	$("a#treep" + pid).html(newname);
 }
 
@@ -251,7 +252,7 @@ function getOppositeGender(gender) { // flip gender (for the spouse) if one is g
     return newgen;
 }
 
-function getmage(gender) {
+function generateMarriageAge(gender) {
     var mage;
     if (gender=="M") {	 // if male, potentially add a few years
 		mage = rnd(MEAN_mmage,STD_mmage);
@@ -265,7 +266,7 @@ function getmage(gender) {
 	return mage;
 }
 
-function getdage(myear , mage) { // get age they die at
+function generateDeathAge(myear , mage) { // get age they die at
     var dage;
 	dage = rnd(MEAN_dage,STD_dage);
 
@@ -277,7 +278,7 @@ function getdage(myear , mage) { // get age they die at
     return dage;
 }
 
-function getfert(fertyear, girl) { // return fertility based on age
+function generateFertility(fertyear, girl) { // return fertility based on age
     var chance = 0;
 /* humans
     if (fertyear<14) {chance=10;}
@@ -313,7 +314,7 @@ function getfert(fertyear, girl) { // return fertility based on age
 		return chance;
 }
 
-function getKids(person, spouse) { // get kids
+function generateKids(person, spouse) { // get kids
     var mend;  // year marriage ends -- no divorce for now...
     (person.dyear < spouse.dyear) ? mend=person.dyear : mend=spouse.dyear;
 
@@ -326,7 +327,7 @@ function getKids(person, spouse) { // get kids
     var yom=0;  // years of marriage
 	var girl=0;
     while (yom <= mspan) {
-	if ( rollD(100) <= getfert(fertstart+yom,girl) ) {
+	if ( rollD(100) <= generateFertility(fertstart+yom,girl) ) {
 	    var kid = new Object();
 
 	    kid.parentId = spouse.pid;
@@ -343,13 +344,13 @@ function getKids(person, spouse) { // get kids
 			kid.clan = spouse.clan;
 			kid.generation = parseInt(spouse.generation) + 1;
 		}
-	    kid.name=getUniqueName(kid);
+	    kid.name=generateUniqueName(kid);
 
 	    kid.byear=spouse.myear + yom;
-	    kid.dage=getdage();
+	    kid.dage=generateDeathAge();
 	    kid.dyear = kid.byear + kid.dage;
 
-	    kid.mage = getmage(kid.gender);
+	    kid.mage = generateMarriageAge(kid.gender);
 	    kid.myear = kid.byear + kid.mage;
 
 	    //kid.family = true;
@@ -376,7 +377,7 @@ function getKids(person, spouse) { // get kids
 			kid.myear = null;
 		}
 
-	    kid.ptype=goGetPType();
+	    kid.ptype=generatePersonalityType();
 
 	    displayPerson(kid);
 		linData[pid-1] = kid;
@@ -408,7 +409,7 @@ function getPersonFromNode(personnode, pid) {
 	return linData[pid - 1];
 }
 
-function getSpouse(person) { // getFamily calls this
+function generateSpouse(person) { // generateFamily calls this
     var spouse = new Object();
 
     spouse.parentId = person.pid;
@@ -420,16 +421,16 @@ function getSpouse(person) { // getFamily calls this
     spouse.gender = getOppositeGender(person.gender);
 	spouse.clan = randclan();
     spouse.generation = person.generation;
-    spouse.name = getname(spouse);
+    spouse.name = generateName(spouse);
 
     spouse.myear = person.myear;
-	spouse.mage = getmage(spouse.gender);
+	spouse.mage = generateMarriageAge(spouse.gender);
     spouse.byear = spouse.myear - spouse.mage;
 
-    spouse.dage = getdage(spouse.myear,spouse.mage);
+    spouse.dage = generateDeathAge(spouse.myear,spouse.mage);
     spouse.dyear = spouse.byear+spouse.dage;
 
-    spouse.ptype = goGetPType();
+    spouse.ptype = generatePersonalityType();
 
 	linData[pid-1] = spouse;
     return spouse;
@@ -443,16 +444,16 @@ function countKids(pid) {
 
 // Generate a person's geneological contribution to the family tree,
 // including children and remarriages (and further children).
-function getFamily(pid) {
+function generateFamily(pid) {
     // As we are generating their descendents, hide their 'generate' button
     document.getElementById("family"+pid).style.display="none";
 
     var newparent = getPersonFromPid(pid);
 
     //if( rollD(100) > (100-RATE_married)) { // already did a marriage check to generate the family button
-		var spouse = getSpouse(newparent); // get spouse
+		var spouse = generateSpouse(newparent); // get spouse
 		displayPerson(spouse); // display spouse
-		getKids(newparent, spouse); // get kids
+		generateKids(newparent, spouse); // get kids
 		
 		var grief = spouse.dyear;
 		while (newparent.dyear >= grief) { // check for remarriage until death
@@ -469,9 +470,9 @@ function getFamily(pid) {
 				}
 				if(rollD(100) < newchance) {
 					console.log("Remarried!");
-					spouse = getSpouse(newparent); // get spouse
+					spouse = generateSpouse(newparent); // get spouse
 					displayPerson(spouse); // display spouse
-					getKids(newparent,spouse); // get kids
+					generateKids(newparent,spouse); // get kids
 					grief = spouse.dyear;
 				}
 			}
@@ -582,14 +583,14 @@ function populateLineage() {
 	person.clan = (document.startform.clan1.value > -1) ? document.startform.clan1.value : randclan();
 	person.gender = (document.startform.gender1.value != "x") ? document.startform.gender1.value : randgen();
     person.generation = (document.startform.generation1.value != "" && !(isNaN(parseInt(document.startform.generation1.value)))) ? parseInt(document.startform.generation1.value) : 0;
-    person.name = (document.startform.name1.value) ? document.startform.name1.value : getname(person);
+    person.name = (document.startform.name1.value) ? document.startform.name1.value : generateName(person);
     person.byear = (document.startform.born1.value) ? parseInt(document.startform.born1.value) : 0;
 
 	if (document.startform.married1.value) {
 		person.myear = document.startform.married1.value;
 		person.mage = person.myear - person.byear;
 	} else {
-		person.mage = getmage(person.gender);
+		person.mage = generateMarriageAge(person.gender);
 		person.myear = person.byear + person.mage;
 	}
 
@@ -597,11 +598,11 @@ function populateLineage() {
 		person.dyear = parseInt(document.startform.died1.value);
 		person.dage = person.dyear - person.byear;
     } else {
-		person.dage = getdage(person.myear, person.mage);
+		person.dage = generateDeathAge(person.myear, person.mage);
 		person.dyear = person.byear + person.dage;
     }
 
-    person.ptype = goGetPType();
+    person.ptype = generatePersonalityType();
     
     displayPerson(person);
 	linData[pid-1] = person;
@@ -617,30 +618,30 @@ function populateLineage() {
     spouse.generation = (document.startform.generation2.value != "" && !(isNaN(parseInt(document.startform.generation2.value)))) ? parseInt(document.startform.generation2.value) : person.generation;
 
     spouse.gender = getOppositeGender(person.gender);
-    spouse.name = (document.startform.name2.value) ? document.startform.name2.value : getname(spouse);
+    spouse.name = (document.startform.name2.value) ? document.startform.name2.value : generateName(spouse);
     spouse.myear = person.myear;
 
 	if (document.startform.born2.value) {
 		spouse.byear = parseInt(document.startform.born2.value);
 		spouse.mage = spouse.myear - spouse.byear;
 	} else {
-		spouse.mage = getmage(spouse.gender);
+		spouse.mage = generateMarriageAge(spouse.gender);
 		spouse.byear = spouse.myear - spouse.mage;
 	}
     if (document.startform.died2.value) {
 		spouse.dyear = parseInt(document.startform.died2.value);
 		spouse.dage = spouse.dyear - spouse.byear;
     } else {
-		spouse.dage = getdage(spouse.myear, spouse.mage);
+		spouse.dage = generateDeathAge(spouse.myear, spouse.mage);
 		spouse.dyear = spouse.byear + spouse.dage;
     }
 
-    spouse.ptype=goGetPType();
+    spouse.ptype=generatePersonalityType();
     displayPerson(spouse);
 	linData[pid-1] = spouse;
 
     // Generate their direct desendants ...
-    getKids(person, spouse);
+    generateKids(person, spouse);
 }
 
 function appendColumn(colclass, colname, colvalue) {
@@ -681,7 +682,7 @@ function displayPerson(person) { // create and append nodes with person info
     namebox.setAttribute("size","8");
     namebox.value = person.name;
     var rename = document.createElement("button");
-    rename.setAttribute("onclick","getNewName(\""+person.pid+"\");");
+    rename.setAttribute("onclick","generateNewName(\""+person.pid+"\");");
     var atext=document.createTextNode("Rename");
     rename.appendChild(atext);
     var colName = document.createElement("li");
@@ -714,7 +715,7 @@ function displayPerson(person) { // create and append nodes with person info
 
     if (person.family) {
 	var getfam = document.createElement("button");
-	getfam.setAttribute("onclick","getFamily(\""+person.pid+"\");");
+	getfam.setAttribute("onclick","generateFamily(\""+person.pid+"\");");
 	getfam.setAttribute("id","family"+person.pid);
 	var getfamtext = document.createTextNode("Get Family");
 	getfam.appendChild(getfamtext);
