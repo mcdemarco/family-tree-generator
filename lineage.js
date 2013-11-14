@@ -482,7 +482,6 @@ function generateFamily(pid) {
 
 function enableLineageUi() {
 	$(".resultsUi").show();
-    //disableSeedUi();
     disableCsvUi();
 	disableNamesUi();
 	disableTreeUi();
@@ -490,37 +489,26 @@ function enableLineageUi() {
     $("#lineageUi").show();
 }
 
-function enableSeedUi() {
-    disableCsvUi();
-    disableLineageUi();
-	disableNamesUi();
-	disableTreeUi();
-
-    $("#seedUi").show();
-	setSeedByDate();
-}
-
 function reseed() {
 	setSeedByDate();
 	enableLineageUi();
 	populateLineage();
+	resetCsvTxt();
 }
 
 function enableCsvUi() {
     disableLineageUi();
 	disableNamesUi();
-    //disableSeedUi();
 	disableTreeUi();
 
     $("#csvUi").show();
-	if ($("#csvtxt").val() == "")
+	if ($("#csvtxt").data("headcount") != linData.length)
 		populateCsv();
 }
 
 function enableNamesUi() {
 	disableCsvUi();
     disableLineageUi();
-    //disableSeedUi();
 	disableTreeUi();
 	generateNameTable();
 	$(".namesUi").show();
@@ -545,12 +533,6 @@ function disableLineageUi() {
 
 function disableNamesUi() {
     $(".namesUi").hide();
-}
-
-function disableSeedUi() {
-    $("#seedUi").hide();
-    //$("#intro").hide();
-    //$("#footer").hide();
 }
 
 function disableTreeUi() {
@@ -743,142 +725,30 @@ function displayPerson(person) { // create and append nodes with person info
 
 }
 
-// Take the current tree and produce a CSV file that represents it.
-// We have a choice -- BFS or DFS.
 function populateCsv() {
-    resetCsvTxt();
-
-    if ($('input[name=csvTree]:checked').val() == 'BFS') {
-	console.log('Breadth First');
-	var queue = Array();
-	crawlTreeBf(queue, 1);
-    } else {
-	console.log('Depth First');
-	crawlTreeDf(1);
-    }
-}
-
-function crawlTreeDf(pid, bloodline, spouse) {
-    var node = getNodeFromPid(pid);
-    var person = getPersonFromNode(node, pid);
-
-    // bloodline != null, spouse != null -> child of bloodline
-    // bloodline != null, spouse == null -> spouse of one of bloodline
-    addCsvRow(person, bloodline, spouse);
-
-    // Do Depth-First traversal of lineage tree.
-    var nextKin;
-    for (var kin = node.firstChild; kin != null; kin = nextKin) {
-	nextKin = kin.nextSibling;
-	if (kin.nodeName == "UL") {
-	    var kith = getPersonFromNode(kin, getPidFromNode(kin));
-	    if (bloodline != null && spouse == null) {
-		// Spouse: add self as other parent
-		crawlTreeDf(kith.pid, bloodline, pid);
-	    } else if (bloodline != null && spouse != null) {
-		// Child: of the bloodline. Start next generation.
-		crawlTreeDf(kith.pid, pid);
-	    } else if (bloodline == null && spouse == null) {
-		// Root: kicking the whole thing off...
-		crawlTreeDf(kith.pid, pid);
-		// NOTE: could combine Root&Child using diff boolean logic .. but who cares.
-	    } else {
-		console.log("Whoa! Orphan in the bloodline!");
-	    }
+	//Do it the easy way, using the data structure.
+	var row = "";
+	if ($("#csvtxt").val() == "") 
+		$("#csvtxt").val("# pid, name, gender, generation, clan, byear, myear, mage, dage, ptype, parent\n");
+	//Assuming there's no way to trim the tree; if you add one, just regenerate the whole thing instead.
+	var lastCount = ($("#csvtxt").data("headcount") > 0) ? $("#csvtxt").data("headcount") : 0;
+	for (i=lastCount;i<linData.length;i++) {
+		row = buildCsvRow(linData[i]);
+		$("#csvtxt").val($("#csvtxt").val() + row + "\n");
 	}
-    }
-}
+	//Note how many people we had when we generated.
+	$("#csvtxt").data("headcount",linData.length);
 
-function crawlTreeBf(queue, pid, bloodline, spouse) {
-    //debug("crawlTreeBf(" + queue + "," + pid + "" + bloodline + "," + spouse + ")");
-    var node = getNodeFromPid(pid);
-    var person = getPersonFromNode(node, pid);
-
-    addCsvRow(person, bloodline, spouse);
-
-    // Do Breadth-First traversal of lineage tree.
-    //debug('BF.person.childNodes = ' + node.childNodes);
-    //debug('BF.person.childNodes.length = ' + node.childNodes.length);
-    if (node.childNodes && node.childNodes.length > 0) {
-	var nextKith;
-	for (var kith = node.firstChild; kith != null; kith = nextKith) {
-	    nextKith = kith.nextSibling;
-	    if (kith.nodeName == "UL") {
-		var lineage = new Object();
-		lineage.pid = getPidFromNode(kith);
-
-		if (spouse == null) {
-		    // Spouse: add self as other parent.
-		    lineage.bloodline = bloodline;
-		    lineage.spouse = pid;
-		} else if (bloodline != null && spouse != null) {
-                    // Child: set self as bloodline.
-		    lineage.bloodline = pid;
-		    lineage.spouse = null;
-		} else if (bloodline == null && spouse == null) {
-		    // Root: kick off the whole thing!
-		    lineage.bloodline = pid;		
-		    lineage.spouse = null;
-		} else {
-		    console.log("Whoa! Orphan in the bloodline!");
-		}
-		queue.push(lineage);
-	    }
+	function buildCsvRow(p) {
+		var row = [p.pid, p.name, p.gender, p.generation, p.clan, p.byear, p.dyear, p.myear,
+				   p.mage, p.dage, p.ptype, p.parentId].join(',');
+		// Adjusting this?  Adjust the header in populateCsv.
+		return row;
 	}
-    }
-    
-    // Pull off head element and recurse...
-    if (queue.length > 0) {
-	var relative = queue.shift();
-	crawlTreeBf(queue, relative.pid, relative.bloodline, relative.spouse);
-    }
 }
-
-var families = 1;
 
 function resetCsvTxt() {
-    var csvtxt = document.getElementById('csvtxt');
-    csvtxt.value = '';
-    families = 1;    
-}
-
-function buildCsvRow(person, peer, parent) {
-    var pid = person.pid;
-    var name = person.name;
-    var gender = person.gender;
-    var generation = person.generation;
-    var clan = person.clan;
-    var byear = person.byear;
-    var dyear = person.dyear;
-    var myear = person.myear;
-    var mage = person.mage;
-    var dage = person.dage;
-    var ptype = person.ptype;
-
-    var family = 1;  // The main line we are generating...
-    if (parent == null) {
-	// Ooops.  A spouse...
-	family = families++;
-    }
-
-    var row = [pid, name, gender, generation, clan, byear, dyear, myear,
-	       mage, dage, ptype, peer, parent, family].join(',');
-    // Adjusting this?  Adjust addCsvRow() below...
-
-    return row;
-}
-
-function addCsvRow(person, bloodline, spouse) {
-    var csvtxt = document.getElementById('csvtxt');
-    if (csvtxt.value.length == 0) {
-	// Adjust this?  Adjust buildCsvRow() above...
-	csvtxt.value = "# pid, name, gender, generation, clan, byear, myear, mage, dage, ptype, peer, parent, family\n";
-    } else {
-	csvtxt.value += "\n";
-    }
-
-    var rowtxt = buildCsvRow(person, bloodline, spouse);
-    csvtxt.value += rowtxt;
+	$("#csvtxt").val("");
 }
 
 function setSeedByDate() {
