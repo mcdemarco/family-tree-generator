@@ -37,7 +37,7 @@ var STD_dage = 36; // Standard deviation in age of death.
 // 12.5% die in their 40-50's
 // 12.5% die in their 60-70's
 
-var pid = 0;     //keeps track of each persons ID
+var globalPID = 0;//keeps track of each persons ID
 
 var linData = [];//full data structure for genealogy
 
@@ -308,6 +308,8 @@ function generateFertility(fertyear, girl) { // return fertility based on age
     if (fertyear>44) {chance=3;}
     if (fertyear>52) {chance=1;}  // Only non-zero because of magic.
 */
+
+/* dwarves */
 	if (fertyear > 16 && fertyear <= 20) chance = 10;
 	if (fertyear > 20 && fertyear <= 24) chance = 20;
 	if (fertyear > 24 && fertyear <= 28) chance = 30;
@@ -323,6 +325,11 @@ function generateFertility(fertyear, girl) { // return fertility based on age
 	if (fertyear > 164 && fertyear <= 200) chance = 5;
 	if (fertyear > 200 && fertyear <= 236) chance = 3;
 	if (fertyear > 236) chance = 1;
+
+/* test low fertility - trouble with tree display
+	if (fertyear > 48 && fertyear <= 52) chance = 25;
+*/
+
 	if (girl > 0)
 		return chance/(8 * girl);
 	else
@@ -348,8 +355,8 @@ function generateKids(person, spouse) { // get kids
 	    kid.parentNodeId = spouse.pid;
 	    kid.parentId1 = person.pid;
 	    kid.parentId2 = spouse.pid;
-	    pid++;
-	    kid.pid = pid;
+	    globalPID++;
+	    kid.pid = globalPID;
 
 	    kid.gender=randgen();
 		if (kid.gender == 'F')
@@ -397,7 +404,7 @@ function generateKids(person, spouse) { // get kids
 	    kid.ptype=generatePersonalityType();
 
 	    displayPerson(kid);
-		linData[pid-1] = kid;
+		linData[kid.pid-1] = kid;
 
 		//In currentYearMode, we do depth-first generation of people.
 		if (currentYearMode && kid.family && kid.myear <= currentYear)
@@ -418,7 +425,7 @@ function generateFamily(pid) {
     $("#family"+pid).hide();
 
 	var spouse = generateSpouse(newparent); // get spouse
-	displayPerson(spouse); // display spouse
+	displayPerson(spouse,true); // display spouse
 	generateKids(newparent, spouse); // get kids
 	
 	var grief = spouse.dyear;
@@ -437,7 +444,7 @@ function generateFamily(pid) {
 			if(rollD(100) < newchance) {
 				console.log("Remarried!");
 				spouse = generateSpouse(newparent); // get spouse
-				displayPerson(spouse); // display spouse
+				displayPerson(spouse,true); // display spouse
 				generateKids(newparent,spouse); // get kids
 				grief = spouse.dyear;
 			}
@@ -452,8 +459,8 @@ function generateFamily(pid) {
 		spouse.parentNodeId = person.pid;
 		spouse.spouseId = person.pid;
 		
-		pid++;
-		spouse.pid = pid;
+		globalPID++;
+		spouse.pid = globalPID;
 
 		spouse.gender = getOppositeGender(person.gender);
 		spouse.clan = randclan();
@@ -468,7 +475,7 @@ function generateFamily(pid) {
 		
 		spouse.ptype = generatePersonalityType();
 		
-		linData[pid-1] = spouse;
+		linData[globalPID-1] = spouse;
 		return spouse;
 	}
 
@@ -554,7 +561,7 @@ function populateLineage() {
     Math.seedrandom(document.getElementById("seed").value);
 
     // Clear out the lineage...
-    pid = 0;
+    globalPID = 0;
 	linData = [];
 	$("div#person0").html("");
 
@@ -574,10 +581,10 @@ function populateLineage() {
 
     // Read in form data for person #1, add them to top of lineage chart.
     var person = new Object();
-    person.parentNodeId = pid;
+    person.parentNodeId = globalPID;
 
-    pid++;
-    person.pid = pid;
+    globalPID++;
+    person.pid = globalPID;
 
 	person.clan = (document.startform.clan1.value > -1) ? document.startform.clan1.value : randclan();
 	person.gender = (document.startform.gender1.value != "x") ? document.startform.gender1.value : randgen();
@@ -604,14 +611,14 @@ function populateLineage() {
     person.ptype = generatePersonalityType();
     
 	displayPerson(person);
-	linData[pid-1] = person;
+	linData[person.pid-1] = person;
 
-    // Read in (or produce) person #2, their spouse, and add them to the chart.
+    // Read in (or produce) person #2, the spouse, and add them to the chart.
     var spouse = new Object();
-    spouse.parentNodeId = pid;
-    spouse.spouseId = pid;
-    pid++;
-    spouse.pid = pid;
+    spouse.parentNodeId = globalPID;
+    spouse.spouseId = globalPID;
+    globalPID++;
+    spouse.pid = globalPID;
 
 	spouse.clan = (document.startform.clan2.value > -1) ? document.startform.clan2.value : randclan();
     spouse.generation = (document.startform.generation2.value != "" && !(isNaN(parseInt(document.startform.generation2.value)))) ? parseInt(document.startform.generation2.value) : person.generation;
@@ -638,7 +645,7 @@ function populateLineage() {
     spouse.ptype=generatePersonalityType();
 
 	displayPerson(spouse, true);
-	linData[pid-1] = spouse;
+	linData[spouse.pid-1] = spouse;
 
     // Generate their direct desendants ...
     generateKids(person, spouse);
@@ -647,7 +654,7 @@ function populateLineage() {
 function displayPerson(person,isSpouse) {
 	// Add a person to the HTML lineage list and tree
 
-	//Don't display some persons in currentYearMode.
+	//Don't display some persons when in currentYearMode.
 	if (currentYearMode && person.byear > currentYear)
 		return;
 	if (currentYearMode && isSpouse && person.myear > currentYear)
@@ -690,7 +697,7 @@ function populateCsv() {
 	//Do it the easy way, using the data structure.
 	var row = "";
 	if ($("#csvtxt").val() == "") 
-		$("#csvtxt").val("# pid, name, gender, generation, clan, byear, myear, mage, dage, ptype, parent1, parent2\n");
+		$("#csvtxt").val("#pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouse, parent1, parent2\n");
 	//Assuming there's no way to trim the tree; if you add one, just regenerate the whole thing instead.
 	var lastCount = ($("#csvtxt").data("headcount") > 0) ? $("#csvtxt").data("headcount") : 0;
 	for (i=lastCount;i<linData.length;i++) {
@@ -701,8 +708,8 @@ function populateCsv() {
 	$("#csvtxt").data("headcount",linData.length);
 
 	function buildCsvRow(p) {
-		var row = [p.pid, p.name, p.gender, p.generation, p.clan, p.byear, p.dyear, p.myear,
-				   p.mage, p.dage, p.ptype, p.parentId1, p.parentId2].join(',');
+		var row = [p.pid, p.name, p.gender, p.generation, p.byear, p.dyear, p.dage, p.myear,
+				   p.mage, p.ptype, p.clan, p.spouseId, p.parentId1, p.parentId2].join(',');
 		// Adjusting this?  Adjust the header in populateCsv.
 		return row;
 	}
