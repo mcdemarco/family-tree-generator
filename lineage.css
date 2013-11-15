@@ -1,22 +1,29 @@
 /* stylesheet for the random family tree generator */
 
-body {
+body, div#intro {
+    background:url('images/strange_bullseyes_ltgreen.png');
+    background-attachment: fixed;
     background-color:#dfd;
+}
+
+body {
     overflow:auto;
     margin:0;
     padding:0;
     box-sizing:border-box;
 }
 
+div#header {
+    background:url('images/strange_bullseyes_green.png');
+    background-attachment: fixed;
+    background-color:#779959;
+    border-top: 4px solid #5F0003;
+}
+
 div#header, div#footer, div#content {
     width:100%;
     padding:5px 20px;
     box-sizing:border-box;
-}
-
-div#header {
-    background-color:#779959;
-    border-top: 4px solid #5F0003;
 }
 
 h1 {
@@ -206,6 +213,11 @@ div#nameTables table table table td {cursor:default;}
 		/*Keep tree from wrapping using the obvious solution 
 		  http://stackoverflow.com/questions/10395016/        */
 		div.tree {white-space:nowrap;}
+		div.tree li::before, div.tree li::after,
+		div.tree li a+a::before {
+		    display:inline-block;
+		    white-space:nowrap;
+		}
 
 		/* color the tree like the list
 		   also needed to make the hover background important above to override. */
