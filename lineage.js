@@ -122,6 +122,11 @@ function getColor(person) {
 	return "color" +  ( (parseInt(person.generation)%13 + 1));
 }
 
+function getCurrentAge(person) {
+	//test for currentYearMode before calling
+	return (person.dyear > currentYear) ? (currentYear - person.byear) : "d." + person.dage;
+}
+
 // Random trait functions
 
 function rollD(sides) {
@@ -402,6 +407,9 @@ function generateKids(person, spouse) { // get kids
 		}
 
 	    kid.ptype=generatePersonalityType();
+		//In currentYearMode, we save the current age.
+		if (currentYearMode)
+			kid.cage = getCurrentAge(kid);
 
 	    displayPerson(kid);
 		linData[kid.pid-1] = kid;
@@ -474,6 +482,10 @@ function generateFamily(pid) {
 		spouse.dyear = spouse.byear+spouse.dage;
 		
 		spouse.ptype = generatePersonalityType();
+
+		//In currentYearMode, we save the current age.
+		if (currentYearMode)
+			spouse.cage = getCurrentAge(spouse);
 		
 		linData[globalPID-1] = spouse;
 		return spouse;
@@ -609,6 +621,10 @@ function populateLineage() {
     }
 
     person.ptype = generatePersonalityType();
+
+	//In currentYearMode, we save the current age.
+	if (currentYearMode)
+		person.cage = getCurrentAge(person);
     
 	displayPerson(person);
 	linData[person.pid-1] = person;
@@ -643,6 +659,9 @@ function populateLineage() {
     }
 
     spouse.ptype=generatePersonalityType();
+	//In currentYearMode, we save the current age.
+	if (currentYearMode)
+		spouse.cage = getCurrentAge(spouse);
 
 	displayPerson(spouse, true);
 	linData[spouse.pid-1] = spouse;
@@ -666,6 +685,8 @@ function displayPerson(person,isSpouse) {
 	personHtml += "<li><input type='text' size=8 value=\"" + person.name + "\"/>";
 	personHtml += "<button onclick='generateNewName(" + person.pid + ");' title='Rename'>R</button>";
 	personHtml += " <span class='infoSpan'>" + person.gender + "</span> <span class='infoSpan'>" + person.byear + "&ndash;" + person.dyear;
+	if (currentYearMode)
+		personHtml += " (age " +  person.cage + ")";
 	if (person.myear)
 		personHtml += ", married in " +  person.myear + " at the age of " + person.mage;
 	personHtml += ", died at the age of " +  person.dage + ".</span>";
@@ -678,7 +699,7 @@ function displayPerson(person,isSpouse) {
 	$("#person" + person.parentNodeId).append(personHtml);
 
 	//Tree section.
-	var treepLink = "<a href='#' id='treep" + person.pid + "' class='" + getColor(person) + "'>" + person.name + "</a>";
+	var treepLink = "<a href='#' id='treep" + person.pid + "' class='" + getColor(person) + "'>" + person.name + ((currentYearMode) ? " (" + person.cage + ")"  : "") + "</a>";
 	var treepHtml = "<li>" + treepLink + "</li>";
 	if (person.pid == 1)
 		$("div#treeUi").append("<ul>" + treepHtml + "</ul>");
