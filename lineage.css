@@ -50,7 +50,11 @@ h1 {
 #intro a:hover, #intro a:active,
 #footer a:hover, #footer a:active {color:#f54242;}
 
-.list ul {margin:3px 0 0 10px;padding:0;}
+.list ul {
+    margin:3px 0 0 10px;
+    padding:0;
+    position:relative;
+}
 .list li {display:inline;list-style-type:none;}
 .list li span {padding:2px 2px 2px 6px;}
 .color1 {background-color:#fff;}
@@ -67,6 +71,14 @@ h1 {
 .color12 {background-color:#f9f;}
 .color13 {background-color:#f99;}
 
+li.spouse:before {
+    content: "=";
+    position: absolute;
+    left:-10px;
+    top:2px;
+    color:gray;
+}
+
 div#footer {
     padding-top:20px;
     font-size:10px;
@@ -75,6 +87,10 @@ div#footer {
 
 div#lineageUi li span {
     padding: 0 3px;
+}
+
+div#treeUi {
+    width: 1000px;
 }
 
 div#nameTables table table {border: 2px solid #7ebb9c; border-radius:5px;background-color: #efe;}
