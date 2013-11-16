@@ -166,8 +166,17 @@ function generateUniqueName(person) {
 }
 
 function generateNewName(pid) {
-    var person = getPersonFromPid(pid);
+	var person = getPersonFromPid(pid);
 	var newname = generateUniqueName(person);
+	updateName(pid,newname);
+}
+
+function changeName(pid,value) {
+	if (linData[pid-1].name != value)
+		updateName(pid,value);
+}
+
+function updateName(pid,newname) {
 	//update data structure and html
 	linData[pid-1].name = newname;
     $("ul#person"+pid).children("li:first").children("input").val(newname);
@@ -689,8 +698,9 @@ function displayPerson(person,isSpouse) {
 
 	// List section.
 	var personHtml = "";
-    personHtml += "<ul id='person" + person.pid + "' class='" + getColor(person) + "'>";
-	personHtml += "<li><input type='text' size=8 value=\"" + person.name + "\"/>";
+	personHtml += "<ul id='person" + person.pid + "' class='" + getColor(person) + "'>";
+	personHtml += "<li" + (person.spouseId ? " class='spouse'>" : ">");
+	personHtml += "<input type='text' size=8 onkeyup='if (event.keyCode == 13) {changeName(" + person.pid + ",this.value)};' value=\"" + person.name + "\"/>";
 	personHtml += "<button onclick='generateNewName(" + person.pid + ");' title='Rename'>R</button>";
 	personHtml += " <span class='infoSpan'>" + person.gender + "</span> <span class='infoSpan'>" + person.byear + "&ndash;" + person.dyear;
 	if (currentYearMode)
