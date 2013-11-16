@@ -119,7 +119,7 @@ var syllables = [
 
 function getPersonFromPid(pid) {
 	// Recover a 'person' object from the data structure by pid
-    return linData[pid-1];
+	return linData[pid-1];
 }
 
 function getColor(person) {
@@ -135,7 +135,7 @@ function getCurrentAge(person) {
 
 function rollD(sides) {
 	// Roll a D-sided dice, resulting in a number from 1 to D.
-    return Math.round(Math.random() * (sides-1)) + 1;
+	return Math.round(Math.random() * (sides-1)) + 1;
 }
 
 function rnd(mean, stdev) {
@@ -179,7 +179,7 @@ function changeName(pid,value) {
 function updateName(pid,newname) {
 	//update data structure and html
 	linData[pid-1].name = newname;
-    $("ul#person"+pid).children("li:first").children("input").val(newname);
+	$("ul#person"+pid).children("li:first").children("input").val(newname);
 	$("a#treep" + pid).html(newname + (currentYearMode ? " (" + person.cage + ")" : "" ));
 }
 
@@ -201,23 +201,23 @@ function getSiblingNames(person) {
 // *** end name generation **
 
 function randgen() { // random gender, weighted for dwarves
-    var gen;
-    (rollD(100)<RATE_male) ? gen ="M" : gen="F";
-    return gen;
+	var gen;
+	(rollD(100)<RATE_male) ? gen ="M" : gen="F";
+	return gen;
 }
 
 function randclan() { // random clan
-    return rollD(syllables.length) - 1;
+	return rollD(syllables.length) - 1;
 }
 
 // *** begin personality type generation code ***
 function generatePersonalityType() {
-    var EI=typeEI();
-    var SN=typeSN();
-    var TF=typeTF();
-    var JP=typeJP();
-    var pType=EI+SN+TF+JP;
-    return pType;
+	var EI=typeEI();
+	var SN=typeSN();
+	var TF=typeTF();
+	var JP=typeJP();
+	var pType=EI+SN+TF+JP;
+	return pType;
 
 	// these are the 4 axis of the Myers-Briggs personality types
 	// their distribution should approximate their real life frequency
@@ -249,49 +249,49 @@ function generatePersonalityType() {
 
 function getPTypeName(pType) {
 	// Apply label to personality type.
-    var typeName = "";
-    switch (pType) {
-    case "ISFP": typeName="(Artisan/Composer)"; break;
-    case "ISTP": typeName="(Artisan/Crafter)"; break;
-    case "ESFP": typeName="(Artisan/Performer)"; break;
-    case "ESTP": typeName="(Artisan/Promoter)"; break;
-    case "ISFJ": typeName="(Guardian/Protector)"; break;
-    case "ISTJ": typeName="(Guardian/Inspector)"; break;
-    case "ESFJ": typeName="(Guardian/Provider)"; break;
-    case "ESTJ": typeName="(Guardian/Supervisor)"; break;
-    case "INFP": typeName="(Idealist/Healer)"; break;
-    case "INFJ": typeName="(Idealist/Counselor)"; break;
-    case "ENFP": typeName="(Idealist/Champion)"; break;
-    case "ENFJ": typeName="(Idealist/Teacher)"; break;
-    case "INTP": typeName="(Rational/Architect)"; break;
-    case "INTJ": typeName="(Rational/Mastermind)"; break;
-    case "ENTP": typeName="(Rational/Inventor)"; break;
-    case "ENTJ": typeName="(Rational/Field Marshal)"; break;
-    default: typeName=" --Oops! I didn't get the type";
-    }
-    return typeName;
+	var typeName = "";
+	switch (pType) {
+	case "ISFP": typeName="(Artisan/Composer)"; break;
+	case "ISTP": typeName="(Artisan/Crafter)"; break;
+	case "ESFP": typeName="(Artisan/Performer)"; break;
+	case "ESTP": typeName="(Artisan/Promoter)"; break;
+	case "ISFJ": typeName="(Guardian/Protector)"; break;
+	case "ISTJ": typeName="(Guardian/Inspector)"; break;
+	case "ESFJ": typeName="(Guardian/Provider)"; break;
+	case "ESTJ": typeName="(Guardian/Supervisor)"; break;
+	case "INFP": typeName="(Idealist/Healer)"; break;
+	case "INFJ": typeName="(Idealist/Counselor)"; break;
+	case "ENFP": typeName="(Idealist/Champion)"; break;
+	case "ENFJ": typeName="(Idealist/Teacher)"; break;
+	case "INTP": typeName="(Rational/Architect)"; break;
+	case "INTJ": typeName="(Rational/Mastermind)"; break;
+	case "ENTP": typeName="(Rational/Inventor)"; break;
+	case "ENTJ": typeName="(Rational/Field Marshal)"; break;
+	default: typeName=" --Oops! I didn't get the type";
+	}
+	return typeName;
 }
 // *** end personality type generation code ***
 
 //Person construction functions
 
 function getOppositeGender(gender) { // flip gender (for the spouse) if one is given
-    var newgen = "";
-    switch(gender) {			 // otherwise randomize it
-    case "M": newgen = "F";break;
-    case "F": newgen = "M";break;
-    default:newgen = randgen();
-    }
-    return newgen;
+	var newgen = "";
+	switch(gender) {			 // otherwise randomize it
+	case "M": newgen = "F";break;
+	case "F": newgen = "M";break;
+	default:newgen = randgen();
+	}
+	return newgen;
 }
 
 function generateMarriageAge(gender) {
-    var mage;
-    if (gender=="M") {	 // if male, potentially add a few years
+	var mage;
+	if (gender=="M") {	 // if male, potentially add a few years
 		mage = rnd(MEAN_mmage,STD_mmage);
 		if (mage < MIN_mmage) 
 			mage = MIN_mmage;
-    } else {
+	} else {
 		mage = rnd(MEAN_fmage,STD_fmage); // women 
 		if (mage < MIN_fmage) 
 			mage = MIN_fmage;
@@ -300,31 +300,31 @@ function generateMarriageAge(gender) {
 }
 
 function generateDeathAge(myear , mage) { // get age they die at
-    var dage;
+	var dage;
 	dage = rnd(MEAN_dage,STD_dage);
 
-    if (dage && mage) {  // Generating spouse, so should be alive when married...
+	if (dage && mage) {  // Generating spouse, so should be alive when married...
 		while (dage < mage) {   // if died before married, set to marriage.
 			dage = mage;
 		}
-    }
-    return dage;
+	}
+	return dage;
 }
 
 function generateFertility(fertyear, girl) { // return fertility based on age
-    var chance = 0;
+	var chance = 0;
 /* humans
-    if (fertyear<14) {chance=10;}
-    if (fertyear==14) {chance=20;}
-    if (fertyear==15) {chance=40;}
-    if (fertyear==16) {chance=60;}
-    if (fertyear==17) {chance=80;}
-    if (fertyear>17 && fertyear<30) {chance=98;}
-    if (fertyear>30 && fertyear<35) {chance=80;}
-    if (fertyear>35 && fertyear<40) {chance=40;}
-    if (fertyear>40 && fertyear<45) {chance=20;}
-    if (fertyear>44) {chance=3;}
-    if (fertyear>52) {chance=1;}  // Only non-zero because of magic.
+	if (fertyear<14) {chance=10;}
+	if (fertyear==14) {chance=20;}
+	if (fertyear==15) {chance=40;}
+	if (fertyear==16) {chance=60;}
+	if (fertyear==17) {chance=80;}
+	if (fertyear>17 && fertyear<30) {chance=98;}
+	if (fertyear>30 && fertyear<35) {chance=80;}
+	if (fertyear>35 && fertyear<40) {chance=40;}
+	if (fertyear>40 && fertyear<45) {chance=20;}
+	if (fertyear>44) {chance=3;}
+	if (fertyear>52) {chance=1;}  // Only non-zero because of magic.
 */
 
 /* dwarves */
@@ -355,28 +355,28 @@ function generateFertility(fertyear, girl) { // return fertility based on age
 }
 
 function generateKids(person, spouse) { // get kids
-    var mend;  // year marriage ends -- no divorce for now...
-    (person.dyear < spouse.dyear) ? mend=person.dyear : mend=spouse.dyear;
+	var mend;  // year marriage ends -- no divorce for now...
+	(person.dyear < spouse.dyear) ? mend=person.dyear : mend=spouse.dyear;
 
-    var mspan; // number of years married
-    mspan = mend - person.myear;
+	var mspan; // number of years married
+	mspan = mend - person.myear;
 
-    var fertstart; // age of woman at time of marriage
-    (person.gender=="F") ? fertstart=person.mage : fertstart=spouse.mage;
+	var fertstart; // age of woman at time of marriage
+	(person.gender=="F") ? fertstart=person.mage : fertstart=spouse.mage;
 
-    var yom=0;  // years of marriage
+	var yom=0;  // years of marriage
 	var girl=0;
-    while (yom <= mspan) {
+	while (yom <= mspan) {
 	if ( rollD(100) <= generateFertility(fertstart+yom,girl) ) {
-	    var kid = new Object();
+		var kid = new Object();
 
-	    kid.parentNodeId = spouse.pid;
-	    kid.parentId1 = person.pid;
-	    kid.parentId2 = spouse.pid;
-	    globalPID++;
-	    kid.pid = globalPID;
+		kid.parentNodeId = spouse.pid;
+		kid.parentId1 = person.pid;
+		kid.parentId2 = spouse.pid;
+		globalPID++;
+		kid.pid = globalPID;
 
-	    kid.gender=randgen();
+		kid.gender=randgen();
 		if (kid.gender == 'F')
 			girl = girl + 1;
 		if (kid.gender == person.gender) {
@@ -386,20 +386,20 @@ function generateKids(person, spouse) { // get kids
 			kid.clan = spouse.clan;
 			kid.generation = parseInt(spouse.generation) + 1;
 		}
-	    kid.name=generateUniqueName(kid);
+		kid.name=generateUniqueName(kid);
 
-	    kid.byear=spouse.myear + yom;
-	    kid.dage=generateDeathAge();
-	    kid.dyear = kid.byear + kid.dage;
+		kid.byear=spouse.myear + yom;
+		kid.dage=generateDeathAge();
+		kid.dyear = kid.byear + kid.dage;
 
-	    kid.mage = generateMarriageAge(kid.gender);
-	    kid.myear = kid.byear + kid.mage;
+		kid.mage = generateMarriageAge(kid.gender);
+		kid.myear = kid.byear + kid.mage;
 
-	    //kid.family = true;
-	    if ((kid.myear > kid.dyear) || (rollD(100) <= RATE_bachelor_ette)) {
+		//kid.family = true;
+		if ((kid.myear > kid.dyear) || (rollD(100) <= RATE_bachelor_ette)) {
 			//voluntary or accidental non-marriage
 			kid.family = false;
-	    } else if (kid.gender == 'M') {
+		} else if (kid.gender == 'M') {
 			if (RATE_male > 50) {
 				kid.family = (rollD(100) <= (100 - RATE_male));
 			} else {
@@ -419,31 +419,31 @@ function generateKids(person, spouse) { // get kids
 			kid.myear = null;
 		}
 
-	    kid.ptype=generatePersonalityType();
+		kid.ptype=generatePersonalityType();
 		//In currentYearMode, we save the current age.
 		if (currentYearMode)
 			kid.cage = getCurrentAge(kid);
 
-	    displayPerson(kid);
+		displayPerson(kid);
 		linData[kid.pid-1] = kid;
 
 		//In currentYearMode, we do depth-first generation of people.
 		if (currentYearMode && kid.family && kid.myear <= currentYear)
 			generateFamily(kid.pid);
 
-	    yom += 8 + rollD(8);  // delay before trying for another kid.
+		yom += 8 + rollD(8);  // delay before trying for another kid.
 	}
 	yom++;
-    }
+	}
 }
 
 function generateFamily(pid) {
 	// Generate a person's geneological contribution to the family tree,
 	// including children and remarriages (and further children).
-    var newparent = getPersonFromPid(pid);
+	var newparent = getPersonFromPid(pid);
 
-    // As we are generating their descendents, hide their 'generate' button
-    $("#family"+pid).hide();
+	// As we are generating their descendents, hide their 'generate' button
+	$("#family"+pid).hide();
 
 	var spouse = generateSpouse(newparent); // get spouse
 	displayPerson(spouse,true); // display spouse
@@ -521,11 +521,10 @@ function generateFamily(pid) {
 
 function enableLineageUi() {
 	$(".resultsUi").show();
-    disableCsvUi();
+	disableCsvUi();
 	disableNamesUi();
 	disableTreeUi();
-
-    $("#lineageUi").show();
+	$("#lineageUi").show();
 }
 
 function reseed() {
@@ -536,46 +535,44 @@ function reseed() {
 }
 
 function enableCsvUi() {
-    disableLineageUi();
+	disableLineageUi();
 	disableNamesUi();
 	disableTreeUi();
-
-    $("#csvUi").show();
+	$("#csvUi").show();
 	if ($("#csvtxt").data("headcount") != linData.length)
 		populateCsv();
 }
 
 function enableNamesUi() {
 	disableCsvUi();
-    disableLineageUi();
+	disableLineageUi();
 	disableTreeUi();
 	generateNameTable();
 	$(".namesUi").show();
 }
 
 function enableTreeUi() {
-    disableCsvUi();
-    disableLineageUi();
+	disableCsvUi();
+	disableLineageUi();
 	disableNamesUi();
-    //$("#intro").hide();
-    $("#footer").hide();
-    $("#treeUi").show();
+	//$("#intro").hide();
 	$("#footer").hide();
 	//Safari doesn't need hacking.
 	if (!isSafari)
 		$("#treeUi").css("width",Math.max($(window).width() - 25, linData.length * spaceFactor) + "px");
+	$("#treeUi").show();
 }
 
 function disableCsvUi() {
-    $("#csvUi").hide();
+	$("#csvUi").hide();
 }
 
 function disableLineageUi() {
-    $("#lineageUi").hide();
+	$("#lineageUi").hide();
 }
 
 function disableNamesUi() {
-    $(".namesUi").hide();
+	$(".namesUi").hide();
 }
 
 function disableTreeUi() {
@@ -586,11 +583,11 @@ function disableTreeUi() {
 //   The big kahuna.  Take the parameters (possibly sparse) and produce a geneology
 //   that conforms to the constraints.  Reproducibly.
 function populateLineage() {
-    // Reset/Update our random sequence based on the (possibly new) seed...
-    Math.seedrandom(document.getElementById("seed").value);
+	// Reset/Update our random sequence based on the (possibly new) seed...
+	Math.seedrandom(document.getElementById("seed").value);
 
-    // Clear out the lineage...
-    globalPID = 0;
+	// Clear out the lineage...
+	globalPID = 0;
 	linData = [];
 	$("div#person0").html("");
 
@@ -608,18 +605,18 @@ function populateLineage() {
 	//Clear the tree
 	$("#treeUi").html("");
 
-    // Read in form data for person #1, add them to top of lineage chart.
-    var person = new Object();
-    person.parentNodeId = globalPID;
+	// Read in form data for person #1, add them to top of lineage chart.
+	var person = new Object();
+	person.parentNodeId = globalPID;
 
-    globalPID++;
-    person.pid = globalPID;
+	globalPID++;
+	person.pid = globalPID;
 
 	person.clan = (document.startform.clan1.value > -1) ? document.startform.clan1.value : randclan();
 	person.gender = (document.startform.gender1.value != "x") ? document.startform.gender1.value : randgen();
-    person.generation = (document.startform.generation1.value != "" && !(isNaN(parseInt(document.startform.generation1.value)))) ? parseInt(document.startform.generation1.value) : 0;
-    person.name = (document.startform.name1.value) ? document.startform.name1.value : generateName(person);
-    person.byear = (document.startform.born1.value) ? parseInt(document.startform.born1.value) : 0;
+	person.generation = (document.startform.generation1.value != "" && !(isNaN(parseInt(document.startform.generation1.value)))) ? parseInt(document.startform.generation1.value) : 0;
+	person.name = (document.startform.name1.value) ? document.startform.name1.value : generateName(person);
+	person.byear = (document.startform.born1.value) ? parseInt(document.startform.born1.value) : 0;
 
 	if (document.startform.married1.value) {
 		person.myear = document.startform.married1.value;
@@ -629,36 +626,36 @@ function populateLineage() {
 		person.myear = person.byear + person.mage;
 	}
 
-    if (document.startform.died1.value) {
+	if (document.startform.died1.value) {
 		person.dyear = parseInt(document.startform.died1.value);
 		person.dage = person.dyear - person.byear;
-    } else {
+	} else {
 		person.dage = generateDeathAge(person.myear, person.mage);
 		person.dyear = person.byear + person.dage;
-    }
+	}
 
-    person.ptype = generatePersonalityType();
+	person.ptype = generatePersonalityType();
 
 	//In currentYearMode, we save the current age.
 	if (currentYearMode)
 		person.cage = getCurrentAge(person);
-    
+	
 	displayPerson(person);
 	linData[person.pid-1] = person;
 
-    // Read in (or produce) person #2, the spouse, and add them to the chart.
-    var spouse = new Object();
-    spouse.parentNodeId = globalPID;
-    spouse.spouseId = globalPID;
-    globalPID++;
-    spouse.pid = globalPID;
+	// Read in (or produce) person #2, the spouse, and add them to the chart.
+	var spouse = new Object();
+	spouse.parentNodeId = globalPID;
+	spouse.spouseId = globalPID;
+	globalPID++;
+	spouse.pid = globalPID;
 
 	spouse.clan = (document.startform.clan2.value > -1) ? document.startform.clan2.value : randclan();
-    spouse.generation = (document.startform.generation2.value != "" && !(isNaN(parseInt(document.startform.generation2.value)))) ? parseInt(document.startform.generation2.value) : person.generation;
+	spouse.generation = (document.startform.generation2.value != "" && !(isNaN(parseInt(document.startform.generation2.value)))) ? parseInt(document.startform.generation2.value) : person.generation;
 
-    spouse.gender = getOppositeGender(person.gender);
-    spouse.name = (document.startform.name2.value) ? document.startform.name2.value : generateName(spouse);
-    spouse.myear = person.myear;
+	spouse.gender = getOppositeGender(person.gender);
+	spouse.name = (document.startform.name2.value) ? document.startform.name2.value : generateName(spouse);
+	spouse.myear = person.myear;
 
 	if (document.startform.born2.value) {
 		spouse.byear = parseInt(document.startform.born2.value);
@@ -667,15 +664,15 @@ function populateLineage() {
 		spouse.mage = generateMarriageAge(spouse.gender);
 		spouse.byear = spouse.myear - spouse.mage;
 	}
-    if (document.startform.died2.value) {
+	if (document.startform.died2.value) {
 		spouse.dyear = parseInt(document.startform.died2.value);
 		spouse.dage = spouse.dyear - spouse.byear;
-    } else {
+	} else {
 		spouse.dage = generateDeathAge(spouse.myear, spouse.mage);
 		spouse.dyear = spouse.byear + spouse.dage;
-    }
+	}
 
-    spouse.ptype=generatePersonalityType();
+	spouse.ptype=generatePersonalityType();
 	//In currentYearMode, we save the current age.
 	if (currentYearMode)
 		spouse.cage = getCurrentAge(spouse);
@@ -683,8 +680,8 @@ function populateLineage() {
 	displayPerson(spouse, true);
 	linData[spouse.pid-1] = spouse;
 
-    // Generate their direct desendants ...
-    generateKids(person, spouse);
+	// Generate their direct desendants ...
+	generateKids(person, spouse);
 }
 
 function displayPerson(person,isSpouse) {
