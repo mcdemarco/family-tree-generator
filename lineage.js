@@ -44,6 +44,10 @@ var linData = [];//full data structure for genealogy
 var currentYear; //determines timing of data output
 var currentYearMode = false;
 
+//For spacing issues.  Increase spaceFactor if your trees still wrap.
+var isSafari = false;
+var spaceFactor = 60;
+
 var syllables = [
 	["'A","'a","'"],
 	["Ko","ko","k"],
@@ -547,6 +551,10 @@ function enableTreeUi() {
     //$("#intro").hide();
     $("#footer").hide();
     $("#treeUi").show();
+	$("#footer").hide();
+	//Safari doesn't need hacking.
+	if (!isSafari)
+		$("#treeUi").css("width",Math.max($(window).width() - 25, linData.length * spaceFactor) + "px");
 }
 
 function disableCsvUi() {
@@ -794,5 +802,8 @@ $( document ).ready(function() {
 	$('#startform').submit(function () {
 		return false;
 	});
+	//Browser check for tree display hackery.
+	var ua = navigator.userAgent.toLowerCase();
+	isSafari = ((ua.indexOf('safari') >= 0) && (ua.indexOf('chrome') < 0));
 });
 
