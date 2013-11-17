@@ -37,8 +37,6 @@ var STD_dage = 36; // Standard deviation in age of death.
 // 12.5% die in their 40-50's
 // 12.5% die in their 60-70's
 
-var globalPID = 0;//keeps track of each persons ID
-
 var linData = [];//full data structure for genealogy
 
 var currentYear; //determines timing of data output
@@ -373,8 +371,7 @@ function generateKids(person, spouse) { // get kids
 		kid.parentNodeId = spouse.pid;
 		kid.parentId1 = person.pid;
 		kid.parentId2 = spouse.pid;
-		globalPID++;
-		kid.pid = globalPID;
+		kid.pid = linData.length;
 
 		kid.gender=randgen();
 		if (kid.gender == 'F')
@@ -480,8 +477,7 @@ function generateFamily(pid) {
 		spouse.parentNodeId = person.pid;
 		spouse.spouseId = person.pid;
 		
-		globalPID++;
-		spouse.pid = globalPID;
+		spouse.pid = linData.length;
 
 		spouse.gender = getOppositeGender(person.gender);
 		spouse.clan = randclan();
@@ -500,7 +496,7 @@ function generateFamily(pid) {
 		if (currentYearMode)
 			spouse.cage = getCurrentAge(spouse);
 		
-		linData[globalPID] = spouse;
+		linData[spouse.pid] = spouse;
 		return spouse;
 	}
 
@@ -587,9 +583,8 @@ function populateLineage() {
 	Math.seedrandom(document.getElementById("seed").value);
 
 	// Clear out the lineage...
-	globalPID = -1;
 	linData = [];
-	$("div#persons").html("");
+	$("div#person-1").html("");
 
 	//Check the mode.
 	if (document.startform.year.value != "" && !(isNaN(parseInt(document.startform.year.value)))) {
@@ -607,10 +602,9 @@ function populateLineage() {
 
 	// Read in form data for person #1, add them to top of lineage chart.
 	var person = new Object();
-	person.parentNodeId = globalPID;
+	person.parentNodeId = -1;
 
-	globalPID++;
-	person.pid = globalPID;
+	person.pid = linData.length; //0
 
 	person.clan = (document.startform.clan1.value > -1) ? document.startform.clan1.value : randclan();
 	person.gender = (document.startform.gender1.value != "x") ? document.startform.gender1.value : randgen();
@@ -647,8 +641,7 @@ function populateLineage() {
 	var spouse = new Object();
 	spouse.parentNodeId = person.pid;
 	spouse.spouseId = person.pid;
-	globalPID++;
-	spouse.pid = globalPID;
+	spouse.pid = linData.length;
 
 	spouse.clan = (document.startform.clan2.value > -1) ? document.startform.clan2.value : randclan();
 	spouse.generation = (document.startform.generation2.value != "" && !(isNaN(parseInt(document.startform.generation2.value)))) ? parseInt(document.startform.generation2.value) : person.generation;
