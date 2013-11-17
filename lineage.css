@@ -129,13 +129,13 @@ div#nameTables table table table td {cursor:default;}
 		.tree li::before, .tree li::after{
 			content: '';
 			position: absolute; top: 0; right: 50%;
-			border-top: 1px solid #ccc;
+			border-top: 1px solid #aaa;
 			width: 50%; height: 45px;
 			z-index: -1;
 		}
 		.tree li::after{
 			right: auto; left: 50%;
-			border-left: 1px solid #ccc;
+			border-left: 1px solid #aaa;
 		}
 
 		/*We need to remove left-right connectors from elements without 
@@ -154,7 +154,7 @@ div#nameTables table table table td {cursor:default;}
 		}
 		/*Adding back the vertical connector to the last nodes*/
 		.tree li:last-child::before{
-			border-right: 1px solid #ccc;
+			border-right: 1px solid #aaa;
 			border-radius: 0 5px 0 0;
 			
 			-webkit-transform: translateX(1px);
@@ -175,16 +175,16 @@ div#nameTables table table table td {cursor:default;}
 		.tree ul ul::before{
 			content: '';
 			position: absolute; top: -12px; left: 50%;
-			border-left: 1px solid #ccc;
+			border-left: 1px solid #aaa;
 			width: 0; height: 32px;
 			z-index: -1;
 		}
 
 		.tree li a{
-			border: 1px solid #ccc;
+			border: 1px solid #aaa;
 			padding: 5px 10px;
 			text-decoration: none;
-			color: #666;
+			color: #444;
 			font-family: arial, verdana, tahoma;
 			font-size: 11px;
 			display: inline-block;
@@ -205,7 +205,7 @@ div#nameTables table table table td {cursor:default;}
 		.tree li a+a::before {
 			content: '';
 			position: absolute;
-			border-top: 1px solid #ccc;
+			border-top: 1px solid #aaa;
 			top: 50%; left: -21px; 
 			width: 20px;
 		}
