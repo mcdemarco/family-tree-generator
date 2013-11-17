@@ -119,7 +119,7 @@ var syllables = [
 
 function getPersonFromPid(pid) {
 	// Recover a 'person' object from the data structure by pid
-	return linData[pid-1];
+	return linData[pid];
 }
 
 function getColor(person) {
@@ -172,13 +172,13 @@ function generateNewName(pid) {
 }
 
 function changeName(pid,value) {
-	if (linData[pid-1].name != value)
+	if (linData[pid].name != value)
 		updateName(pid,value);
 }
 
 function updateName(pid,newname) {
 	//update data structure and html
-	linData[pid-1].name = newname;
+	linData[pid].name = newname;
 	$("ul#person"+pid).children("li:first").children("input").val(newname);
 	$("a#treep" + pid).html(newname + (currentYearMode ? " (" + person.cage + ")" : "" ));
 }
@@ -425,7 +425,7 @@ function generateKids(person, spouse) { // get kids
 			kid.cage = getCurrentAge(kid);
 
 		displayPerson(kid);
-		linData[kid.pid-1] = kid;
+		linData[kid.pid] = kid;
 
 		//In currentYearMode, we do depth-first generation of people.
 		if (currentYearMode && kid.family && kid.myear <= currentYear)
@@ -500,7 +500,7 @@ function generateFamily(pid) {
 		if (currentYearMode)
 			spouse.cage = getCurrentAge(spouse);
 		
-		linData[globalPID-1] = spouse;
+		linData[globalPID] = spouse;
 		return spouse;
 	}
 
@@ -587,9 +587,9 @@ function populateLineage() {
 	Math.seedrandom(document.getElementById("seed").value);
 
 	// Clear out the lineage...
-	globalPID = 0;
+	globalPID = -1;
 	linData = [];
-	$("div#person0").html("");
+	$("div#persons").html("");
 
 	//Check the mode.
 	if (document.startform.year.value != "" && !(isNaN(parseInt(document.startform.year.value)))) {
@@ -641,12 +641,12 @@ function populateLineage() {
 		person.cage = getCurrentAge(person);
 	
 	displayPerson(person);
-	linData[person.pid-1] = person;
+	linData[person.pid] = person;
 
 	// Read in (or produce) person #2, the spouse, and add them to the chart.
 	var spouse = new Object();
-	spouse.parentNodeId = globalPID;
-	spouse.spouseId = globalPID;
+	spouse.parentNodeId = person.pid;
+	spouse.spouseId = person.pid;
 	globalPID++;
 	spouse.pid = globalPID;
 
@@ -678,7 +678,7 @@ function populateLineage() {
 		spouse.cage = getCurrentAge(spouse);
 
 	displayPerson(spouse, true);
-	linData[spouse.pid-1] = spouse;
+	linData[spouse.pid] = spouse;
 
 	// Generate their direct desendants ...
 	generateKids(person, spouse);
@@ -696,7 +696,7 @@ function displayPerson(person,isSpouse) {
 	// List section.
 	var personHtml = "";
 	personHtml += "<ul id='person" + person.pid + "' class='" + getColor(person) + "'>";
-	personHtml += "<li" + (person.spouseId ? " class='spouse'>" : ">");
+	personHtml += "<li" + ("spouseId" in person ? " class='spouse'>" : ">");
 	personHtml += "<input type='text' size=8 onkeyup='if (event.keyCode == 13) {changeName(" + person.pid + ",this.value)};' value=\"" + person.name + "\"/>";
 	personHtml += "<button onclick='generateNewName(" + person.pid + ");' title='Rename'>R</button>";
 	personHtml += " <span class='infoSpan'>" + person.gender + "</span> <span class='infoSpan'>" + person.byear + "&ndash;" + person.dyear;
@@ -716,9 +716,9 @@ function displayPerson(person,isSpouse) {
 	//Tree section.
 	var treepLink = "<a href='#' id='treep" + person.pid + "' class='" + getColor(person) + "'>" + person.name + ((currentYearMode) ? " (" + person.cage + ")"  : "") + "</a>";
 	var treepHtml = "<li>" + treepLink + "</li>";
-	if (person.pid == 1)
+	if (person.pid == 0)
 		$("div#treeUi").append("<ul>" + treepHtml + "</ul>");
-	else if (person.spouseId)
+	else if ("spouseId" in person)
 		$("#treep" + person.spouseId).after(treepLink);
 	else if ($("#treep" + person.parentNodeId).siblings("ul").length > 0)
 		$("#treep" + person.parentNodeId).siblings("ul").append(treepHtml);
