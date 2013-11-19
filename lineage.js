@@ -115,6 +115,17 @@ var syllables = [
 
 // basic functions
 
+function serializePersonFromForm(form) {
+	//Turns a jQuery form into a partial person object.
+	var o = {};
+	var a = form.serializeArray();
+	$.each(a, function() {
+		if (this.value && this.value != "")
+			o[this.name] = this.value;
+	});
+	return o;
+}
+
 function getPersonFromPid(pid) {
 	// Recover a 'person' object from the data structure by pid
 	return linData[pid];
@@ -601,31 +612,79 @@ function populateLineage() {
 	$("#treeUi").html("");
 
 	// Read in form data for person #1, add them to top of lineage chart.
-	var person = new Object();
-	person.parentNodeId = -1;
+	var partialPerson = serializePersonFromForm($("form#personForm"));
+	var person = finishPerson(partialPerson);
+	
+	displayPerson(person);
+	linData[person.pid] = person;
 
-	person.pid = linData.length; //0
+	// Read in (or produce) person #2, the spouse, and add them to the chart.
+	var partialSpouse = serializePersonFromForm($("form#spouseForm"));
+	var spouse = finishPerson(partialSpouse);
 
-	person.clan = (document.startform.clan1.value > -1) ? document.startform.clan1.value : randclan();
-	person.gender = (document.startform.gender1.value != "x") ? document.startform.gender1.value : randgen();
-	person.generation = (document.startform.generation1.value != "" && !(isNaN(parseInt(document.startform.generation1.value)))) ? parseInt(document.startform.generation1.value) : 0;
-	person.name = (document.startform.name1.value) ? document.startform.name1.value : generateName(person);
-	person.byear = (document.startform.born1.value) ? parseInt(document.startform.born1.value) : 0;
+	displayPerson(spouse, true);
+	linData[spouse.pid] = spouse;
 
-	if (document.startform.married1.value) {
-		person.myear = document.startform.married1.value;
-		person.mage = person.myear - person.byear;
-	} else {
-		person.mage = generateMarriageAge(person.gender);
-		person.myear = person.byear + person.mage;
+	// Generate their direct desendants ...
+	generateKids(person, spouse);
+}
+
+function finishPerson(person) {
+	//Finish a partial person, possibly based on their spouse.
+	if (person.spouseId)
+		var spouse = getPersonFromPid(person.spouseId);
+
+	if (!person.clan) 
+		person.clan = randclan();
+	if (!person.gender) {
+		if (spouse && spouse.gender) {
+			person.gender = getOppositeGender(spouse.gender);
+		} else {
+			person.gender = randgen();
+		}
 	}
 
-	if (document.startform.died1.value) {
-		person.dyear = parseInt(document.startform.died1.value);
-		person.dage = person.dyear - person.byear;
-	} else {
+	if (!person.generation || isNaN(parseInt(person.generation)))
+		if (spouse && spouse.generation) {
+			person.generation = spouse.generation;
+		} else {
+			person.generation = 0;
+		}
+
+	if (!person.name)
+		person.name = generateName(person);
+
+	if (spouse && spouse.myear) {//For spouses, birth year is calculated from marriage year.
+		person.myear = spouse.myear;
+		if (!person.byear || isNaN(parseInt(person.byear)) ) {
+			person.mage = generateMarriageAge(person.gender);
+			person.byear = person.myear - person.mage;
+		} else {
+			person.byear = parseInt(person.byear);
+			person.mage = person.myear - person.byear;
+		}
+	} else {//Otherwise, determine birth year first.
+		if (!person.byear || isNaN(parseInt(person.byear))) {
+			person.byear = 0;
+		} else {
+			person.byear = parseInt(person.byear);
+		}
+
+		if (!person.myear || isNaN(parseInt(person.myear))) {
+			person.mage = generateMarriageAge(person.gender);
+			person.myear = person.byear + person.mage;
+		} else {
+			person.myear = parseInt(person.myear);
+			person.mage = person.myear - person.byear;
+		}
+	}
+
+	if (!person.dyear || isNaN(parseInt(person.dyear))) {
 		person.dage = generateDeathAge(person.myear, person.mage);
 		person.dyear = person.byear + person.dage;
+	} else {
+		person.dyear = parseInt(person.dyear);
+		person.dage = person.dyear - person.byear;
 	}
 
 	person.ptype = generatePersonalityType();
@@ -633,48 +692,11 @@ function populateLineage() {
 	//In currentYearMode, we save the current age.
 	if (currentYearMode)
 		person.cage = getCurrentAge(person);
-	
-	displayPerson(person);
-	linData[person.pid] = person;
 
-	// Read in (or produce) person #2, the spouse, and add them to the chart.
-	var spouse = new Object();
-	spouse.parentNodeId = person.pid;
-	spouse.spouseId = person.pid;
-	spouse.pid = linData.length;
+	if (!person.pid)
+		person.pid = linData.length;
 
-	spouse.clan = (document.startform.clan2.value > -1) ? document.startform.clan2.value : randclan();
-	spouse.generation = (document.startform.generation2.value != "" && !(isNaN(parseInt(document.startform.generation2.value)))) ? parseInt(document.startform.generation2.value) : person.generation;
-
-	spouse.gender = getOppositeGender(person.gender);
-	spouse.name = (document.startform.name2.value) ? document.startform.name2.value : generateName(spouse);
-	spouse.myear = person.myear;
-
-	if (document.startform.born2.value) {
-		spouse.byear = parseInt(document.startform.born2.value);
-		spouse.mage = spouse.myear - spouse.byear;
-	} else {
-		spouse.mage = generateMarriageAge(spouse.gender);
-		spouse.byear = spouse.myear - spouse.mage;
-	}
-	if (document.startform.died2.value) {
-		spouse.dyear = parseInt(document.startform.died2.value);
-		spouse.dage = spouse.dyear - spouse.byear;
-	} else {
-		spouse.dage = generateDeathAge(spouse.myear, spouse.mage);
-		spouse.dyear = spouse.byear + spouse.dage;
-	}
-
-	spouse.ptype=generatePersonalityType();
-	//In currentYearMode, we save the current age.
-	if (currentYearMode)
-		spouse.cage = getCurrentAge(spouse);
-
-	displayPerson(spouse, true);
-	linData[spouse.pid] = spouse;
-
-	// Generate their direct desendants ...
-	generateKids(person, spouse);
+	return person;
 }
 
 function displayPerson(person,isSpouse) {
@@ -791,8 +813,8 @@ function resetNameTable() {
 $( document ).ready(function() {
 	//initialize the form
 	setSeedByDate();
-	$("select#clan1SELECT").append("<option value='-1'>Random Clan</option>");
-	$("select#clan2SELECT").append("<option value='-1'>Random Clan</option>");
+	$("select#clan1SELECT").append("<option value=''>Random Clan</option>");
+	$("select#clan2SELECT").append("<option value=''>Random Clan</option>");
 	var appendage = "";
 	for  (var i = 0; i < syllables.length; i++) {
 		appendage = "<option value='" + i + "'>" + syllables[i][0];
