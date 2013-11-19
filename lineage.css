@@ -251,3 +251,6 @@ div#nameTables table table table td {cursor:default;}
 		.tree li a.color11 {background-color:#c9f;}
 		.tree li a.color12 {background-color:#f9f;}
 		.tree li a.color13 {background-color:#f99;}
+
+		.tree li a.male {border-radius: 0px;}
+		.tree li a.female {border-radius: 13px;}

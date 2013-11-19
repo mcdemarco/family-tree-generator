@@ -135,6 +135,11 @@ function getCurrentAge(person) {
 	return (person.dyear > currentYear) ? (currentYear - person.byear) : "d." + person.dage;
 }
 
+function getGender(person) {
+	return (person.gender == "F") ? "female" : "male";
+}
+
+
 // Random trait functions
 
 function rollD(sides) {
@@ -724,7 +729,7 @@ function displayPerson(person,isSpouse) {
 	$("#person" + person.parentNodeId).append(personHtml);
 
 	//Tree section.
-	var treepLink = "<a href='#' id='treep" + person.pid + "' class='" + getColor(person) + "'>" + person.name + ((currentYearMode) ? " (" + person.cage + ")"  : "") + "</a>";
+	var treepLink = "<a href='#' id='treep" + person.pid + "' class='" + getColor(person) + " " + getGender(person) + "'>" + person.name + ((currentYearMode) ? " (" + person.cage + ")"  : "") + "</a>";
 	var treepHtml = "<li>" + treepLink + "</li>";
 	if (person.pid == 0)
 		$("div#treeUi").append("<ul>" + treepHtml + "</ul>");
