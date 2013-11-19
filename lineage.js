@@ -116,7 +116,7 @@ var syllables = [
 // basic functions
 
 function serializePersonFromForm(form) {
-	//Turns a jQuery form into a partial person object.
+	//Convert a jQuery form object into a partial person object.
 	var o = {};
 	var a = form.serializeArray();
 	$.each(a, function() {
@@ -124,11 +124,6 @@ function serializePersonFromForm(form) {
 			o[this.name] = this.value;
 	});
 	return o;
-}
-
-function getPersonFromPid(pid) {
-	// Recover a 'person' object from the data structure by pid
-	return linData[pid];
 }
 
 function getColor(person) {
@@ -175,7 +170,7 @@ function generateUniqueName(person) {
 }
 
 function generateNewName(pid) {
-	var person = getPersonFromPid(pid);
+	var person = linData[pid];
 	var newname = generateUniqueName(person);
 	updateName(pid,newname);
 }
@@ -448,7 +443,7 @@ function generateKids(person, spouse) { // get kids
 function generateFamily(pid) {
 	// Generate a person's geneological contribution to the family tree,
 	// including children and remarriages (and further children).
-	var newparent = getPersonFromPid(pid);
+	var newparent = linData[pid];
 
 	// As we are generating their descendents, hide their 'generate' button
 	$("#family"+pid).hide();
@@ -632,7 +627,7 @@ function populateLineage() {
 function finishPerson(person) {
 	//Finish a partial person, possibly based on their spouse.
 	if (person.spouseId)
-		var spouse = getPersonFromPid(person.spouseId);
+		var spouse = linData[person.spouseId];
 
 	if (!person.clan) 
 		person.clan = randclan();
