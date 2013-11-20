@@ -377,67 +377,24 @@ function generateKids(person, spouse) { // get kids
 	var girl=0;
 	while (yom <= mspan) {
 	if ( rollD(100) <= generateFertility(fertstart+yom,girl) ) {
-		var kid = new Object();
+		var partialKid = new Object();
 
-		kid.parentNodeId = spouse.pid;
-		kid.parentId1 = person.pid;
-		kid.parentId2 = spouse.pid;
-		kid.pid = linData.length;
+		partialKid.parentNodeId = spouse.pid;
+		partialKid.parentId1 = person.pid;
+		partialKid.parentId2 = spouse.pid;
+		partialKid.byear = spouse.myear + yom;
+		var kid = finishPerson(partialKid);
 
-		kid.gender=randgen();
 		if (kid.gender == 'F')
 			girl = girl + 1;
-		if (kid.gender == person.gender) {
-			kid.clan = person.clan;
-			kid.generation = parseInt(person.generation) + 1;
-		} else { 
-			kid.clan = spouse.clan;
-			kid.generation = parseInt(spouse.generation) + 1;
-		}
-		kid.name=generateUniqueName(kid);
-
-		kid.byear=spouse.myear + yom;
-		kid.dage=generateDeathAge();
-		kid.dyear = kid.byear + kid.dage;
-
-		kid.mage = generateMarriageAge(kid.gender);
-		kid.myear = kid.byear + kid.mage;
-
-		//kid.family = true;
-		if ((kid.myear > kid.dyear) || (rollD(100) <= RATE_bachelor_ette)) {
-			//voluntary or accidental non-marriage
-			kid.family = false;
-		} else if (kid.gender == 'M') {
-			if (RATE_male > 50) {
-				kid.family = (rollD(100) <= (100 - RATE_male));
-			} else {
-				kid.family = true;
-			}
-		} else {//gender is F
-			if (RATE_male < 50) {
-				kid.family = (rollD(100) <= (RATE_male));
-			} else {
-				kid.family = true;
-			}
-		}
-
-		if (kid.family == false) {
-			kid.family = null;
-			kid.mage = null;
-			kid.myear = null;
-		}
-
-		kid.ptype=generatePersonalityType();
-		//In currentYearMode, we save the current age.
-		if (currentYearMode)
-			kid.cage = getCurrentAge(kid);
 
 		displayPerson(kid);
 		linData[kid.pid] = kid;
 
 		//In currentYearMode, we do depth-first generation of people.
-		if (currentYearMode && kid.family && kid.myear <= currentYear)
+		if (currentYearMode && kid.family && kid.myear <= currentYear) {
 			generateFamily(kid.pid);
+		}
 
 		yom += 8 + rollD(8);  // delay before trying for another kid.
 	}
@@ -449,20 +406,25 @@ function generateFamily(pid) {
 	// Generate a person's geneological contribution to the family tree,
 	// including children and remarriages (and further children).
 	var newparent = linData[pid];
-
 	// As we are generating their descendents, hide their 'generate' button
 	$("#family"+pid).hide();
 
-	var spouse = generateSpouse(newparent); // get spouse
+	var partialSpouse = new Object();
+	partialSpouse.parentNodeId = pid;
+	partialSpouse.spouseId = pid;
+	partialSpouse.generation = newparent.generation;
+	partialSpouse.myear = newparent.myear;
+
+	var spouse = finishPerson(partialSpouse);
 	displayPerson(spouse,true); // display spouse
+	linData[spouse.pid] = spouse;
+
 	generateKids(newparent, spouse); // get kids
 	
 	var grief = spouse.dyear;
 	while (newparent.dyear >= grief) { // check for remarriage until death
 		grief += rollD(2)+rollD(2)+rollD(2)-2; // delay before remarriage
-		newparent.myear = grief; // make sure remarriage date is correct
-		
-		if (newparent.myear <= newparent.dyear) {
+		if (grief <= newparent.dyear) {
 			var offspring = countKids(newparent);
 			var newchance;
 			switch(offspring) {
@@ -471,44 +433,21 @@ function generateFamily(pid) {
 			default: newchance = (newparent.dyear - grief) * RATE_remarry_multipleHeirs; break;
 			}
 			if(rollD(100) < newchance) {
-				console.log("Remarried!");
-				spouse = generateSpouse(newparent); // get spouse
+				//newparent.myear = grief; // make sure remarriage date is correct
+				partialSpouse = [];
+				partialSpouse.parentNodeId = newparent.pid;
+				partialSpouse.spouseId = newparent.pid;
+				partialSpouse.generation = newparent.generation;
+				partialSpouse.myear = grief;
+
+				var spouse = finishPerson(partialSpouse);
 				displayPerson(spouse,true); // display spouse
+				linData[spouse.pid] = spouse;
+
 				generateKids(newparent,spouse); // get kids
 				grief = spouse.dyear;
 			}
 		}
-	}
-
-	//console.log("Person " + newparent.name + " has " + countKids(newparent) + " kids.");
-
-	function generateSpouse(person) {
-		var spouse = new Object();
-		
-		spouse.parentNodeId = person.pid;
-		spouse.spouseId = person.pid;
-		
-		spouse.pid = linData.length;
-
-		spouse.gender = getOppositeGender(person.gender);
-		spouse.clan = randclan();
-		spouse.generation = person.generation;
-		spouse.name = generateName(spouse);
-
-		spouse.myear = person.myear;
-		spouse.mage = generateMarriageAge(spouse.gender);
-		spouse.byear = spouse.myear - spouse.mage;
-		spouse.dage = generateDeathAge(spouse.myear,spouse.mage);
-		spouse.dyear = spouse.byear+spouse.dage;
-		
-		spouse.ptype = generatePersonalityType();
-
-		//In currentYearMode, we save the current age.
-		if (currentYearMode)
-			spouse.cage = getCurrentAge(spouse);
-		
-		linData[spouse.pid] = spouse;
-		return spouse;
 	}
 
 	function countKids(person) {
@@ -631,11 +570,13 @@ function populateLineage() {
 
 function finishPerson(person) {
 	//Finish a partial person, possibly based on their spouse.
-	if (person.spouseId)
+	if ("spouseId" in person)
 		var spouse = linData[person.spouseId];
+	if ("parentId1" in person) {
+		var parent1 = linData[person.parentId1];
+		var parent2 = linData[person.parentId1];
+	}
 
-	if (!person.clan) 
-		person.clan = randclan();
 	if (!person.gender) {
 		if (spouse && spouse.gender) {
 			person.gender = getOppositeGender(spouse.gender);
@@ -644,19 +585,29 @@ function finishPerson(person) {
 		}
 	}
 
-	if (!person.generation || isNaN(parseInt(person.generation)))
+	if (!("clan" in person) && !parent1) 
+		person.clan = randclan();
+	else
+		person.clan = (person.gender == parent1.gender) ? parent1.clan : parent2.clan;
+
+	if (!("generation" in person) || isNaN(parseInt(person.generation))) {
 		if (spouse && spouse.generation) {
 			person.generation = spouse.generation;
 		} else {
-			person.generation = 0;
+			if (parent1)
+				person.generation = parseInt(parent1.generation) + 1;
+			else 
+				person.generation = 0;
 		}
+	}
 
 	if (!person.name)
-		person.name = generateName(person);
+		person.name = (parent1) ? generateUniqueName(person) : generateName(person);
 
-	if (spouse && spouse.myear) {//For spouses, birth year is calculated from marriage year.
-		person.myear = spouse.myear;
-		if (!person.byear || isNaN(parseInt(person.byear)) ) {
+	if (spouse && (person.myear || spouse.myear)) {//For spouses, birth year is calculated from marriage year.
+		if (!person.myear)
+			person.myear = spouse.myear;
+		if (!("byear" in person) || isNaN(parseInt(person.byear)) ) {
 			person.mage = generateMarriageAge(person.gender);
 			person.byear = person.myear - person.mage;
 		} else {
@@ -664,13 +615,13 @@ function finishPerson(person) {
 			person.mage = person.myear - person.byear;
 		}
 	} else {//Otherwise, determine birth year first.
-		if (!person.byear || isNaN(parseInt(person.byear))) {
+		if (!("byear" in person) || isNaN(parseInt(person.byear))) {
 			person.byear = 0;
 		} else {
 			person.byear = parseInt(person.byear);
 		}
 
-		if (!person.myear || isNaN(parseInt(person.myear))) {
+		if (!("myear" in person) || isNaN(parseInt(person.myear))) {
 			person.mage = generateMarriageAge(person.gender);
 			person.myear = person.byear + person.mage;
 		} else {
@@ -679,12 +630,38 @@ function finishPerson(person) {
 		}
 	}
 
-	if (!person.dyear || isNaN(parseInt(person.dyear))) {
+	if (!("dyear" in person) || isNaN(parseInt(person.dyear))) {
 		person.dage = generateDeathAge(person.myear, person.mage);
 		person.dyear = person.byear + person.dage;
 	} else {
 		person.dyear = parseInt(person.dyear);
 		person.dage = person.dyear - person.byear;
+	}
+
+	if (parent1) {
+		//When there's a parent, we need to determine whether this kid really has a family.
+		if ((person.myear > person.dyear) || (rollD(100) <= RATE_bachelor_ette)) {
+			//voluntary or accidental non-marriage
+			person.family = false;
+		} else if (person.gender == 'M') {
+			if (RATE_male > 50) {
+				person.family = (rollD(100) <= (100 - RATE_male));
+			} else {
+				person.family = true;
+			}
+		} else {//gender is F
+			if (RATE_male < 50) {
+				person.family = (rollD(100) <= (RATE_male));
+			} else {
+				person.family = true;
+			}
+		}
+		if (person.family == false) {
+			//retroactively null out the keys we used for calculation
+			person.family = null;
+			person.mage = null;
+			person.myear = null;
+		}
 	}
 
 	person.ptype = generatePersonalityType();
