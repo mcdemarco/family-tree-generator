@@ -14,29 +14,6 @@
 
 // Needs a hide family for tree trimming.
 
-var RATE_remarry_barren = 0; //15;
-var RATE_remarry_singleChild = 0; //5;
-var RATE_remarry_multipleHeirs = 0; //3;
-var RATE_bachelor_ette = 4;  //chance of refusal to marry, both sexes; otherwise married at available spouse rate
-
-var RATE_male = 75; // Male/female ratio at birth.  Should be 51% for humans.
-
-var MIN_fmage = 16; // Minimum age of marriage; cut off below this.
-var MEAN_fmage = 32; // Average age of marriage on a normal curve. % should be 13-21 for medieval human women
-var STD_fmage = 5; // Standard deviation in age of marriage.
-var MIN_mmage = 16; // Minimum age of marriage; cut off below this.
-var MEAN_mmage = 36; // Average age of marriage on a normal curve.
-var STD_mmage = 10; // Standard deviation in age of marriage.
-
-var MEAN_dage = 256; // Average age of death on a normal curve.
-var STD_dage = 36; // Standard deviation in age of death.
-
-//To do: incorporate odds of human premature death:
-// 50% dies as a child or teenager
-// 25% die in their 20-30's
-// 12.5% die in their 40-50's
-// 12.5% die in their 60-70's
-
 var linData = [];//full data structure for genealogy
 
 var currentYear; //determines timing of data output
@@ -46,84 +23,12 @@ var currentYearMode = false;
 var isSafari = false;
 var spaceFactor = 60;
 
-var syllables = [
-	["'A","'a","'"],
-	["Ko","ko","k"],
-	["Te","te","t"],
-	["Sae","sae","s"],
-	["Pi","pi","p"],
-	["Qoa","qoa","q"],
-	["Cea","ctea","ct"],
-	["Tsu","tsu","ts"],
-	["Hae","hae","h"],
-	["Goa","goa","g"],
-	["Di","di","d"],
-	["Zea","zea","z"],
-	["Bu","bu","b"],
-	["Ra","rga","rg"],
-	["De","dge","dg"],
-	["Dzo","dzo","dz"],
-	["Hea","hhea","hh"],
-	["Xa","xa","x"],
-	["Thu","thu","th"],
-	["She","she","sh"],
-	["Fo","fo","f"],
-	["Khae","khae","kh"],
-	["Kli","kli","kl"],
-	["Choa","tchoa","tch"],
-	["`E","`e","`"],
-	["Ghae","ghae","gh"],
-	["Dho","dho","dh"],
-	["Zhi","zhi","zh"],
-	["Voa","voa","v"],
-	["Ghea","rghea","rgh"],
-	["Glu","glu","gl"],
-	["Ja","dja","dj"],
-	["Mi","hmi","hm"],
-	["Ngea","ngea","ng"],
-	["Noa","noa","n"],
-	["Snu","snu","sn"],
-	["Ma","ma","m"],
-	["Ne","nhe","nh"],
-	["Nlo","nlo","nl"],
-	["Mbae","mbae","mb"],
-	["Rhu","rrhu","rrh"],
-	["Le","lte","lt"],
-	["Rra","rra","rr"],
-	["Ro","rdo","rd"],
-	["Brae","brae","br"],
-	["Rhi","rhi","rh"],
-	["Rlo","rlo","rl"],
-	["Trea","trea","tr"],
-	["Hro","hro","hr"],
-	["Gwi","gwi","gw"],
-	["Rae","rae","r"],
-	["Swoa","swoa","sw"],
-	["Bhea","bhea","bh"],
-	["Whu","whu","wh"],
-	["Ya","ya","y"],
-	["Tle","tle","tl"],
-	["Hwoa","hwoa","hw"],
-	["Llu","llu","ll"],
-	["Lea","lea","l"],
-	["Zla","zla","zl"],
-	["Ye","yye","yy"],
-	["Wo","wo","w"],
-	["Hlae","hlae","hl"],
-	["Dzli","dzli","dzl"]
-];
+
 
 // basic functions
 
-function serializePersonFromForm(form) {
-	//Convert a jQuery form object into a partial person object.
-	var o = {};
-	var a = form.serializeArray();
-	$.each(a, function() {
-		if (this.value && this.value != "")
-			o[this.name] = this.value;
-	});
-	return o;
+function capitalize(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 function getColor(person) {
@@ -136,9 +41,20 @@ function getCurrentAge(person) {
 }
 
 function getGender(person) {
+	//Translate gender to a word; e.g. in css class for the tree view
 	return (person.gender == "F") ? "female" : "male";
 }
 
+function serializePersonFromForm(form) {
+	//Convert a jQuery form object into a partial person object.
+	var o = {};
+	var a = form.serializeArray();
+	$.each(a, function() {
+		if (this.value && this.value != "")
+			o[this.name] = this.value;
+	});
+	return o;
+}
 
 // Random trait functions
 
@@ -158,19 +74,14 @@ function rnd(mean, stdev) {
 	}
 }
 
-// *** begin cool dwarf name generation ***
-function generateName(person) {
-	var roll1 = rollD(syllables.length) - 1;
-	return syllables[roll1][0] + syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? syllables[parseInt(person.generation)%syllables.length][2] : "");
-}
-
+// *** name manipulation code ***
 function generateUniqueName(person) {
 	//generateName with a sibling check
 	//note that the program will hang here if enough distinct names aren't available
 	var tempSiblings = getSiblingNames(person);
-	var tempName = generateName(person);
+	var tempName = homo.generateName(person);
 	while (tempSiblings.indexOf(tempName) >= 0)
-		tempName = generateName(person);
+		tempName = homo.generateName(person);
 	return tempName;
 }
 
@@ -207,82 +118,16 @@ function getSiblingNames(person) {
 	}
 	return siblings;
 }
-// *** end name generation **
+// *** end name manipulation **
+
+
+//Person construction functions
 
 function randgen() { // random gender, weighted for dwarves
 	var gen;
-	(rollD(100)<RATE_male) ? gen ="M" : gen="F";
+	(rollD(100) < homo.RATE_male) ? gen ="M" : gen="F";
 	return gen;
 }
-
-function randclan() { // random clan
-	return rollD(syllables.length) - 1;
-}
-
-// *** begin personality type generation code ***
-function generatePersonalityType() {
-	var EI=typeEI();
-	var SN=typeSN();
-	var TF=typeTF();
-	var JP=typeJP();
-	var pType=EI+SN+TF+JP;
-	return pType;
-
-	// these are the 4 axis of the Myers-Briggs personality types
-	// their distribution should approximate their real life frequency
-	function typeEI() { 
-		var EI="";
-		var roll = rollD(4);
-		(roll>1) ? EI="E" :	EI="I";
-		return EI;
-	}
-	function typeSN() {
-		var SN="";
-		var roll = rollD(4);
-		(roll>1) ? SN="S" : SN="N";
-		return SN;
-	}
-	function typeTF() {
-		var TF="";
-		var roll = rollD(2);
-		(roll==2) ?	TF="T" : TF="F";
-		return TF;
-	}
-	function typeJP() {
-		var JP="";
-		var roll = rollD(2);
-		(roll==2) ? JP="J":	JP="P";
-		return JP;
-	}
-}
-
-function getPTypeName(pType) {
-	// Apply label to personality type.
-	var typeName = "";
-	switch (pType) {
-	case "ISFP": typeName="(Artisan/Composer)"; break;
-	case "ISTP": typeName="(Artisan/Crafter)"; break;
-	case "ESFP": typeName="(Artisan/Performer)"; break;
-	case "ESTP": typeName="(Artisan/Promoter)"; break;
-	case "ISFJ": typeName="(Guardian/Protector)"; break;
-	case "ISTJ": typeName="(Guardian/Inspector)"; break;
-	case "ESFJ": typeName="(Guardian/Provider)"; break;
-	case "ESTJ": typeName="(Guardian/Supervisor)"; break;
-	case "INFP": typeName="(Idealist/Healer)"; break;
-	case "INFJ": typeName="(Idealist/Counselor)"; break;
-	case "ENFP": typeName="(Idealist/Champion)"; break;
-	case "ENFJ": typeName="(Idealist/Teacher)"; break;
-	case "INTP": typeName="(Rational/Architect)"; break;
-	case "INTJ": typeName="(Rational/Mastermind)"; break;
-	case "ENTP": typeName="(Rational/Inventor)"; break;
-	case "ENTJ": typeName="(Rational/Field Marshal)"; break;
-	default: typeName=" --Oops! I didn't get the type";
-	}
-	return typeName;
-}
-// *** end personality type generation code ***
-
-//Person construction functions
 
 function getOppositeGender(gender) { // flip gender (for the spouse) if one is given
 	var newgen = "";
@@ -297,70 +142,27 @@ function getOppositeGender(gender) { // flip gender (for the spouse) if one is g
 function generateMarriageAge(gender) {
 	var mage;
 	if (gender=="M") {	 // if male, potentially add a few years
-		mage = rnd(MEAN_mmage,STD_mmage);
-		if (mage < MIN_mmage) 
-			mage = MIN_mmage;
+		mage = rnd(homo.MEAN_mmage,homo.STD_mmage);
+		if (mage < homo.MIN_mmage) 
+			mage = homo.MIN_mmage;
 	} else {
-		mage = rnd(MEAN_fmage,STD_fmage); // women 
-		if (mage < MIN_fmage) 
-			mage = MIN_fmage;
+		mage = rnd(homo.MEAN_fmage,homo.STD_fmage); // women 
+		if (mage < homo.MIN_fmage) 
+			mage = homo.MIN_fmage;
 	}
 	return mage;
 }
 
 function generateDeathAge(myear , mage) { // get age they die at
 	var dage;
-	dage = rnd(MEAN_dage,STD_dage);
-
+	dage = rnd(homo.MEAN_dage,homo.STD_dage);
+	
 	if (dage && mage) {  // Generating spouse, so should be alive when married...
 		while (dage < mage) {   // if died before married, set to marriage.
 			dage = mage;
 		}
 	}
 	return dage;
-}
-
-function generateFertility(fertyear, girl) { // return fertility based on age
-	var chance = 0;
-/* humans
-	if (fertyear<14) {chance=10;}
-	if (fertyear==14) {chance=20;}
-	if (fertyear==15) {chance=40;}
-	if (fertyear==16) {chance=60;}
-	if (fertyear==17) {chance=80;}
-	if (fertyear>17 && fertyear<30) {chance=98;}
-	if (fertyear>30 && fertyear<35) {chance=80;}
-	if (fertyear>35 && fertyear<40) {chance=40;}
-	if (fertyear>40 && fertyear<45) {chance=20;}
-	if (fertyear>44) {chance=3;}
-	if (fertyear>52) {chance=1;}  // Only non-zero because of magic.
-*/
-
-/* dwarves */
-	if (fertyear > 16 && fertyear <= 20) chance = 10;
-	if (fertyear > 20 && fertyear <= 24) chance = 20;
-	if (fertyear > 24 && fertyear <= 28) chance = 30;
-	if (fertyear > 28 && fertyear <= 30) chance = 60;
-	if (fertyear > 30 && fertyear <= 32) chance = 80;
-	if (fertyear > 32 && fertyear <= 48) chance = 98;
-	if (fertyear > 48 && fertyear <= 64) chance = 80;
-	if (fertyear > 64 && fertyear <= 96) chance = 60;
-	if (fertyear > 96 && fertyear <= 110) chance = 40;
-	if (fertyear > 110 && fertyear <= 128) chance = 30;
-	if (fertyear > 128 && fertyear <= 146) chance = 20;
-	if (fertyear > 146 && fertyear <= 164) chance = 10;
-	if (fertyear > 164 && fertyear <= 200) chance = 5;
-	if (fertyear > 200 && fertyear <= 236) chance = 3;
-	if (fertyear > 236) chance = 1;
-
-/* test low fertility - trouble with tree display
-	if (fertyear > 48 && fertyear <= 52) chance = 25;
-*/
-
-	if (girl > 0)
-		return chance/(8 * girl);
-	else
-		return chance;
 }
 
 function generateKids(person, spouse) { // get kids
@@ -376,7 +178,7 @@ function generateKids(person, spouse) { // get kids
 	var yom=0;  // years of marriage
 	var girl=0;
 	while (yom <= mspan) {
-	if ( rollD(100) <= generateFertility(fertstart+yom,girl) ) {
+	if ( rollD(100) <= homo.generateFertility(fertstart+yom,girl) ) {
 		var partialKid = new Object();
 
 		partialKid.parentNodeId = spouse.pid;
@@ -423,14 +225,14 @@ function generateFamily(pid) {
 	
 	var grief = spouse.dyear;
 	while (newparent.dyear >= grief) { // check for remarriage until death
-		grief += rollD(2)+rollD(2)+rollD(2)-2; // delay before remarriage
+		grief += homo.generateGrief(); // delay before remarriage
 		if (grief <= newparent.dyear) {
 			var offspring = countKids(newparent);
 			var newchance;
 			switch(offspring) {
-			case "0": newchance = (newparent.dyear - grief) * RATE_remarry_barren; break;
-			case "1": newchance = (newparent.dyear - grief) * RATE_remarry_singleChild; break;
-			default: newchance = (newparent.dyear - grief) * RATE_remarry_multipleHeirs; break;
+			case "0": newchance = (newparent.dyear - grief) * homo.RATE_remarry_barren; break;
+			case "1": newchance = (newparent.dyear - grief) * homo.RATE_remarry_singleChild; break;
+			default: newchance = (newparent.dyear - grief) * homo.RATE_remarry_multipleHeirs; break;
 			}
 			if(rollD(100) < newchance) {
 				//newparent.myear = grief; // make sure remarriage date is correct
@@ -493,7 +295,7 @@ function enableNamesUi() {
 	disableCsvUi();
 	disableLineageUi();
 	disableTreeUi();
-	generateNameTable();
+	homo.generateNameTable();
 	$(".namesUi").show();
 }
 
@@ -586,7 +388,7 @@ function finishPerson(person) {
 	}
 
 	if (!("clan" in person) && !parent1) 
-		person.clan = randclan();
+		person.clan = homo.generateClan();
 	else
 		person.clan = (person.gender == parent1.gender) ? parent1.clan : parent2.clan;
 
@@ -602,7 +404,7 @@ function finishPerson(person) {
 	}
 
 	if (!person.name)
-		person.name = (parent1) ? generateUniqueName(person) : generateName(person);
+		person.name = (parent1) ? generateUniqueName(person) : homo.generateName(person);
 
 	if (spouse && (person.myear || spouse.myear)) {//For spouses, birth year is calculated from marriage year.
 		if (!person.myear)
@@ -640,18 +442,18 @@ function finishPerson(person) {
 
 	if (parent1) {
 		//When there's a parent, we need to determine whether this kid really has a family.
-		if ((person.myear > person.dyear) || (rollD(100) <= RATE_bachelor_ette)) {
+		if ((person.myear > person.dyear) || (rollD(100) <= homo.RATE_bachelor_ette)) {
 			//voluntary or accidental non-marriage
 			person.family = false;
 		} else if (person.gender == 'M') {
-			if (RATE_male > 50) {
-				person.family = (rollD(100) <= (100 - RATE_male));
+			if (homo.RATE_male > 50) {
+				person.family = (rollD(100) <= (100 - homo.RATE_male));
 			} else {
 				person.family = true;
 			}
 		} else {//gender is F
-			if (RATE_male < 50) {
-				person.family = (rollD(100) <= (RATE_male));
+			if (homo.RATE_male < 50) {
+				person.family = (rollD(100) <= (homo.RATE_male));
 			} else {
 				person.family = true;
 			}
@@ -664,7 +466,7 @@ function finishPerson(person) {
 		}
 	}
 
-	person.ptype = generatePersonalityType();
+	person.ptype = homo.generatePersonalityType();
 
 	//In currentYearMode, we save the current age.
 	if (currentYearMode)
@@ -697,8 +499,8 @@ function displayPerson(person,isSpouse) {
 	if (person.myear)
 		personHtml += ", married in " +  person.myear + " at the age of " + person.mage;
 	personHtml += ", died at the age of " +  person.dage + ".</span>";
-	personHtml += " <span class='clanSpan'>Clan: " + syllables[parseInt(person.clan)][0] + (person.gender == 'M' ? "foaf" : "khaekh") + "</span>";
-	personHtml += " <span title='" + getPTypeName(person.ptype) + "'> MBTI:" + person.ptype + "</span>";
+	personHtml += " <span class='clanSpan'>Clan: " + homo.syllables[parseInt(person.clan)][0] + (person.gender == 'M' ? "foaf" : "khaekh") + "</span>";
+	personHtml += " <span title='" + homo.getPTypeName(person.ptype) + "'> MBTI:" + person.ptype + "</span>";
 	if (!currentYearMode && person.family)
 		personHtml += " <button id='family" + person.pid + "' onclick='generateFamily(" + person.pid + ")' title='Get Family'>Family</button>";
 	personHtml += "</li></ul>";
@@ -753,48 +555,20 @@ function setSeedByDate() {
 	$("input#seed").val(new Date().getTime());
 }
 
-// Functions for showing the name inventory.
-
-function generateNameTable() {
-	if ($("div#nameTables").html() != "") {
-		return;
-	}
-	var table = "<table>";
-	for (i=0; i<syllables.length; i++) {
-		if (i%8 == 0) table = table + "<tr>";
-		table = table + "<td><div onclick='$(this).siblings().show();'>Clan " + syllables[i][0] + "khaekh</div><table style='display:none;'>";
-		for (j=0; j<syllables.length; j++) {
-			if (j%8 == 0) table = table + "<tr>";
-			var tableId = "table-" + i + "-" + j;
-			table = table + "<td><span onclick='$(\"#" + tableId + "\").show()" + "' title='Clan " + syllables[i][0] + "foaf'>" + syllables[j][0] + syllables[i][1] + "</span><table id = '" + tableId + "' style='display:none;'>";
-			for (k=0; k<syllables.length; k++) {
-				if (k%8 == 0) table = table + "<tr>";
-				table = table + "<td>" + syllables[j][0] + syllables[i][1] + syllables[k][2] + "</td>";
-				if (k%8 == 7) table = table + "</tr>";
-			}
-			table = table + "</table></td>";
-			if (j%8 == 7) table = table + "</tr>";
-		}
-		table = table + "</table></td>";
-		if (i%8 == 7) table = table + "</tr>";
-	}
-	$("div#nameTables").append(table);
-}
-
-function resetNameTable() {
-	$("div#nameTables table table").hide();
-}
-
 // And we're ready!
 
 $( document ).ready(function() {
 	//initialize the form
 	setSeedByDate();
+	
+	//Switch to dwarves
+	homo = dwarf;
+
 	$("select#clan1SELECT").append("<option value=''>Random Clan</option>");
 	$("select#clan2SELECT").append("<option value=''>Random Clan</option>");
 	var appendage = "";
-	for  (var i = 0; i < syllables.length; i++) {
-		appendage = "<option value='" + i + "'>" + syllables[i][0];
+	for  (var i = 0; i < homo.syllables.length; i++) {
+		appendage = "<option value='" + i + "'>" + homo.syllables[i][0];
 		$("select#clan1SELECT").append(appendage + "foaf</option>");
 		$("select#clan2SELECT").append(appendage + "khaekh</option>");
 	}
@@ -805,4 +579,3 @@ $( document ).ready(function() {
 	var ua = navigator.userAgent.toLowerCase();
 	isSafari = ((ua.indexOf('safari') >= 0) && (ua.indexOf('chrome') < 0));
 });
-
