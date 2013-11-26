@@ -2,7 +2,7 @@
 
 var homo = new Homo();
 
-addRace("homo", "Homo sapiens", homo);
+addRace("homo", "Human: basic", homo);
 
 function Homo() {
 	this.RATE_remarry_barren = 15;
@@ -12,15 +12,15 @@ function Homo() {
 	
 	this.RATE_male = 51; // Male/female ratio at birth.  Should be 51% for humans.
 	
-	this.MIN_fmage = 16; // Minimum age of marriage; cut off below this.
-	this.MEAN_fmage = 32; // Average age of marriage on a normal curve. % should be 13-21 for medieval human women
-	this.STD_fmage = 5; // Standard deviation in age of marriage.
-	this.MIN_mmage = 16; // Minimum age of marriage; cut off below this.
-	this.MEAN_mmage = 36; // Average age of marriage on a normal curve.
-	this.STD_mmage = 10; // Standard deviation in age of marriage.
+	this.MIN_fmage = 13; // Minimum age of marriage; cut off below this.
+	this.MEAN_fmage = 17; // Average age of marriage on a normal curve. % should be 13-21 for medieval human women
+	this.STD_fmage = 2; // Standard deviation in age of marriage.
+	this.MIN_mmage = 17; // Minimum age of marriage; cut off below this.
+	this.MEAN_mmage = 25; // Average age of marriage on a normal curve.
+	this.STD_mmage = 4; // Standard deviation in age of marriage.
 	
-	this.MEAN_dage = 256; // Average age of death on a normal curve.
-	this.STD_dage = 36; // Standard deviation in age of death.
+	this.MEAN_dage = 72; // Average age of death on a normal curve.
+	this.STD_dage = 15; // Standard deviation in age of death.
 
 //To do: incorporate odds of human premature death:
 // 50% dies as a child or teenager
