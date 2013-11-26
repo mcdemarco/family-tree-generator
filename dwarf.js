@@ -2,6 +2,8 @@
 
 var dwarf = new Homo();
 
+addRace("dwarf", "Dwarf", dwarf, true);
+
 	dwarf.RATE_remarry_barren = 0; //15;
 	dwarf.RATE_remarry_singleChild = 0; //5;
 	dwarf.RATE_remarry_multipleHeirs = 0; //3;
@@ -88,6 +90,11 @@ var dwarf = new Homo();
 	// clan generation
 	dwarf.generateClan = function() { // random clan
 		return rollD(dwarf.syllables.length) - 1;
+	};
+
+	dwarf.getClan = function(person) {
+		//get clan name from clan ID
+		return dwarf.syllables[parseInt(person.clan)][0] + (person.gender == 'M' ? "foaf" : "khaekh");
 	};
 
 	// *** begin cool dwarf name generation ***

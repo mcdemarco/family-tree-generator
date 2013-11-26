@@ -23,9 +23,21 @@ var currentYearMode = false;
 var isSafari = false;
 var spaceFactor = 60;
 
+var raceSpace = [];
+
 
 
 // basic functions
+
+function addRace(sName, dName, obj, isDef) {
+	var i = raceSpace.length;
+	raceSpace[i] = [];
+	raceSpace[i].shortName = sName;
+	raceSpace[i].displayName = dName;
+	raceSpace[i].object = obj;
+	if (isDef)
+		raceSpace[i].isDefault = true;
+}
 
 function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -45,6 +57,11 @@ function getGender(person) {
 	return (person.gender == "F") ? "female" : "male";
 }
 
+function selectRace() {
+	//Human type/fantasy race selection.
+	homo = raceSpace[$("select#raceSELECT").val()].object;
+}
+
 function serializePersonFromForm(form) {
 	//Convert a jQuery form object into a partial person object.
 	var o = {};
@@ -54,6 +71,10 @@ function serializePersonFromForm(form) {
 			o[this.name] = this.value;
 	});
 	return o;
+}
+
+function setSeedByDate() {
+	$("input#seed").val(new Date().getTime());
 }
 
 // Random trait functions
@@ -499,7 +520,8 @@ function displayPerson(person,isSpouse) {
 	if (person.myear)
 		personHtml += ", married in " +  person.myear + " at the age of " + person.mage;
 	personHtml += ", died at the age of " +  person.dage + ".</span>";
-	personHtml += " <span class='clanSpan'>Clan: " + homo.syllables[parseInt(person.clan)][0] + (person.gender == 'M' ? "foaf" : "khaekh") + "</span>";
+	if (homo.getClan(person))
+		personHtml += " <span class='clanSpan'>Clan: " + homo.getClan(person) + "</span>";
 	personHtml += " <span title='" + homo.getPTypeName(person.ptype) + "'> MBTI:" + person.ptype + "</span>";
 	if (!currentYearMode && person.family)
 		personHtml += " <button id='family" + person.pid + "' onclick='generateFamily(" + person.pid + ")' title='Get Family'>Family</button>";
@@ -549,11 +571,6 @@ function resetCsvTxt() {
 	$("#csvtxt").val("");
 }
 
-// Down to a single seeding function.
-
-function setSeedByDate() {
-	$("input#seed").val(new Date().getTime());
-}
 
 // And we're ready!
 
@@ -561,8 +578,12 @@ $( document ).ready(function() {
 	//initialize the form
 	setSeedByDate();
 	
-	//Switch to dwarves
-	homo = dwarf;
+	//Race switcher:
+	for (i=0; i<raceSpace.length; i++) {
+		$("select#raceSELECT").append("<option value='" + i + "'" + (raceSpace[i].isDefault ? "selected=selected" : "") + ">" + raceSpace[i].displayName +  "</option>");
+		if (raceSpace[i].isDefault)
+			homo = raceSpace[i].object;
+	}
 
 	$("select#clan1SELECT").append("<option value=''>Random Clan</option>");
 	$("select#clan2SELECT").append("<option value=''>Random Clan</option>");

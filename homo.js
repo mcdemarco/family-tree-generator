@@ -2,13 +2,15 @@
 
 var homo = new Homo();
 
+addRace("homo", "Homo sapiens", homo);
+
 function Homo() {
-	this.RATE_remarry_barren = 0; //15;
-	this.RATE_remarry_singleChild = 0; //5;
-	this.RATE_remarry_multipleHeirs = 0; //3;
+	this.RATE_remarry_barren = 15;
+	this.RATE_remarry_singleChild = 5;
+	this.RATE_remarry_multipleHeirs = 3;
 	this.RATE_bachelor_ette = 4;  //chance of refusal to marry, both sexes; otherwise married at available spouse rate
 	
-	this.RATE_male = 75; // Male/female ratio at birth.  Should be 51% for humans.
+	this.RATE_male = 51; // Male/female ratio at birth.  Should be 51% for humans.
 	
 	this.MIN_fmage = 16; // Minimum age of marriage; cut off below this.
 	this.MEAN_fmage = 32; // Average age of marriage on a normal curve. % should be 13-21 for medieval human women
@@ -31,11 +33,17 @@ function Homo() {
 	this.generateName = generateName;
 	this.generatePersonalityType = generatePersonalityType;
 	this.generateGrief = generateGrief;
+	this.getClan = getClan;
 	this.getPTypeName = getPTypeName;
 
 	// clan generation
 	function generateClan() { // random clan
-		return rollD(syllables.length) - 1;
+		return 0;
+	}
+
+	function getClan(person) {
+		//get clan name from clan ID
+		return false;
 	}
 
 // *** begin lame name generation ***
