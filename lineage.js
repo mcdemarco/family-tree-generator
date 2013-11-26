@@ -176,7 +176,7 @@ function generateMarriageAge(gender) {
 
 function generateDeathAge(myear , mage) { // get age they die at
 	var dage;
-	if (rollD(100) < homo.RATE_dchildhood) {
+	if (!mage && rollD(100) < homo.RATE_dchildhood) {
 		if (rollD(2) < 2) {
 			dage = 1;
 		} else if (rollD(2) < 2) {
