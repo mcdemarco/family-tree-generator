@@ -10,23 +10,20 @@ function Homo() {
 	this.RATE_remarry_multipleHeirs = 3;
 	this.RATE_bachelor_ette = 4;  //chance of refusal to marry, both sexes; otherwise married at available spouse rate
 	
-	this.RATE_male = 51; // Male/female ratio at birth.  Should be 51% for humans.
+	this.RATE_male = 51; // Male/female ratio at birth.
 	
-	this.MIN_fmage = 13; // Minimum age of marriage; cut off below this.
-	this.MEAN_fmage = 17; // Average age of marriage on a normal curve. % should be 13-21 for medieval human women
+	this.MIN_fmage = 12; // Minimum age of marriage for females; cut off below this.
+	this.MEAN_fmage = 17; // Average age of marriage on a normal curve.
 	this.STD_fmage = 2; // Standard deviation in age of marriage.
-	this.MIN_mmage = 17; // Minimum age of marriage; cut off below this.
+	this.MIN_mmage = 17; // Minimum age of marriage for males; cut off below this.
 	this.MEAN_mmage = 25; // Average age of marriage on a normal curve.
 	this.STD_mmage = 4; // Standard deviation in age of marriage.
 	
-	this.MEAN_dage = 72; // Average age of death on a normal curve.
-	this.STD_dage = 15; // Standard deviation in age of death.
+	this.RATE_dchildhood = 35; //Chance of death in infancy or childhood
+	this.RATE_daccident = 0.05; //Chance of accidental death per year
 
-//To do: incorporate odds of human premature death:
-// 50% dies as a child or teenager
-// 25% die in their 20-30's
-// 12.5% die in their 40-50's
-// 12.5% die in their 60-70's
+	this.MEAN_dage = 72; // Average age of natural death (post-childhood) on a normal curve.
+	this.STD_dage = 15; // Standard deviation in age of death.
 
 	this.generateClan = generateClan;
 	this.generateFertility = generateFertility;

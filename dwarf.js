@@ -17,9 +17,13 @@ addRace("dwarf", "Dwarf", dwarf, true);
 	dwarf.MIN_mmage = 16; // Minimum age of marriage; cut off below this.
 	dwarf.MEAN_mmage = 36; // Average age of marriage on a normal curve.
 	dwarf.STD_mmage = 10; // Standard deviation in age of marriage.
+
+	dwarf.RATE_dchildhood = 0.5; //Chance of death in infancy or childhood
+	dwarf.RATE_daccident = 0.075; //Chance of accidental death per year
 	
 	dwarf.MEAN_dage = 256; // Average age of death on a normal curve.
 	dwarf.STD_dage = 36; // Standard deviation in age of death.
+
 	dwarf.syllables = [
 	["'A","'a","'"],
 	["Ko","ko","k"],

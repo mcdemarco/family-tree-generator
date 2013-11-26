@@ -176,8 +176,21 @@ function generateMarriageAge(gender) {
 
 function generateDeathAge(myear , mage) { // get age they die at
 	var dage;
-	dage = rnd(homo.MEAN_dage,homo.STD_dage);
-	
+	if (rollD(100) < homo.RATE_dchildhood) {
+		if (rollD(2) < 2) {
+			dage = 1;
+		} else if (rollD(2) < 2) {
+			dage = rollD(5);
+		} else {
+			dage = rollD(15);
+		}
+	} else {
+		dage = rnd(homo.MEAN_dage,homo.STD_dage);
+		var accident = dage * homo.RATE_daccident;
+		if (rollD(100) < accident) {
+			dage = rollD(dage);
+		}
+	}
 	if (dage && mage) {  // Generating spouse, so should be alive when married...
 		while (dage < mage) {   // if died before married, set to marriage.
 			dage = mage;
