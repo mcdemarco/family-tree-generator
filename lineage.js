@@ -232,7 +232,7 @@ function generateKids(person, spouse) { // get kids
 			generateFamily(kid.pid);
 		}
 
-		yom += 8 + rollD(8);  // delay before trying for another kid.
+		yom += rnd(homo.MEAN_childDelay, homo.STD_childDelay);  // delay before trying for another kid.
 	}
 	yom++;
 	}
@@ -440,7 +440,8 @@ function finishPerson(person) {
 	if (!person.name)
 		person.name = (parent1) ? generateUniqueName(person) : homo.generateName(person);
 
-	if (spouse && (person.myear || spouse.myear)) {//For spouses, birth year is calculated from marriage year.
+	if (spouse && (person.myear || spouse.myear)) {
+		//For spouses, birth year is calculated from marriage year.
 		if (!person.myear)
 			person.myear = spouse.myear;
 		if (!("byear" in person) || isNaN(parseInt(person.byear)) ) {
@@ -456,8 +457,11 @@ function finishPerson(person) {
 		} else {
 			person.byear = parseInt(person.byear);
 		}
-
 		if (!("myear" in person) || isNaN(parseInt(person.myear))) {
+			//here we determine a death age first so there's no assumption the person lives to marriage
+			if (!("dyear" in person) || isNaN(parseInt(person.dyear))) {
+				person.dage = generateDeathAge();
+			}
 			person.mage = generateMarriageAge(person.gender);
 			person.myear = person.byear + person.mage;
 		} else {

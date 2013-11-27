@@ -24,6 +24,9 @@ addRace("dwarf", "Dwarf", dwarf, true);
 	dwarf.MEAN_dage = 256; // Average age of death on a normal curve.
 	dwarf.STD_dage = 36; // Standard deviation in age of death.
 
+	dwarf.MEAN_childDelay = 10;
+	dwarf.STD_childDelay = 2;
+
 	dwarf.syllables = [
 	["'A","'a","'"],
 	["Ko","ko","k"],

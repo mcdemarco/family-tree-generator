@@ -2,7 +2,7 @@
 
 var homo = new Homo();
 
-addRace("homo", "Human: basic", homo);
+addRace("homo", "Human: medieval", homo);
 
 function Homo() {
 	this.RATE_remarry_barren = 15;
@@ -24,6 +24,9 @@ function Homo() {
 
 	this.MEAN_dage = 72; // Average age of natural death (post-childhood) on a normal curve.
 	this.STD_dage = 15; // Standard deviation in age of death.
+
+	this.MEAN_childDelay = 0;
+	this.STD_childDelay = 0;
 
 	this.generateClan = generateClan;
 	this.generateFertility = generateFertility;
@@ -154,44 +157,19 @@ function Homo() {
 
 	function generateFertility(fertyear, girl) { // return fertility based on age
 		var chance = 0;
-		/* humans
-		 if (fertyear<14) {chance=10;}
-		 if (fertyear==14) {chance=20;}
-		 if (fertyear==15) {chance=40;}
-		 if (fertyear==16) {chance=60;}
-		 if (fertyear==17) {chance=80;}
-		 if (fertyear>17 && fertyear<30) {chance=98;}
-		 if (fertyear>30 && fertyear<35) {chance=80;}
-		 if (fertyear>35 && fertyear<40) {chance=40;}
-		 if (fertyear>40 && fertyear<45) {chance=20;}
-		 if (fertyear>44) {chance=3;}
-		 if (fertyear>52) {chance=1;}  // Only non-zero because of magic.
-		 */
-		/* dwarves */
-		if (fertyear > 16 && fertyear <= 20) chance = 10;
-		if (fertyear > 20 && fertyear <= 24) chance = 20;
-		if (fertyear > 24 && fertyear <= 28) chance = 30;
-		if (fertyear > 28 && fertyear <= 30) chance = 60;
-		if (fertyear > 30 && fertyear <= 32) chance = 80;
-		if (fertyear > 32 && fertyear <= 48) chance = 98;
-		if (fertyear > 48 && fertyear <= 64) chance = 80;
-		if (fertyear > 64 && fertyear <= 96) chance = 60;
-		if (fertyear > 96 && fertyear <= 110) chance = 40;
-		if (fertyear > 110 && fertyear <= 128) chance = 30;
-		if (fertyear > 128 && fertyear <= 146) chance = 20;
-		if (fertyear > 146 && fertyear <= 164) chance = 10;
-		if (fertyear > 164 && fertyear <= 200) chance = 5;
-		if (fertyear > 200 && fertyear <= 236) chance = 3;
-		if (fertyear > 236) chance = 1;
+		if (fertyear<14) {chance=10;}
+		if (fertyear==14) {chance=20;}
+		if (fertyear==15) {chance=40;}
+		if (fertyear==16) {chance=60;}
+		if (fertyear==17) {chance=80;}
+		if (fertyear>17 && fertyear<30) {chance=98;}
+		if (fertyear>30 && fertyear<35) {chance=80;}
+		if (fertyear>35 && fertyear<40) {chance=40;}
+		if (fertyear>40 && fertyear<45) {chance=20;}
+		if (fertyear>44) {chance=3;}
+		if (fertyear>50) {chance=0;}
 		
-		/* test low fertility - trouble with tree display
-		 if (fertyear > 48 && fertyear <= 52) chance = 25;
-		 */
-		
-		if (girl > 0)
-			return chance/(8 * girl);
-		else
-			return chance;
+		return chance;
 	}
 
 	function generateGrief() {

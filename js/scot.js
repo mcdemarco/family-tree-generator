@@ -1,4 +1,4 @@
-/* base humanoid type */
+/* base human type with Scottish clans */
 
 var scot = new Homo();
 
