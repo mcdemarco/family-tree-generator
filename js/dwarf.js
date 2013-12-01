@@ -2,7 +2,7 @@
 
 var dwarf = new Homo();
 
-addRace("dwarf", "Dwarf", dwarf, true);
+addRace("dwarf", "Dwarf", dwarf, false);
 
 	dwarf.RATE_remarry_barren = 0; //15;
 	dwarf.RATE_remarry_singleChild = 0; //5;
@@ -138,6 +138,15 @@ addRace("dwarf", "Dwarf", dwarf, true);
 	dwarf.generateGrief = function() {
 		return rollD(2)+rollD(2)+rollD(2)-2;
 	};
+
+dwarf.initializeClans = function() {
+	var appendage = "";
+	for  (var i = 0; i < dwarf.syllables.length; i++) {
+		appendage = "<option value='" + i + "'>" + dwarf.syllables[i][0];
+		$("select#clan1SELECT").append(appendage + "foaf</option>");
+		$("select#clan2SELECT").append(appendage + "khaekh</option>");
+	}
+};
 	
 // Functions for showing the name inventory.
 

@@ -26,7 +26,6 @@ var spaceFactor = 60;
 var raceSpace = [];
 
 
-
 // basic functions
 
 function addRace(sName, dName, obj, isDef) {
@@ -174,9 +173,9 @@ function generateMarriageAge(gender) {
 	return mage;
 }
 
-function generateDeathAge(myear , mage) { // get age they die at
+function generateDeathAge(mage) { // get age they die at
 	var dage;
-	if (!mage && rollD(100) < homo.RATE_dchildhood) {
+	if (!mage && (rollD(100) < homo.RATE_dchildhood)) {
 		if (rollD(2) < 2) {
 			dage = 1;
 		} else if (rollD(2) < 2) {
@@ -388,7 +387,7 @@ function populateLineage() {
 
 	// Read in form data for person #1, add them to top of lineage chart.
 	var partialPerson = serializePersonFromForm($("form#personForm"));
-	var person = finishPerson(partialPerson);
+	var person = finishPerson(partialPerson,true);
 	
 	displayPerson(person);
 	linData[person.pid] = person;
@@ -404,7 +403,7 @@ function populateLineage() {
 	generateKids(person, spouse);
 }
 
-function finishPerson(person) {
+function finishPerson(person,mustLive) {
 	//Finish a partial person, possibly based on their spouse.
 	if ("spouseId" in person)
 		var spouse = linData[person.spouseId];
@@ -459,8 +458,9 @@ function finishPerson(person) {
 		}
 		if (!("myear" in person) || isNaN(parseInt(person.myear))) {
 			//here we determine a death age first so there's no assumption the person lives to marriage
-			if (!("dyear" in person) || isNaN(parseInt(person.dyear))) {
+			if (!mustLive && (!("dyear" in person) || isNaN(parseInt(person.dyear)))) {
 				person.dage = generateDeathAge();
+				person.dyear = person.byear + person.dage;
 			}
 			person.mage = generateMarriageAge(person.gender);
 			person.myear = person.byear + person.mage;
@@ -471,7 +471,7 @@ function finishPerson(person) {
 	}
 
 	if (!("dyear" in person) || isNaN(parseInt(person.dyear))) {
-		person.dage = generateDeathAge(person.myear, person.mage);
+		person.dage = generateDeathAge(person.mage);
 		person.dyear = person.byear + person.dage;
 	} else {
 		person.dyear = parseInt(person.dyear);
@@ -594,21 +594,16 @@ function resetCsvTxt() {
 $( document ).ready(function() {
 	//initialize the form
 	setSeedByDate();
+	$("select#clan1SELECT").append("<option value=''>Random Clan</option>");
+	$("select#clan2SELECT").append("<option value=''>Random Clan</option>");
 	
 	//Race switcher:
 	for (i=0; i<raceSpace.length; i++) {
 		$("select#raceSELECT").append("<option value='" + i + "'" + (raceSpace[i].isDefault ? "selected=selected" : "") + ">" + raceSpace[i].displayName +  "</option>");
-		if (raceSpace[i].isDefault)
-			homo = raceSpace[i].object;
-	}
-
-	$("select#clan1SELECT").append("<option value=''>Random Clan</option>");
-	$("select#clan2SELECT").append("<option value=''>Random Clan</option>");
-	var appendage = "";
-	for  (var i = 0; i < homo.syllables.length; i++) {
-		appendage = "<option value='" + i + "'>" + homo.syllables[i][0];
-		$("select#clan1SELECT").append(appendage + "foaf</option>");
-		$("select#clan2SELECT").append(appendage + "khaekh</option>");
+		if (raceSpace[i].isDefault) {
+			var homo = raceSpace[i].object;
+			homo.initializeClans();
+		}
 	}
 	$('#startform').submit(function () {
 		return false;

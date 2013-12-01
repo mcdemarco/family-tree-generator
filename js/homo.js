@@ -1,8 +1,9 @@
 /* base humanoid type */
 
 var homo = new Homo();
+var medieval = new Homo();
 
-addRace("homo", "Human: medieval", homo);
+addRace("medieval", "Human: medieval", medieval, true);
 
 function Homo() {
 	this.RATE_remarry_barren = 15;
@@ -35,6 +36,7 @@ function Homo() {
 	this.generateGrief = generateGrief;
 	this.getClan = getClan;
 	this.getPTypeName = getPTypeName;
+	this.initializeClans = initializeClans;
 
 	// clan generation
 	function generateClan() { // random clan
@@ -239,5 +241,9 @@ function Homo() {
 		return typeName;
 	}
 	// *** end personality type generation code ***
+
+	function initializeClans() {
+		return false;
+	}
 
 }

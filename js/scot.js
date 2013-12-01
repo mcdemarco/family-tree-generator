@@ -164,5 +164,14 @@ scot.generateClan = function() { // random clan
 
 scot.getClan = function(person) {
 	//get clan name from clan ID
-	return homo.clanList[person.clan];
+	return scot.clanList[person.clan];
+};
+
+scot.initializeClans = function() {
+	var appendage = "";
+	for  (var i = 0; i < scot.clanList.length; i++) {
+		appendage = "<option value='" + i + "'>" + scot.clanList[i] + "</option>";
+		$("select#clan1SELECT").append(appendage);
+		$("select#clan2SELECT").append(appendage);
+	}
 };
