@@ -66,8 +66,15 @@ function serializePersonFromForm(form) {
 	var o = {};
 	var a = form.serializeArray();
 	$.each(a, function() {
-		if (this.value && this.value != "")
-			o[this.name] = this.value;
+		if (this.value && this.value != "") {
+			if (this.name == "generation" || this.name == "byear" || this.name == "myear" || this.name == "dyear") {
+				//validation and typecast for numeric elements in form
+				if (!isNaN(parseInt(this.value)))
+					o[this.name] = parseInt(this.value);
+			} else {
+				o[this.name] = this.value;
+			}
+		}
 	});
 	return o;
 }
@@ -425,7 +432,7 @@ function finishPerson(person,mustLive) {
 	else
 		person.clan = (person.gender == parent1.gender) ? parent1.clan : parent2.clan;
 
-	if (!("generation" in person) || isNaN(parseInt(person.generation))) {
+	if (!("generation" in person)) {
 		if (spouse && spouse.generation) {
 			person.generation = spouse.generation;
 		} else {
@@ -443,7 +450,7 @@ function finishPerson(person,mustLive) {
 		//For spouses, birth year is calculated from marriage year.
 		if (!person.myear)
 			person.myear = spouse.myear;
-		if (!("byear" in person) || isNaN(parseInt(person.byear)) ) {
+		if (!("byear" in person)) {
 			person.mage = generateMarriageAge(person.gender);
 			person.byear = person.myear - person.mage;
 		} else {
@@ -451,30 +458,25 @@ function finishPerson(person,mustLive) {
 			person.mage = person.myear - person.byear;
 		}
 	} else {//Otherwise, determine birth year first.
-		if (!("byear" in person) || isNaN(parseInt(person.byear))) {
+		if (!("byear" in person))
 			person.byear = 0;
-		} else {
-			person.byear = parseInt(person.byear);
-		}
-		if (!("myear" in person) || isNaN(parseInt(person.myear))) {
+		if (!("myear" in person)) {
 			//here we determine a death age first so there's no assumption the person lives to marriage
-			if (!mustLive && (!("dyear" in person) || isNaN(parseInt(person.dyear)))) {
+			if (!mustLive && !("dyear" in person)) {
 				person.dage = generateDeathAge();
 				person.dyear = person.byear + person.dage;
 			}
 			person.mage = generateMarriageAge(person.gender);
 			person.myear = person.byear + person.mage;
 		} else {
-			person.myear = parseInt(person.myear);
 			person.mage = person.myear - person.byear;
 		}
 	}
 
-	if (!("dyear" in person) || isNaN(parseInt(person.dyear))) {
+	if (!("dyear" in person)) {
 		person.dage = generateDeathAge(person.mage);
 		person.dyear = person.byear + person.dage;
 	} else {
-		person.dyear = parseInt(person.dyear);
 		person.dage = person.dyear - person.byear;
 	}
 
