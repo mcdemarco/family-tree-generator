@@ -1,4 +1,4 @@
-/* base humanoid type */
+/* dwarf type */
 
 var dwarf = new Homo();
 

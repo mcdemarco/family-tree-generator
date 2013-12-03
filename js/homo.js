@@ -1,4 +1,4 @@
-/* base humanoid type */
+/* base humanoid type/medieval human type */
 
 var homo = new Homo();
 var medieval = new Homo();
