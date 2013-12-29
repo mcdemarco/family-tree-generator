@@ -94,6 +94,10 @@ addRace("dwarf", "Dwarf", dwarf, false);
 	["Dzli","dzli","dzl"]
 ];
 
+dwarf.fnames = ["Dís"];
+
+dwarf.mnames = ["Azaghâl", "Balin", "Bifur", "Bofur", "Bombur", "Borin", "Dáin ", "Dori", "Durin", "Dwalin", "Farin", "Fíli", "Flói", "Frár", "Frerin", "Frór", "Fundin", "Gamil", "Gimli", "Glóin", "Glóin", "Gróin", "Grór", "Ibûn", "Khîm", "Kíli", "Lóni", "Mîm", "Náin", "Náli", "Nár", "Narvi", "Nori", "Óin", "Ori", "Telchar", "Thorin", "Thráin ", "Thrór"];
+
 	// clan generation
 	dwarf.generateClan = function() { // random clan
 		return rollD(dwarf.syllables.length) - 1;

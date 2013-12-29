@@ -145,6 +145,30 @@ function getSiblingNames(person) {
 	}
 	return siblings;
 }
+
+function generateRandomName(person) {
+	var tempName;
+	if (person.gender == "M") 
+		 tempName = markov_name(homo.mchain);
+	else 
+		tempName = markov_name(homo.fchain);
+	if (tempName.length > 2 && tempName.indexOf('--') < 0) 
+		if (tempName.charAt(0) != '-' && tempName.charAt(1) != '-' && tempName.charAt(tempName.length - 1) != '-' && tempName.charAt(tempName.length - 2) != '-')
+			return tempName;
+	return generateRandomName(person);
+}
+
+function pickRandomName(person) {
+	//Instead of applying the name generator to the name list, just pick a name off of it.
+	var tempName;
+	if (person.gender == "M") 
+		 tempName = homo.mnames[rollD(homo.mnames.length)-1];
+	else 
+		tempName = homo.fnames[rollD(homo.fnames.length)-1];
+	return tempName;
+}
+
+
 // *** end name manipulation **
 
 
@@ -531,7 +555,7 @@ function displayPerson(person,isSpouse) {
 	var personHtml = "";
 	personHtml += "<ul id='person" + person.pid + "' class='" + getColor(person) + "'>";
 	personHtml += "<li" + ("spouseId" in person ? " class='spouse'>" : ">");
-	personHtml += "<input type='text' size=8 onkeyup='if (event.keyCode == 13) {changeName(" + person.pid + ",this.value)};' value=\"" + person.name + "\"/>";
+	personHtml += "<input type='text' size=12 onkeyup='if (event.keyCode == 13) {changeName(" + person.pid + ",this.value)};' value=\"" + person.name + "\"/>";
 	personHtml += "<button onclick='generateNewName(" + person.pid + ");' title='Rename'>R</button>";
 	personHtml += " <span class='infoSpan'>" + person.gender + "</span> <span class='infoSpan'>" + person.byear + "&ndash;" + person.dyear;
 	if (currentYearMode)
@@ -590,7 +614,6 @@ function resetCsvTxt() {
 	$("#csvtxt").val("");
 }
 
-
 // And we're ready!
 
 $( document ).ready(function() {
@@ -614,3 +637,109 @@ $( document ).ready(function() {
 	var ua = navigator.userAgent.toLowerCase();
 	isSafari = ((ua.indexOf('safari') >= 0) && (ua.indexOf('chrome') < 0));
 });
+
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// name_generator.js
+// written and released to the public domain by drow <drow@bin.sh>
+// http://creativecommons.org/publicdomain/zero/1.0/
+// Some edits by mcdemarco for use in Random Family Tree Generator v3.0.
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// construct markov chain from list of names
+
+  function construct_chain (list) {
+    var chain = {};
+
+    for (var i = 0; i < list.length; i++) {
+      var names = list[i].split(/\s+/);
+      chain = incr_chain(chain,'parts',names.length);
+
+      for (var j = 0; j < names.length; j++) {
+        var name = names[j];
+        chain = incr_chain(chain,'name_len',name.length);
+
+        var c = name.substr(0,1);
+        chain = incr_chain(chain,'initial',c);
+
+        var string = name.substr(1);
+        var last_c = c;
+
+        while (string.length > 0) {
+          var c = string.substr(0,1);
+          chain = incr_chain(chain,last_c,c);
+
+          string = string.substr(1);
+          last_c = c;
+        }
+      }
+    }
+    return scale_chain(chain);
+  }
+  function incr_chain (chain, key, token) {
+    if (chain[key]) {
+      if (chain[key][token]) {
+        chain[key][token]++;
+      } else {
+        chain[key][token] = 1;
+      }
+    } else {
+      chain[key] = { token: 1 };
+    }
+    return chain;
+  }
+  function scale_chain (chain) {
+    var table_len = {};
+
+    for (key in chain) {
+      table_len[key] = 0;
+
+      for (var token in chain[key]) {
+        var count = chain[key][token];
+        var weighted = Math.floor(Math.pow(count,1.3));
+
+        chain[key][token] = weighted;
+        table_len[key] += weighted;
+      }
+    }
+    chain['table_len'] = table_len;
+    return chain;
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// construct name from markov chain
+
+  function markov_name (chain) {
+    var parts = select_link(chain,'parts');
+    var names = [];
+
+    for (i = 0; i < parts; i++) {
+      var name_len = select_link(chain,'name_len');
+      var c = select_link(chain,'initial');
+      var name = c;
+      var last_c = c;
+
+      while (name.length < name_len) {
+        c = select_link(chain,last_c);
+        name += c;
+        last_c = c;
+      }
+      names.push(name);
+    }
+    return names.join(' ');
+  }
+  function select_link (chain, key) {
+    var len = chain['table_len'][key];
+    var idx = Math.floor(Math.random() * len);
+
+    var t = 0;
+	for (var token in chain[key]) {
+		if (token != "token") {
+			t += chain[key][token];
+			if (idx < t) { return token; }
+		}
+    }
+    return '-';
+  }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

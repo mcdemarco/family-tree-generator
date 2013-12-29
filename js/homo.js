@@ -29,6 +29,63 @@ function Homo() {
 	this.MEAN_childDelay = 0;
 	this.STD_childDelay = 0;
 
+	//Medieval Frankish names from Kate Monk's Onomastikon
+	this.fnames = ["Adallinda", "Adaltrude", "Adelheid", "Alpaida", "Alpais", "Ansgard",
+				   "Aubirge", "Audofleda", "Baldechildis", "Basina", "Begga", "Berenga",
+				   "Bertha", "Bertrada", "Burgundefara", "Clothild", "Eadgithu", "Emma",
+				   "Engelberga", "Ermengard", "Ermentrudis", "Fara", "Fastrada", "Foy",
+				   "Genofeva", "Gersvinda", "Gisela", "Gudula", "Gudule", "Gundrada",
+				   "Herleva", "Hildegard", "Hildegarde", "Hildegund", "Hiltrude", "Hodierna",
+				   "Ingeltrude", "Ingeltrudis", "Joveta", "Liobsynde", "Liutgarde", "Madelgarde",
+				   "Mechtild", "Moschia", "Nantechildis", "Oda", "Ogiva", "Plectrudis",
+				   "Radogund", "Rosamund", "Rothaide", "Rotrude", "Rotrudis", "Ruothilde",
+				   "Theodelinda", "Theoderada", "Theutberga", "Waldrada"];
+	this.mnames = ["Abbo", "Adalbert", "Adaldag", "Adalhard", "Adelard", "Aega",
+				   "Agilbert", "Agobard", "Aigulf", "Alberic", "Allowin", "Amalricus",
+				   "Amand", "Amator", "Angegisis", "Angilbart", "Angilbert", "Anno",
+				   "Ansegisel", "Anskar", "Arbitio", "Arbogast", "Arbogastes", "Arculf",
+				   "Arnoul", "Arnulf", "Artaud", "Asselin", "Atacinus", "Audoen",
+				   "Audomar", "Audoneus", "Audramnus", "Baugulf", "Bauto", "Bavo",
+				   "Benild", "Berchar", "Berengar", "Bernard", "Berno", "Bero",
+				   "Bertelis", "Berthaire", "Bertin", "Bertulf", "Besso", "Birinus",
+				   "Blutmund", "Boso", "Bovo", "Brice", "Britius", "Brocard",
+				   "Bruno", "Burchard", "Butilin", "Carloman", "Cassyon", "Ceufroy",
+				   "Charibert", "Charles", "Cheldric", "Childebert", "Childebrand", "Childeric",
+				   "Chilperic", "Chlodmer", "Chlodowig", "Chlotar", "Chrodegang", "Clodomir",
+				   "Clotaire", "Clothair", "Clovis", "Corbinian", "Cyr", "Cyricus",
+				   "Dado", "Dagobert", "Dalfin", "Dodo", "Dreux", "Drogo",
+				   "Dudon", "Ebbo", "Ebroin", "Ebrulf", "Einhard", "Emme",
+				   "Emmeran", "Engilbert", "Enurchus", "Erchinoald", "Evroul", "Evroult",
+				   "Fardulf", "Faro", "Flodoard", "Folcard", "Folmar", "Fredegar",
+				   "Fridolin", "Fridugis", "Fulbert", "Fulk", "Fulrad", "Gerbert",
+				   "Gereon", "Gerold", "Gifemund", "Giseler", "Giso", "Godobald",
+				   "Godun", "Goisfrid", "Goscelin", "Gouzlim", "Gozbert", "Gozolon",
+				   "Grifo", "Grimald", "Grimbald", "Gunthar", "Guntramn", "Hagen",
+				   "Halinard", "Hartmut", "Helinand", "Helisachar", "Heribert", "Hildebald",
+				   "Hildebold", "Hildeprand", "Hilduin", "Hincmar", "Hlodver", "Huebald",
+				   "Humbert", "Hunald", "Imbert", "Imninon", "Jocelin", "Lambert",
+				   "Lanfranc", "Laudus", "Lebuin", "Ledger", "Leger", "Leodegar",
+				   "Letard", "Leufred", "Leufroy", "Leutfrid", "Leuthere", "Liudhard",
+				   "Liudolf", "Lo", "Lothar", "Lul", "Lull", "Maiuel",
+				   "Maixent", "Majorian", "Mallobaudes", "Mansuetus", "Maraulf", "Marcoul",
+				   "Matfrid", "Mauger", "Médard", "Meginhard", "Merobaudes", "Merovech",
+				   "Nithard", "Norbert", "Nordbert", "Notker", "Odger", "Odo",
+				   "Odulf", "Omer", "Orderic", "Otker", "Ouen", "Ouus",
+				   "Pacatian", "Pair", "Pancras", "Panteleon", "Pepin", "Philibert",
+				   "Piligrim", "Pippin", "Poppo", "Puvis", "Radigis", "Ragnfred",
+				   "Razo", "Reginald", "Reginar", "Remi", "Reolus", "Richomer",
+				   "Richomeres", "Riquier", "Rothad", "Samo", "Sergius", "Sicho",
+				   "Sigebert", "Sigibert", "Suger", "Suidbert", "Suidger", "Syagrius",
+				   "Tassilo", "Taurin", "Tescelin", "Thankmar", "Théodard", "Theodoric",
+				   "Theodulf", "Theodulph", "Theudebert", "Theuderic", "Theutgaud", "Thierry",
+				   "Thietmar", "Turpin", "Vedast", "Vicelin", "Vigor", "Vulmar",
+				   "Waiofar", "Wala", "Walaric", "Waldolanus", "Waltgaud", "Wandregisel",
+				   "Wandregisilus", "Wandrille", "Warmann", "Werinbert", "Wibert", "Wichmann",
+				   "Willehad", "Willibald", "Willibrord", "Wulfram", "Zwentibold"];
+
+	this.fchain = construct_chain(this.fnames);
+	this.mchain = construct_chain(this.mnames);
+
 	this.generateClan = generateClan;
 	this.generateFertility = generateFertility;
 	this.generateName = generateName;
@@ -48,114 +105,9 @@ function Homo() {
 		return false;
 	}
 
-// *** begin lame name generation ***
 	function generateName(person) {
-		if (person.gender == "M") {
-			return getEffname();
-		}
-		return getJalname();
+		return generateRandomName(person);
 	}
-	
-	function getJalname() {
-		var syl = rollD(2) + rollD(2) + rollD(2) - 2;
-		var count = 0;
-		var jname = "";
-		while (count < syl) {
-			jname = jname + getSyl();
-			count++;
-		}
-		return capitalize(jname);
-	}
-	
-	function getSyl() {
-		var roll = rollD(75)-1;
-		var sylabs=["ka", "ki", "ku", "ke", "ko",
-					"a", "i", "u", "e", "o",
-					"ta", "chi", "tsu", "te", "to",
-					"ra", "ri", "ru", "re", "ro",
-					"sa", "shi", "su", "se", "so",
-					"ma", "mi", "mu", "me", "mo",
-					"ya", "ya", "yu", "yo", "yo",
-					"na", "ni", "nu", "ne", "no",
-					"ha", "hi", "hu", "he", "ho",
-					"ta", "chi", "tsu", "te", "to",
-					"ra", "ri", "ru", "re", "ro",
-					"sa", "shi", "su", "se", "so",
-					"ma", "mi", "mu", "me", "mo",
-					"wa", "wi", "wu", "we", "wo",
-					"n", "n", "n", "n", "n" ];
-		return sylabs[roll];
-	}
-	
-	function getEffname() {
-		var ccount = 0;
-		var vcount = 0;
-		var vanna = "";
-		var roll=0;
-		roll=rollD(6);
-		if (roll<4) {
-			vanna=get1vowel(); //does the name start with a vowel or a consonant?
-			vcount++;
-		}
-		else {
-			vanna=get1con();
-			ccount++;
-		}
-		var count = 0;
-		var letLength=rollD(6)+1; //sets length of name from 3 to 8 letters.
-		while (count < letLength)
-		{
-			if (ccount>1) {
-				vanna=vanna+getvowels();     //no more than 2 vowels or consonants together
-				ccount=0;vcount++;
-			}
-			else if (vcount>1) {
-				vanna=vanna+getcons();
-				vcount=0;ccount++;
-			}
-			else {
-				roll=0;
-				roll=rollD(6);
-				if (roll<4) {
-					vanna=vanna+getvowels();
-					vcount++;
-				}
-				else {
-					vanna=vanna+getcons();
-					ccount++;
-				}
-			}
-			count++;
-		}
-		return(vanna);
-	}
-
-	function get1vowel() { // The frequency of letters should roughly approximate their
-		var roll=0;                          // occurance in the English language.
-		roll=rollD(10)-1;
-		var firstvowel=["A","A","A","E","E","I","I","O","U","Y"];
-		return firstvowel[roll];
-	}
-	function get1con() {
-		var roll=0;
-		roll=rollD(30)-1;
-		var firstcon=["B","C","D","F","G","H","J","K","L","L","L","L","M","N","P","Q","R","R","R","R","S","S","S","T","V","W","X","Y","Y","Z"];
-		return firstcon[roll];
-	}
-	function getvowels() {
-		var roll=0;
-		roll=rollD(10)-1;
-		var vowels=["a","a","a","e","e","i","i","o","u","y"];
-		return vowels[roll];
-	}
-	function getcons() {
-		var roll=0;
-		roll=rollD(30)-1;
-		var cons=["b","c","d","f","g","h","j","k","l","l","l","l","m","n","p","q","r","r","r","r","s","s","s","t","v","w","x","y","y","z"];
-		return cons[roll];
-	}
-
-	// *** end lame name generation ***
 
 	function generateFertility(fertyear, girl) { // return fertility based on age
 		var chance = 0;

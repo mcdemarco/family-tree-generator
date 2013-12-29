@@ -4,6 +4,10 @@ var scot = new Homo();
 
 addRace("scot", "Human: Scottish", scot);
 
+scot.fnames = ["Ailbhe", "Ailsa", "Aiobheann", "Aoibheann", "Alana", "Angusina", "Athracht", "Beak", "Beathag", "Beigis", "Bege", "Brenda", "Brighid", "Brighde", "Bríd", "Ciannait", "Ciostas", "De", "Deirbhile", "Deòiridh", "Deredere", "Diorbhail", "Diorbhall", "Diorbhorguil", "Donella", "Dolina", "Dolanna", "Donalda", "Donna", "Éadaoin", "Eamhair", "Éimhear", "Eri", "Eriu", "Ete", "Euna", "Faoiltiarna", "Fiona", "Fionnghuala", "Fionnuala", "Fionnaghal", "Fionnsgoth", "Forveleth", "Garniflaith", "Gelis", "Gelleys", "Gormlaith", "Grainne", "Ina", "Kennethina", "Isla", "Lachina", "Luíseach", "Molmoria", "Mór", "Mórag", "Morag", "Mora", "Morven", "Muadhnait", "Muireall", "Muirgoed", "Muirne", "Munga", "Murdina", "Murdann", "Neilina", "Odhamnait", "Oighrig", "Aithbreac", "Eiric", "Eithrig", "Eihrig", "Órfhlaith", "Osla", "Raonaid", "Rhona", "Rona", "Rinalda", "Rinalde", "Rioghnach", "Rodina", "Senga", "Seosaimlún", "Sighte", "Sorcha", "Swannoc", "Suannoch", "Sydoc", "Sydok", "Teàrlag", "Triduana", "Trollhaena"];
+
+scot.mnames = ["Adair", "Aed", "Aodh", "Ailig", "Ailin", "Ailean", "Ailene", "Ailpein", "Alguine", "Algune", "Aonghas", "Aenghus", "Arcill", "Arran", "Artan", "Artain", "Atan", "Artair", "Athairne", "Athol", "Atholl", "Athole", "Baíthín", "Batín", "Beathan", "Bean", "Bhàbair", "Blaine", "Blair", "Brechin", "Bróccín", "Bruce", "Caerell", "Caerill", "Cainnech", "Coinneach", "Cainnec", "Cannech", "Caennaig", "Cainnaig", "Caoidhean", "Caointean", "Ceanntighern", "Cennédig", "Cinaed", "Cinaeda", "Cinatha", "Clivis", "Clyde", "Coimghilain", "Coll", "Colla", "Colmac", "Comgeall", "Comgell", "Comnhall", "Conran", "Cormag", "Cormaic", "Cradoc", "Cramond", "Crawford", "Crinan", "Cuilén", "Culéoin", "Culéon", "Denholm", "Deòiridh", "Deònaid", "Diarmad", "Diarmaid", "Diarmid", "Dermid", "Domhnall", "Domnaill", "Domnall", "Domongart", "Donnachac", "Donnchadh", "Donchad Donnchad", "Donnchid", "Donnchaid", "Dunnchaidh", "Dothaw", "Drostan", "Dubhghall", "Dùghal", "Dùghall", "Dugald", "Dùbhghlas", "Dubne", "Dubni", "Duibne", "Duff", "Dungadr", "Duthac", "Eachann", "Eacgann", "Eairdsidh", "Eallair", "Ellar", "Ceallair", "Éda", "Éibhear", "Elphin", "Eòdhnag", "Eòghann", "Erskine", "Fagan", "Fearchar", "Fearachar", "Fearghas", "Feradac", "Feradach", "Ferdomnac", "Ferdomnach", "Ferdomnaig", "Fillan", "Finguine", "Finguni", "Fionnghal", "Fionnlagh", "Fhionnlaigh", "Fionnla", "Fionnsaidh", "Gartnait", "Garnait", "Giric", "Gordon", "Guinoch", "Idad", "Ided", "Idid", "Hidid", "Keith", "Kevoca", "Kirk", "Lachlan", "Lachlann", "Lachan", "Lochlann", "Lochlyn", "Léod", "Léot", "Lulach", "Luloig", "Mac-Bead", "Mec-Bead", "Mac-Bethad", "Mac-Dobarchon", "Mac-Dubbacín", "Meic-Dobarchon", "Meic-Dobarcon", "Meic-Dubbacín", "Machan", "Madoes", "Maelrubha", "Matadín", "Matain", "Matne", "Matni", "Meldin", "Modan", "Molíne", "Molloch", "Monance", "Morcunn", "Morcunt", "Morgant", "Morgainn", "Morgann", "Morgunn", "Muireadhach", "Muiredach", "Muireach", "Muredig", "Moridac", "Murchadh", "Mungan", "Mungo", "Nathalan", "Neachdann", "Niall", "Niallghus", "Ninian", "Oisein", "Osgar", "Ruairidh", "Ruaraidh", "Ruairi", "Ruadrí", "Seaghdh", "Serf", "Sìoltach", "Sioltaich", "Siridean", "Síthech", "Síthig", "Stewart", "Stuart", "Tadhg", "Taogh", "Teosag", "Toirdhealbhach", "Teàrlach", "Torin", "Tráillín", "Trálín", "Uarraig", "Wallace"];
+
 scot.clanList = [
 	'Agnew',
 	'Anstruther',
@@ -175,3 +179,9 @@ scot.initializeClans = function() {
 		$("select#clan2SELECT").append(appendage);
 	}
 };
+
+scot.generateName = function(person) {
+	return pickRandomName(person);
+};
+
+
