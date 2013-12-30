@@ -127,7 +127,7 @@ function updateName(pid,newname) {
 	//update data structure and html
 	linData[pid].name = newname;
 	$("ul#person"+pid).children("li:first").children("input").val(newname);
-	$("a#treep" + pid).html(newname + (currentYearMode ? " (" + person.cage + ")" : "" ));
+	$("a#treep" + pid).html(newname + (currentYearMode ? " (" + linData[pid].cage + ")" : "" ));
 }
 
 function getSiblingNames(person) {
