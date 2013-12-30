@@ -198,4 +198,8 @@ function Homo() {
 		return false;
 	}
 
+	function generateNameTable() {
+		return false;
+	}
+
 }

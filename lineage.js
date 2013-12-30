@@ -20,7 +20,6 @@ var currentYear; //determines timing of data output
 var currentYearMode = false;
 
 //For spacing issues.  Increase spaceFactor if your trees still wrap.
-var isSafari = false;
 var spaceFactor = 60;
 
 var raceSpace = [];
@@ -59,6 +58,7 @@ function getGender(person) {
 function selectRace() {
 	//Human type/fantasy race selection.
 	homo = raceSpace[$("select#raceSELECT").val()].object;
+	homo.initializeClans();
 }
 
 function serializePersonFromForm(form) {
@@ -369,9 +369,8 @@ function enableTreeUi() {
 	disableNamesUi();
 	//$("#intro").hide();
 	$("#footer").hide();
-	//Safari doesn't need hacking.
-	if (!isSafari)
-		$("#treeUi").css("width",Math.max($(window).width() - 25, linData.length * spaceFactor) + "px");
+	//Tree display hack.
+	$("#treeUi").css("width",Math.max($(window).width() - 25, linData.length * spaceFactor) + "px");
 	$("#treeUi").show();
 }
 
@@ -440,7 +439,7 @@ function finishPerson(person,mustLive) {
 		var spouse = linData[person.spouseId];
 	if ("parentId1" in person) {
 		var parent1 = linData[person.parentId1];
-		var parent2 = linData[person.parentId1];
+		var parent2 = linData[person.parentId2];
 	}
 
 	if (!person.gender) {
@@ -451,10 +450,12 @@ function finishPerson(person,mustLive) {
 		}
 	}
 
-	if (!("clan" in person) && !parent1) 
-		person.clan = homo.generateClan();
-	else
-		person.clan = (person.gender == parent1.gender) ? parent1.clan : parent2.clan;
+	if (!("clan" in person)) {
+		if (!parent1) 
+			person.clan = homo.generateClan();
+		else
+			person.clan = (person.gender == parent1.gender) ? parent1.clan : parent2.clan;
+	}
 
 	if (!("generation" in person)) {
 		if (spouse && spouse.generation) {
@@ -633,9 +634,6 @@ $( document ).ready(function() {
 	$('#startform').submit(function () {
 		return false;
 	});
-	//Browser check for tree display hackery.
-	var ua = navigator.userAgent.toLowerCase();
-	isSafari = ((ua.indexOf('safari') >= 0) && (ua.indexOf('chrome') < 0));
 });
 
 
