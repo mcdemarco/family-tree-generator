@@ -24,10 +24,10 @@
         <!-- This is where the genealogy settings are controlled: -->
         <div id="seedUi"><p>
           <form name="personForm" id="personForm">
-            P/Matriarch: <input name="name" type="text"/> Gender: <select name="gender" ><option value="" selected="selected">?</option><option value="M">M</option><option value="F">F</option></select> Generation: <input name="generation" type="text" size="2" value="0"/> Year Born: <input name="byear" type="text" size="4" value="1000" /> Year Married: <input name="myear" type="text" size="4" /> Year Died: <input name="dyear" type="text" size="4" /> Clan: <select name="clan" id="clan1SELECT"></select> <input name="parentNodeId" type="hidden" value="-1"/>
+            P/Matriarch: <input name="name" type="text"/> Gender: <select name="gender" ><option value="" selected="selected">?</option><option value="M">M</option><option value="F">F</option></select> Generation: <input name="generation" type="text" size="2" value="0"/> Year Born: <input name="byear" type="text" size="6" value="1000" /> Year Married: <input name="myear" type="text" size="6" /> Year Died: <input name="dyear" type="text" size="6" /> Clan: <select name="clan" id="clan1SELECT"></select> <input name="parentNodeId" type="hidden" value="-1"/>
 	  </form>
           <form name="spouseForm" id="spouseForm">
-            Spouse: <input name="name" type="text" /> Generation: <input name="generation" type="text" size="2" value="0"/> Year Born: <input name="byear" type="text" size="4" /> Year Died: <input name="dyear" type="text" size="4" /> Clan: <select name="clan" id="clan2SELECT"></select> <input name="parentNodeId" type="hidden" value="0"/> <input name="spouseId" type="hidden" value="0"/>
+            Spouse: <input name="name" type="text" /> Generation: <input name="generation" type="text" size="2" value="0"/> Year Born: <input name="byear" type="text" size="6" /> Year Died: <input name="dyear" type="text" size="6" /> Clan: <select name="clan" id="clan2SELECT"></select> <input name="parentNodeId" type="hidden" value="0"/> <input name="spouseId" type="hidden" value="0"/>
 	  </form>
           <form name="startform" id="startform">
 	    Random Seed: <input id="seed" name="seed" type="text" value="112233332211"/></span> Current Year: <input id="year" name="year" type="text" value=""/> Human type/fantasy race:  <select name="race" id="raceSELECT" onchange="selectRace();"></select>
