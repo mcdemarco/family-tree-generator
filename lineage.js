@@ -431,6 +431,9 @@ function populateLineage() {
 
 	// Generate their direct desendants ...
 	generateKids(person, spouse);
+
+	if ($("div#content div.resultsUi").is(":hidden"))
+		enableLineageUi();
 }
 
 function finishPerson(person,mustLive) {
@@ -589,11 +592,18 @@ function displayPerson(person,isSpouse) {
 
 // Functions for generating the comma-separated value box.
 
+function loadCsv() {
+	//Update all trees from the CSV text box.
+	readCsv();
+
+	walkData();
+}
+
 function populateCsv() {
 	//Do it the easy way, using the data structure.
 	var row = "";
 	if ($("#csvtxt").val() == "") 
-		$("#csvtxt").val("#pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouse, parent1, parent2\n");
+		$("#csvtxt").val("pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouseId, parentId1, parentId2\n");
 	//Assuming there's no way to trim the tree; if you add one, just regenerate the whole thing instead.
 	var lastCount = ($("#csvtxt").data("headcount") > 0) ? $("#csvtxt").data("headcount") : 0;
 	for (i=lastCount;i<linData.length;i++) {
@@ -611,8 +621,31 @@ function populateCsv() {
 	}
 }
 
+function readCsv() {
+	//Read csv from the text box back into the linData array.
+	var lines = $("#csvtxt").val().replace(/\r\n/g, "\n").split("\n");
+	var firstIndex = 1;
+	var personRow = new Array();
+	var indexRow = lines[0].split(",");
+	linData = [];
+	for (var i = 1; i < lines.length; i++) {
+		personRow = lines[i].split(',');
+		linData[personRow[0]] = [];
+		for (var j = 0; j < indexRow.length; j++)
+			if (personRow[j] != "")
+				linData[personRow[0]][indexRow[j]] = personRow[j];
+	}
+}
+
 function resetCsvTxt() {
 	$("#csvtxt").val("");
+	$("#csvtxt").data("headcount",0);
+}
+
+function walkData() {
+	//We assume the matriarch and patriarch are still at the top.
+	displayPerson(linData[0]);
+	displayPerson(linData[1],true);
 }
 
 // And we're ready!

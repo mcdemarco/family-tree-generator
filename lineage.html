@@ -32,7 +32,7 @@
           <form name="startform" id="startform">
 	    Random Seed: <input id="seed" name="seed" type="text" value="112233332211"/></span> Current Year: <input id="year" name="year" type="text" value=""/> Human type/fantasy race:  <select name="race" id="raceSELECT" onchange="selectRace();"></select>
           </form></p>
-          <button name="generate" onclick="enableLineageUi(); populateLineage();">Generate</button>
+          <button name="generate" onclick="populateLineage();">Generate</button>
 	  <button onclick="reseed();">Reseed</button>
 	  <span class="resultsUi" style="display:none;">
 	    <button onclick="enableLineageUi();">Show List</button>
@@ -54,6 +54,7 @@
           <div id="csvUi" style="display:none;">
             <!-- This is where the CSV textfield is populated: -->
             <textarea id="csvtxt" cols="80" rows="25"></textarea>
+	    <button onclick="loadCsv();">Load from CSV</button>
           </div>
         </div>
 
