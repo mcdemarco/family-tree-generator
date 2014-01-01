@@ -28,7 +28,7 @@ function Homo() {
 	this.MEAN_dage = 72; // Average age of natural death (post-childhood) on a normal curve.
 	this.STD_dage = 15; // Standard deviation in age of death.
 
-	this.MEAN_childDelay = 0.75; // Medieval pregnancy spacing was about 18 months.
+	this.MEAN_childDelay = 1.5; // Medieval pregnancy spacing was about 18 months.
 	this.STD_childDelay = 0.25; // I made this one up.
 
 	//Medieval Frankish names from Kate Monk's Onomastikon
