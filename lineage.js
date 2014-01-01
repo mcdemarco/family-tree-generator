@@ -583,7 +583,7 @@ function displayPerson(person,isSpouse) {
 		personHtml += " (<span class='currentAge'>" + getCurrentAge(person,true) + "</span>)";
 	if (person.myear)
 		personHtml += ", married in " +  person.myear + " at the age of " + person.mage;
-	personHtml += ", died at the age of <span 'deathAge'>" +  person.dage + ".</span>";
+	personHtml += ", died at the age of <span class='deathAge'>" +  person.dage + ".</span>";
 	if (homo.getClan(person))
 		personHtml += " <span class='clanSpan'>Clan: " + homo.getClan(person) + "</span>";
 	personHtml += " <span title='" + homo.getPTypeName(person.ptype) + "'> MBTI:" + person.ptype + "</span>";
