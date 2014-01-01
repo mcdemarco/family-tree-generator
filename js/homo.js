@@ -120,8 +120,8 @@ function Homo() {
 		if (fertyear==17) {chance=80;}
 		if (fertyear>17 && fertyear<30) {chance=98;}
 		if (fertyear>30 && fertyear<35) {chance=80;}
-		if (fertyear>35 && fertyear<40) {chance=40;}
-		if (fertyear>40 && fertyear<45) {chance=20;}
+		if (fertyear>35 && fertyear<40) {chance=50;}
+		if (fertyear>40 && fertyear<45) {chance=10;}
 		if (fertyear>44) {chance=3;}
 		if (fertyear>50) {chance=0;}
 		
