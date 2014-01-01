@@ -295,7 +295,7 @@ function generateFamily(pid) {
 	partialSpouse.myear = newparent.myear;
 
 	var spouse = finishPerson(partialSpouse);
-	displayPerson(spouse,true); // display spouse
+	displayPerson(spouse); // display spouse
 	linData[spouse.pid] = spouse;
 
 	generateKids(newparent, spouse); // get kids
@@ -320,7 +320,7 @@ function generateFamily(pid) {
 				partialSpouse.myear = grief;
 
 				var spouse = finishPerson(partialSpouse);
-				displayPerson(spouse,true); // display spouse
+				displayPerson(spouse); // display spouse
 				linData[spouse.pid] = spouse;
 
 				generateKids(newparent,spouse); // get kids
@@ -443,7 +443,7 @@ function populateLineage() {
 	var partialSpouse = serializePersonFromForm($("form#spouseForm"));
 	var spouse = finishPerson(partialSpouse);
 
-	displayPerson(spouse, true);
+	displayPerson(spouse);
 	linData[spouse.pid] = spouse;
 
 	// Generate their direct desendants ...
@@ -563,13 +563,13 @@ function finishPerson(person,mustLive) {
 	return person;
 }
 
-function displayPerson(person,isSpouse) {
+function displayPerson(person) {
 	// Add a person to the HTML lineage list and tree
 
 	//Don't display some persons when in currentYearMode.
 	if (currentYearMode && person.byear > currentYear)
 		return;
-	if (currentYearMode && isSpouse && person.myear > currentYear)
+	if (currentYearMode && ("spouseId" in person) && person.myear > currentYear)
 		return;
 
 	// List section.
@@ -661,34 +661,49 @@ function readCsv() {
 				switch (j) {
 					case 0: 
 						linData[personRow[0]].pid = parseInt(personRow[j]);
+						break;
 					case 1: 
 						linData[personRow[0]].name = personRow[j];
+						break;
 					case 2: 
 						linData[personRow[0]].gender = personRow[j];
+						break;
 					case 3: 
 						linData[personRow[0]].generation = parseInt(personRow[j]);
+						break;
 					case 4: 
 						linData[personRow[0]].byear = parseInt(personRow[j]);
+						break;
 					case 5: 
 						linData[personRow[0]].dyear = parseInt(personRow[j]);
+						break;
 					case 6: 
 						linData[personRow[0]].dage = parseInt(personRow[j]);
+						break;
 					case 7: 
 						linData[personRow[0]].myear = parseInt(personRow[j]);
+						break;
 					case 8: 
 						linData[personRow[0]].mage = parseInt(personRow[j]);
+						break;
 					case 9: 
 						linData[personRow[0]].ptype = personRow[j];
+						break;
 					case 10: 
 						linData[personRow[0]].clan = parseInt(personRow[j]);
+						break;
 					case 11: 
 						linData[personRow[0]].spouseId = parseInt(personRow[j]);
+						break;
 					case 12: 
 						linData[personRow[0]].parentId1 = parseInt(personRow[j]);
+						break;
 					case 13: 
 						linData[personRow[0]].parentId2 = parseInt(personRow[j]);
+						break;
 					case 14: 
 						linData[personRow[0]].parentNodeId = parseInt(personRow[j]);
+						break;
 				}
 			}
 		}
@@ -703,7 +718,7 @@ function resetCsvTxt() {
 function walkData() {
 	//We assume the matriarch and patriarch are still at the top.
 	displayPerson(linData[0]);
-	displayPerson(linData[1],true);
+	displayPerson(linData[1]);
 	for (var i = 2; i < linData.length; i++)
 		displayPerson(linData[i]);
 }
