@@ -270,6 +270,7 @@ function generateKids(person, spouse) { // get kids
 				var mother = linData[spouse.pid];
 			//Backfill death and stop generating kids.
 			mother.dyear = kid.byear;
+			mother.dage = mother.dyear - mother.byear;
 			updatePerson(mother);
 			return;
 		}
@@ -577,12 +578,12 @@ function displayPerson(person,isSpouse) {
 	personHtml += "<li id='personRow" + person.pid + "'" + ("spouseId" in person ? " class='spouse'>" : ">");
 	personHtml += "<input type='text' size=12 onkeyup='if (event.keyCode == 13) {changeName(" + person.pid + ",this.value)};' value=\"" + person.name + "\"/>";
 	personHtml += "<button onclick='generateNewName(" + person.pid + ");' title='Rename'>R</button>";
-	personHtml += " <span class='infoSpan'>" + person.gender + "</span> <span class='infoSpan'>" + person.byear + "&ndash;" + person.dyear;
+	personHtml += " " + person.gender + " <span class='lifeSpan'>" + person.byear + "&ndash;" + person.dyear + "</span>";
 	if (currentYearMode)
-		personHtml += " (" + getCurrentAge(person,true) + ")";
+		personHtml += " (<span class='currentAge'>" + getCurrentAge(person,true) + "</span>)";
 	if (person.myear)
 		personHtml += ", married in " +  person.myear + " at the age of " + person.mage;
-	personHtml += ", died at the age of " +  person.dage + ".</span>";
+	personHtml += ", died at the age of <span 'deathAge'>" +  person.dage + ".</span>";
 	if (homo.getClan(person))
 		personHtml += " <span class='clanSpan'>Clan: " + homo.getClan(person) + "</span>";
 	personHtml += " <span title='" + homo.getPTypeName(person.ptype) + "'> MBTI:" + person.ptype + "</span>";
@@ -607,6 +608,9 @@ function displayPerson(person,isSpouse) {
 
 function updatePerson(person) {
 	//Update display of person for premature death.
+	$("#personRow" + person.pid + " span.lifeSpan").html(person.byear + "&ndash;" + person.dyear);
+	$("#personRow" + person.pid + " span.deathAge").html(person.dage + ".");
+	$("#personRow" + person.pid + " span.currentAge").html(getCurrentAge(person,true));
 	$("#treep" + person.pid + " span.currentAge").html(getCurrentAge(person));
 }
 
