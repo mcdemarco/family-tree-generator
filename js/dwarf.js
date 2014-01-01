@@ -18,6 +18,7 @@ addRace("dwarf", "Dwarf", dwarf, false);
 	dwarf.MEAN_mmage = 36; // Average age of marriage on a normal curve.
 	dwarf.STD_mmage = 10; // Standard deviation in age of marriage.
 
+	dwarf.RATE_dchildbirth = 0.5; //Chance of death in childbirth
 	dwarf.RATE_dchildhood = 0.5; //Chance of death in infancy or childhood
 	dwarf.RATE_daccident = 0.075; //Chance of accidental death per year
 	

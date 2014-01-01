@@ -45,9 +45,9 @@ function getColor(person) {
 	return "color" +  ( (parseInt(person.generation)%13 + 1));
 }
 
-function getCurrentAge(person) {
+function getCurrentAge(person,age) {
 	//test for currentYearMode before calling
-	return (person.dyear > currentYear) ? (currentYear - person.byear) : "d." + person.dage;
+	return (person.dyear > currentYear) ? (currentYear - person.byear) : "d." + (age ? " age " : " ") + person.dage;
 }
 
 function getGender(person) {
@@ -67,7 +67,7 @@ function serializePersonFromForm(form) {
 	var a = form.serializeArray();
 	$.each(a, function() {
 		if (this.value && this.value != "") {
-			if (this.name == "generation" || this.name == "byear" || this.name == "myear" || this.name == "dyear") {
+			if (this.name == "parentNodeId" || this.name == "generation" || this.name == "byear" || this.name == "myear" || this.name == "dyear") {
 				//validation and typecast for numeric elements in form
 				if (!isNaN(parseInt(this.value)))
 					o[this.name] = parseInt(this.value);
@@ -262,6 +262,18 @@ function generateKids(person, spouse) { // get kids
 			generateFamily(kid.pid);
 		}
 
+		//Check for maternal death in childbirth.
+		if (rollD(100) < homo.RATE_dchildbirth) {
+			if (person.gender == "F") 
+				var mother = linData[person.pid];
+			else
+				var mother = linData[spouse.pid];
+			//Backfill death and stop generating kids.
+			mother.dyear = kid.byear;
+			updatePerson(mother);
+			return;
+		}
+
 		yom += rnd(homo.MEAN_childDelay, homo.STD_childDelay);  // delay before trying for another kid.
 	}
 	yom++;
@@ -390,6 +402,10 @@ function disableTreeUi() {
 	$("#treeUi").hide();
 }
 
+function toggleInstructions() {
+	$("#intro").toggle();
+}
+
 // populateLineage():
 //   The big kahuna.  Take the parameters (possibly sparse) and produce a geneology
 //   that conforms to the constraints.  Reproducibly.
@@ -399,7 +415,7 @@ function populateLineage() {
 
 	// Clear out the lineage...
 	linData = [];
-	$("div#person-1").html("");
+	$("ul#person-1").html("");
 
 	//Check the mode.
 	if (document.startform.year.value != "" && !(isNaN(parseInt(document.startform.year.value)))) {
@@ -557,13 +573,13 @@ function displayPerson(person,isSpouse) {
 
 	// List section.
 	var personHtml = "";
-	personHtml += "<ul id='person" + person.pid + "' class='" + getColor(person) + "'>";
-	personHtml += "<li" + ("spouseId" in person ? " class='spouse'>" : ">");
+	personHtml += "<li><ul id='person" + person.pid + "' class='" + getColor(person) + "'>";
+	personHtml += "<li id='personRow" + person.pid + "'" + ("spouseId" in person ? " class='spouse'>" : ">");
 	personHtml += "<input type='text' size=12 onkeyup='if (event.keyCode == 13) {changeName(" + person.pid + ",this.value)};' value=\"" + person.name + "\"/>";
 	personHtml += "<button onclick='generateNewName(" + person.pid + ");' title='Rename'>R</button>";
 	personHtml += " <span class='infoSpan'>" + person.gender + "</span> <span class='infoSpan'>" + person.byear + "&ndash;" + person.dyear;
 	if (currentYearMode)
-		personHtml += " (age " +  person.cage + ")";
+		personHtml += " (" + getCurrentAge(person,true) + ")";
 	if (person.myear)
 		personHtml += ", married in " +  person.myear + " at the age of " + person.mage;
 	personHtml += ", died at the age of " +  person.dage + ".</span>";
@@ -572,12 +588,11 @@ function displayPerson(person,isSpouse) {
 	personHtml += " <span title='" + homo.getPTypeName(person.ptype) + "'> MBTI:" + person.ptype + "</span>";
 	if (!currentYearMode && person.family)
 		personHtml += " <button id='family" + person.pid + "' onclick='generateFamily(" + person.pid + ")' title='Get Family'>Family</button>";
-	personHtml += "</li></ul>";
-
+	personHtml += "</li></ul></li>";
 	$("#person" + person.parentNodeId).append(personHtml);
 
 	//Tree section.
-	var treepLink = "<a href='#' id='treep" + person.pid + "' class='" + getColor(person) + " " + getGender(person) + "'>" + person.name + ((currentYearMode) ? " (" + person.cage + ")"  : "") + "</a>";
+	var treepLink = "<a href='#' id='treep" + person.pid + "' class='" + getColor(person) + " " + getGender(person) + "'>" + person.name + ((currentYearMode) ? " (<span class='currentAge'>" + getCurrentAge(person) + "</span>)"  : "") + "</a>";
 	var treepHtml = "<li>" + treepLink + "</li>";
 	if (person.pid == 0)
 		$("div#treeUi").append("<ul>" + treepHtml + "</ul>");
@@ -590,12 +605,18 @@ function displayPerson(person,isSpouse) {
 
 }
 
+function updatePerson(person) {
+	//Update display of person for premature death.
+	$("#treep" + person.pid + " span.currentAge").html(getCurrentAge(person));
+}
+
 // Functions for generating the comma-separated value box.
 
 function loadCsv() {
 	//Update all trees from the CSV text box.
 	readCsv();
-
+	$("ul#person-1").html("");
+	$("#treeUi").html("");
 	walkData();
 }
 
@@ -603,7 +624,7 @@ function populateCsv() {
 	//Do it the easy way, using the data structure.
 	var row = "";
 	if ($("#csvtxt").val() == "") 
-		$("#csvtxt").val("pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouseId, parentId1, parentId2\n");
+		$("#csvtxt").val("pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouseId, parentId1, parentId2, parentNodeId\n");
 	//Assuming there's no way to trim the tree; if you add one, just regenerate the whole thing instead.
 	var lastCount = ($("#csvtxt").data("headcount") > 0) ? $("#csvtxt").data("headcount") : 0;
 	for (i=lastCount;i<linData.length;i++) {
@@ -615,7 +636,7 @@ function populateCsv() {
 
 	function buildCsvRow(p) {
 		var row = [p.pid, p.name, p.gender, p.generation, p.byear, p.dyear, p.dage, p.myear,
-				   p.mage, p.ptype, p.clan, p.spouseId, p.parentId1, p.parentId2].join(',');
+				   p.mage, p.ptype, p.clan, p.spouseId, p.parentId1, p.parentId2, p.parentNodeId].join(',');
 		// Adjusting this?  Adjust the header in populateCsv.
 		return row;
 	}
@@ -624,16 +645,49 @@ function populateCsv() {
 function readCsv() {
 	//Read csv from the text box back into the linData array.
 	var lines = $("#csvtxt").val().replace(/\r\n/g, "\n").split("\n");
-	var firstIndex = 1;
+	//var firstIndex = 1;
 	var personRow = new Array();
 	var indexRow = lines[0].split(",");
 	linData = [];
 	for (var i = 1; i < lines.length; i++) {
 		personRow = lines[i].split(',');
-		linData[personRow[0]] = [];
-		for (var j = 0; j < indexRow.length; j++)
-			if (personRow[j] != "")
-				linData[personRow[0]][indexRow[j]] = personRow[j];
+		linData[personRow[0]] = {};
+		for (var j = 0; j < indexRow.length; j++) {
+			if (personRow[j] != "") {
+				switch (j) {
+					case 0: 
+						linData[personRow[0]].pid = parseInt(personRow[j]);
+					case 1: 
+						linData[personRow[0]].name = personRow[j];
+					case 2: 
+						linData[personRow[0]].gender = personRow[j];
+					case 3: 
+						linData[personRow[0]].generation = parseInt(personRow[j]);
+					case 4: 
+						linData[personRow[0]].byear = parseInt(personRow[j]);
+					case 5: 
+						linData[personRow[0]].dyear = parseInt(personRow[j]);
+					case 6: 
+						linData[personRow[0]].dage = parseInt(personRow[j]);
+					case 7: 
+						linData[personRow[0]].myear = parseInt(personRow[j]);
+					case 8: 
+						linData[personRow[0]].mage = parseInt(personRow[j]);
+					case 9: 
+						linData[personRow[0]].ptype = personRow[j];
+					case 10: 
+						linData[personRow[0]].clan = parseInt(personRow[j]);
+					case 11: 
+						linData[personRow[0]].spouseId = parseInt(personRow[j]);
+					case 12: 
+						linData[personRow[0]].parentId1 = parseInt(personRow[j]);
+					case 13: 
+						linData[personRow[0]].parentId2 = parseInt(personRow[j]);
+					case 14: 
+						linData[personRow[0]].parentNodeId = parseInt(personRow[j]);
+				}
+			}
+		}
 	}
 }
 
@@ -646,6 +700,8 @@ function walkData() {
 	//We assume the matriarch and patriarch are still at the top.
 	displayPerson(linData[0]);
 	displayPerson(linData[1],true);
+	for (var i = 2; i < linData.length; i++)
+		displayPerson(linData[i]);
 }
 
 // And we're ready!

@@ -13,6 +13,7 @@ modern.MIN_mmage = 18; // Minimum age of marriage for males; cut off below moder
 modern.MEAN_mmage = 29; // Average age of marriage on a normal curve.
 modern.STD_mmage = 5.3; // Standard deviation in age of marriage.
 
+modern.RATE_dchildbirth = 0; // Actually, something like 1 in 10,000.
 modern.RATE_dchildhood = 1; //rounded up from us rates of 6 in 1000 under age 1, 26.5 in 100,000 age 1-4, 12.9 in 1000 age 5-14
 modern.RATE_daccident = 0.04; //Chance of accidental death per year (39 in 100,000)
 

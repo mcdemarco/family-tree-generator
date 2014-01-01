@@ -74,9 +74,18 @@ h1 {
 li.spouse:before {
     content: "=";
     position: absolute;
-    left:-10px;
-    top:2px;
+    left:-8px;
+    top:4px;
     color:gray;
+}
+
+#lineageUi ul {
+    padding:2px 4px;
+    border: 1px dashed #cacaca;
+}
+
+#lineageUi ul#person-1 {
+    border: 0;
 }
 
 div#footer {

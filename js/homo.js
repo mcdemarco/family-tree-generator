@@ -20,14 +20,16 @@ function Homo() {
 	this.MEAN_mmage = 25; // Average age of marriage on a normal curve.
 	this.STD_mmage = 4; // Standard deviation in age of marriage.
 	
+	// http://birthnerd.blogspot.com/2011/07/pre-modern-death-in-childbirth.html
+	this.RATE_dchildbirth = 2.5; //Chance of maternal death per childbirth
 	this.RATE_dchildhood = 35; //Chance of death in infancy or childhood
 	this.RATE_daccident = 0.05; //Chance of accidental death per year
 
 	this.MEAN_dage = 72; // Average age of natural death (post-childhood) on a normal curve.
 	this.STD_dage = 15; // Standard deviation in age of death.
 
-	this.MEAN_childDelay = 0;
-	this.STD_childDelay = 0;
+	this.MEAN_childDelay = 0.75; // Medieval pregnancy spacing was about 18 months.
+	this.STD_childDelay = 0.25; // I made this one up.
 
 	//Medieval Frankish names from Kate Monk's Onomastikon
 	this.fnames = ["Adallinda", "Adaltrude", "Adelheid", "Alpaida", "Alpais", "Ansgard",

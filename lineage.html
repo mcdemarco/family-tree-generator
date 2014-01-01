@@ -19,7 +19,7 @@
       <body>
 <div id="header">
         <h1 align="center">Random Family Tree Generator 3.0</h1>
-        <div id="intro">Enter (optional) information about a patriarch and/or matriarch, then click the Generate button to create their family tree.  Names will be generated automatically along with a random <a href="http://en.wikipedia.org/wiki/Myers-Briggs_Type_Indicator" title="Myers-Briggs Type Indicator">MBTI</a> personality type.  To reproduce a random tree, save the value of Random Seed and enter it again later.  To get the family as of a particular year, fill in Current Year; otherwise expand the tree with the Family buttons.  Edit a name and press return to change it, or press the R button to get a new random name.</div>
+        <div id="intro" style="display:none;">Enter (optional) information about a patriarch and/or matriarch, then click the Generate button to create their family tree.  Names will be generated automatically along with a random <a href="http://en.wikipedia.org/wiki/Myers-Briggs_Type_Indicator" title="Myers-Briggs Type Indicator">MBTI</a> personality type.  To reproduce a random tree, save the value of Random Seed and enter it again later.  To get the family as of a particular year, fill in Current Year; otherwise expand the tree with the Family buttons.  Edit a name and press return to change it, or press the R button to get a new random name.</div>
 
         <!-- This is where the genealogy settings are controlled: -->
         <div id="seedUi"><p>
@@ -32,6 +32,7 @@
           <form name="startform" id="startform">
 	    Random Seed: <input id="seed" name="seed" type="text" value="112233332211"/></span> Current Year: <input id="year" name="year" type="text" value=""/> Human type/fantasy race:  <select name="race" id="raceSELECT" onchange="selectRace();"></select>
           </form></p>
+          <button name="instructions" onclick="toggleInstructions();">Instructions</button>
           <button name="generate" onclick="populateLineage();">Generate</button>
 	  <button onclick="reseed();">Reseed</button>
 	  <span class="resultsUi" style="display:none;">
@@ -48,7 +49,7 @@
         <!-- This is where the lineage tree gets hooked on: -->
         <div class="resultsUi" style="display:none;">
           <div id="lineageUi" class="list" style="display:none;">
-            <div id="person-1"></div>
+            <div><ul id="person-1"></ul></div>
           </div>
           <div id="treeUi" class="tree" style="display:none;"></div>
           <div id="csvUi" style="display:none;">
