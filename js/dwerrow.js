@@ -209,6 +209,7 @@ addRace("dwerrow", "Dwerrow", dwerrow, false);
 	};
 
 dwerrow.initializeClans = function() {
+	$("div#seedUi span.clanForm").show();
 	var appendage = "";
 	for  (var i = 0; i < dwerrow.syllables.length; i++) {
 		appendage = "<option value='" + i + "'>" + dwerrow.syllables[i][0];
@@ -224,7 +225,7 @@ dwerrow.generateNameTable = function() {
 		$("div#nameTables table table").hide();
 		return;
 	}
-	var table = "<table>";
+	var table = "<p><button onclick='$(\"div#nameTables table table\").hide();'>Reset</button><table>";
 	for (var i=0; i<dwerrow.syllables.length; i++) {
 		if (i%8 == 0) table = table + "<tr>";
 		table = table + "<td><div onclick='$(this).siblings().show();'>Clan " + dwerrow.syllables[i][0] + "khakh</div><table style='display:none;'>";

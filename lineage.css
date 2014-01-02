@@ -4,6 +4,7 @@ body, div#intro {
     background:url('images/strange_bullseyes_ltgreen.png');
     background-attachment: fixed;
     background-color:#dfd;
+    font-family: 'Open Sans', sans-serif;
 }
 
 body {
@@ -18,6 +19,7 @@ div#header {
     background-attachment: fixed;
     background-color:#779959;
     border-top: 4px solid #5F0003;
+    font-family: 'Quando', serif;
 }
 
 div#header, div#footer, div#content {
@@ -31,17 +33,21 @@ h1 {
     color:#efe;
 }
 
+#intro, #instructionsUi {
+    padding:5px;
+    margin:5px;
+}
+
 #intro {
     text-align:left;
     border:2px solid #900;
     border-radius:5px;
     background-color: #dfd;
-    padding:5px;
-    margin:5px;
     box-sizing:border-box;
 }
 
 #intro a:link, #intro a:visited, 
+#instructionsUi a:link, #instructionsUi a:visited, 
 #footer a:link, #footer a:visited {
     text-decoration:none;
     color:#900;
@@ -92,6 +98,7 @@ div#footer {
     padding-top:20px;
     font-size:10px;
     text-align:right;
+    font-weight: 300;
 }
 
 div#lineageUi li span {
@@ -197,7 +204,6 @@ div#nameTables table.nameList td {background-color: #efe;}
 			padding: 5px 10px;
 			text-decoration: none;
 			color: #444;
-			font-family: arial, verdana, tahoma;
 			font-size: 11px;
 			display: inline-block;
 			background: white;

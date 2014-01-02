@@ -198,7 +198,7 @@ function Homo() {
 	// *** end personality type generation code ***
 
 	function initializeClans() {
-		return false;
+		$("div#seedUi span.clanForm").hide();
 	}
 
 	function generateNameTable() {

@@ -37,6 +37,16 @@ function addRace(sName, dName, obj, isDef) {
 		raceSpace[i].isDefault = true;
 }
 
+function selectRace() {
+	//Human type/fantasy race selection.
+	homo = raceSpace[$("select#raceSELECT").val()].object;
+	homo.initializeClans();
+	$("div#nameTables").html("");
+	homo.generateNameTable();
+	//May be dangerous to do this with large fertility swings...
+	populateLineage();
+}
+
 function capitalize(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
 }
@@ -53,14 +63,6 @@ function getCurrentAge(person,age) {
 function getGender(person) {
 	//Translate gender to a word; e.g. in css class for the tree view
 	return (person.gender == "F") ? "female" : "male";
-}
-
-function selectRace() {
-	//Human type/fantasy race selection.
-	homo = raceSpace[$("select#raceSELECT").val()].object;
-	homo.initializeClans();
-	$("div#nameTables").html("");
-	disableNamesUi();
 }
 
 function serializePersonFromForm(form) {
@@ -130,6 +132,7 @@ function updateName(pid,newname) {
 	linData[pid].name = newname;
 	$("ul#person"+pid).children("li:first").children("input").val(newname);
 	$("a#treep" + pid).html(newname + (currentYearMode ? " (" + linData[pid].cage + ")" : "" ));
+	updatePersonCSV(linData[pid]);
 }
 
 function getSiblingNames(person) {
@@ -195,13 +198,21 @@ function sampleGeneratedNames(limit) {
 	if ($("div#nameTables").html() != "") {
 		return;
 	}
-	$("div#nameTables").html("<p>Names are generated randomly.  The following is a sample; click the Names button again for more.</p>");
+	$("div#nameTables").html("<p>Names are generated randomly.  The following is a sample; click More for more:  <button onclick='moreGeneratedNames()'>More</button></p>");
 	var table = "<table class='nameList' cellpadding=2><tr><th>Male Names</th><th>Female Names</th></tr>";
 	for (var i=0; i< limit; i++) {
 		table += "<tr><td>" + generateRandomName("M") +  "</td><td>" + generateRandomName("F") + "</td></tr>";
 	}
 	table += "</table>";
 	$("div#nameTables").append(table);
+}
+
+function moreGeneratedNames(limit) {
+	if (!limit) 
+		limit = 25;
+	for (var i=0; i< limit; i++) {
+		$("div#nameTables tr:last").after("<tr><td>" + generateRandomName("M") +  "</td><td>" + generateRandomName("F") + "</td></tr>");
+	}
 }
 
 // *** end name manipulation **
@@ -379,79 +390,56 @@ function generateFamily(pid) {
 
 // UI management 
 
-function enableLineageUi() {
-	$(".resultsUi").show();
-	disableCsvUi();
-	disableNamesUi();
-	disableTreeUi();
-	$("#lineageUi").show();
-}
-
-function reseed() {
-	setSeedByDate();
-	//enableLineageUi();
+function generateLineage() {
 	populateLineage();
-	resetCsvTxt();
+	if ($("div#content div.resultsUi").is(":hidden")) {
+		$("div.tab").hide();
+		$(".resultsUi").show();
+		$("#lineageUi").show();
+	}
 }
 
-function enableCsvUi() {
-	disableLineageUi();
-	disableNamesUi();
-	disableTreeUi();
-	$("#csvUi").show();
-	if ($("#csvtxt").data("headcount") != linData.length)
-		populateCsv();
+function reseedLineage() {
+	setSeedByDate();
+	populateLineage();
 }
 
-function enableNamesUi() {
-	disableCsvUi();
-	disableLineageUi();
-	disableTreeUi();
-	homo.generateNameTable();
-	$(".namesUi").show();
+function enableTab(buttonId) {
+	$("div.tab").hide();
+	$("#footer").show();
+	switch (buttonId) {
+		case "listTab":
+			$("#lineageUi").show();
+			break;
+		case "treeTab":
+			$("#footer").hide();
+			//Tree display hack.
+			$("#treeUi").css("width",Math.max($(window).width() - 25, linData.length * spaceFactor) + "px");
+			$("#treeUi").show();
+			break;
+		case "csvTab":
+			$("#csvUi").show();
+			break;
+		case "namesTab":
+			$("#nameTables").show();
+			break;
+		case "instructionsTab":
+			$("#instructionsUi").show();
+			break;
+	}
 }
 
-function enableTreeUi() {
-	disableCsvUi();
-	disableLineageUi();
-	disableNamesUi();
-	//$("#intro").hide();
-	$("#footer").hide();
-	//Tree display hack.
-	$("#treeUi").css("width",Math.max($(window).width() - 25, linData.length * spaceFactor) + "px");
-	$("#treeUi").show();
-}
-
-function disableCsvUi() {
-	$("#csvUi").hide();
-}
-
-function disableLineageUi() {
-	$("#lineageUi").hide();
-}
-
-function disableNamesUi() {
-	$(".namesUi").hide();
-}
-
-function disableTreeUi() {
-	$("#treeUi").hide();
-}
-
-function toggleInstructions() {
-	$("#intro").toggle();
-}
-
-// populateLineage():
-//   The big kahuna.  Take the parameters (possibly sparse) and produce a geneology
-//   that conforms to the constraints.  Reproducibly.
 function populateLineage() {
+	//Main function populates the lineage data structure and also fills in the list, tree, and CSV.
+
 	// Reset/Update our random sequence based on the (possibly new) seed...
 	Math.seedrandom(document.getElementById("seed").value);
 
-	// Clear out the lineage...
+	// Clear out the lineage, list, tree, and CSV.
 	linData = [];
 	$("ul#person-1").html("");
+	$("#treeUi").html("");
+	$("#csvtxt").val("#pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouseId, parentId1, parentId2, parentNodeId\n");
 
 	//Check the mode.
 	if (document.startform.year.value != "" && !(isNaN(parseInt(document.startform.year.value)))) {
@@ -460,12 +448,6 @@ function populateLineage() {
 	} else {
 		currentYearMode = false;
 	}
-
-	//Clear the CSV?
-	resetCsvTxt();
-
-	//Clear the tree
-	$("#treeUi").html("");
 
 	// Read in form data for person #1, add them to top of lineage chart.
 	var partialPerson = serializePersonFromForm($("form#personForm"));
@@ -484,8 +466,6 @@ function populateLineage() {
 	// Generate their direct desendants ...
 	generateKids(person, spouse);
 
-	if ($("div#content div.resultsUi").is(":hidden"))
-		enableLineageUi();
 }
 
 function finishPerson(person,mustLive) {
@@ -598,8 +578,8 @@ function finishPerson(person,mustLive) {
 	return person;
 }
 
-function displayPerson(person) {
-	// Add a person to the HTML lineage list and tree
+function displayPerson(person,noCSV) {
+	// Add a person to the HTML lineage list, tree, and CSV text box.
 
 	//Don't display some persons when in currentYearMode.
 	if (currentYearMode && person.byear > currentYear)
@@ -639,61 +619,52 @@ function displayPerson(person) {
 	else
 		$("#treep" + person.parentNodeId).after("<ul>" + treepHtml + "</ul>");
 
+	//CSV section.
+	if (!noCSV) {
+		var row = buildCsvRow(person);
+		$("#csvtxt").val($("#csvtxt").val() + row + "\n");
+	}
 }
 
 function updatePerson(person) {
-	//Update display of person for premature death.
+	//Update display of person for premature death in childbirth.
 	$("#personRow" + person.pid + " span.lifeSpan").html(person.byear + "&ndash;" + person.dyear);
 	$("#personRow" + person.pid + " span.deathAge").html(person.dage + ".");
 	$("#personRow" + person.pid + " span.currentAge").html(getCurrentAge(person,true));
 	$("#treep" + person.pid + " span.currentAge").html(getCurrentAge(person));
+	updatePersonCSV(person);
 }
 
 // Functions for generating the comma-separated value box.
 
+function buildCsvRow(p) {
+	var row = [p.pid, p.name, p.gender, p.generation, p.byear, p.dyear, p.dage, p.myear,
+			   p.mage, p.ptype, p.clan, p.spouseId, p.parentId1, p.parentId2, p.parentNodeId].join(',');
+	// Adjusting this?  Adjust the header in populateLineage.
+	return row;
+}
+
 function loadCsv() {
-	//Update all trees from the CSV text box.
+	//Update other data from the CSV text box (presumably after editing).
 	readCsv();
 	$("ul#person-1").html("");
 	$("#treeUi").html("");
-	walkData();
-}
+	for (var i = 0; i < linData.length; i++)
+		displayPerson(linData[i],true);
 
-function populateCsv() {
-	//Do it the easy way, using the data structure.
-	var row = "";
-	if ($("#csvtxt").val() == "") 
-		$("#csvtxt").val("pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouseId, parentId1, parentId2, parentNodeId\n");
-	//Assuming there's no way to trim the tree; if you add one, just regenerate the whole thing instead.
-	var lastCount = ($("#csvtxt").data("headcount") > 0) ? $("#csvtxt").data("headcount") : 0;
-	for (i=lastCount;i<linData.length;i++) {
-		row = buildCsvRow(linData[i]);
-		$("#csvtxt").val($("#csvtxt").val() + row + "\n");
-	}
-	//Note how many people we had when we generated.
-	$("#csvtxt").data("headcount",linData.length);
-
-	function buildCsvRow(p) {
-		var row = [p.pid, p.name, p.gender, p.generation, p.byear, p.dyear, p.dage, p.myear,
-				   p.mage, p.ptype, p.clan, p.spouseId, p.parentId1, p.parentId2, p.parentNodeId].join(',');
-		// Adjusting this?  Adjust the header in populateCsv.
-		return row;
-	}
-}
-
-function readCsv() {
-	//Read csv from the text box back into the linData array.
-	var lines = $("#csvtxt").val().replace(/\r\n/g, "\n").split("\n");
-	//var firstIndex = 1;
-	var personRow = new Array();
-	var indexRow = lines[0].split(",");
-	linData = [];
-	for (var i = 1; i < lines.length; i++) {
-		personRow = lines[i].split(',');
-		linData[personRow[0]] = {};
-		for (var j = 0; j < indexRow.length; j++) {
-			if (personRow[j] != "") {
-				switch (j) {
+	function readCsv() {
+		//Read csv from the text box back into the linData array.
+		var lines = $("#csvtxt").val().replace(/\r\n/g, "\n").split("\n");
+		//var firstIndex = 1;
+		var personRow = new Array();
+		var indexRow = lines[0].split(",");
+		linData = [];
+		for (var i = 1; i < lines.length; i++) {
+			personRow = lines[i].split(',');
+			linData[personRow[0]] = {};
+			for (var j = 0; j < indexRow.length; j++) {
+				if (personRow[j] != "") {
+					switch (j) {
 					case 0: 
 						linData[personRow[0]].pid = parseInt(personRow[j]);
 						break;
@@ -739,23 +710,18 @@ function readCsv() {
 					case 14: 
 						linData[personRow[0]].parentNodeId = parseInt(personRow[j]);
 						break;
+					}
 				}
 			}
 		}
 	}
 }
 
-function resetCsvTxt() {
-	$("#csvtxt").val("");
-	$("#csvtxt").data("headcount",0);
-}
-
-function walkData() {
-	//We assume the matriarch and patriarch are still at the top.
-	displayPerson(linData[0]);
-	displayPerson(linData[1]);
-	for (var i = 2; i < linData.length; i++)
-		displayPerson(linData[i]);
+function updatePersonCSV(person) {
+	var lines = $("#csvtxt").val().replace(/\r\n/g, "\n").split("\n");
+	lines[person.pid + 1] = buildCsvRow(person);
+	var revisedCSV = lines.join("\n");
+	$("#csvtxt").val(revisedCSV);
 }
 
 // And we're ready!
@@ -772,6 +738,7 @@ $( document ).ready(function() {
 		if (raceSpace[i].isDefault) {
 			var homo = raceSpace[i].object;
 			homo.initializeClans();
+			homo.generateNameTable();
 		}
 	}
 	$('#startform').submit(function () {
