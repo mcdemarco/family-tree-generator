@@ -28,160 +28,30 @@ addRace("dwarf", "Dwarf", dwarf, false);
 	dwarf.MEAN_childDelay = 10;
 	dwarf.STD_childDelay = 2;
 
-/* old style
-	dwarf.syllables = [
-	["'A","'a","'"],
-	["Ko","ko","k"],
-	["Te","te","t"],
-	["Sae","sae","s"],
-	["Pi","pi","p"],
-	["Qoa","qoa","q"],
-	["Cea","ctea","ct"],
-	["Tsu","tsu","ts"],
-	["Hae","hae","h"],
-	["Goa","goa","g"],
-	["Di","di","d"],
-	["Zea","zea","z"],
-	["Bu","bu","b"],
-	["Ra","rga","rg"],
-	["De","dge","dg"],
-	["Dzo","dzo","dz"],
-	["Hea","hhea","hh"],
-	["Xa","xa","x"],
-	["Thu","thu","th"],
-	["She","she","sh"],
-	["Fo","fo","f"],
-	["Khae","khae","kh"],
-	["Kli","kli","kl"],
-	["Choa","tchoa","tch"],
-	["`E","`e","`"],
-	["Ghae","ghae","gh"],
-	["Dho","dho","dh"],
-	["Zhi","zhi","zh"],
-	["Voa","voa","v"],
-	["Ghea","rghea","rgh"],
-	["Glu","glu","gl"],
-	["Ja","dja","dj"],
-	["Mi","hmi","hm"],
-	["Ngea","ngea","ng"],
-	["Noa","noa","n"],
-	["Snu","snu","sn"],
-	["Ma","ma","m"],
-	["Ne","nhe","nh"],
-	["Nlo","nlo","nl"],
-	["Mbae","mbae","mb"],
-	["Rhu","rrhu","rrh"],
-	["Le","lte","lt"],
-	["Rra","rra","rr"],
-	["Ro","rdo","rd"],
-	["Brae","brae","br"],
-	["Rhi","rhi","rh"],
-	["Rloa","rloa","rl"],
-	["Trea","trea","tr"],
-	["Hro","hro","hr"],
-	["Gwi","gwi","gw"],
-	["Rae","rae","r"],
-	["Swoa","swoa","sw"],
-	["Bhea","bhea","bh"],
-	["Whu","whu","wh"],
-	["Ya","ya","y"],
-	["Tle","tle","tl"],
-	["Hwoa","hwoa","hw"],
-	["Llu","llu","ll"],
-	["Lea","lea","l"],
-	["Zla","zla","zl"],
-	["Ye","yye","yy"],
-	["Wo","wo","w"],
-	["Hlae","hlae","hl"],
-	["Dzli","dzli","dzl"]
-];
-*/
-	dwarf.syllables = [
-	["'Au","'au","'"],
-	["Ko","ko","k"],
-	["Tai","tai","t"],
-	["Sa","sa","s"],
-	["Pi","pi","p"],
-	["Qou","qou","q"],
-	["Ce","cte","ct"],
-	["Tsu","tsu","ts"],
-	["Ha","ha","h"],
-	["Gou","gou","g"],
-	["Di","di","d"],
-	["Ze","ze","z"],
-	["Bu","bu","b"],
-	["Rau","rgau","rg"],
-	["Dai","dgai","dg"],
-	["Dzo","dzo","dz"],
-	["He","hhe","hh"],
-	["Xau","xau","x"],
-	["Thu","thu","th"],
-	["Shai","shai","sh"],
-	["Fo","fo","f"],
-	["Kha","kha","kh"],
-	["Kli","kli","kl"],
-	["Chou","tchou","tch"],
-	["`Ai","`ai","`"],
-	["Gha","gha","gh"],
-	["Dho","dho","dh"],
-	["Zhi","zhi","zh"],
-	["Vou","vou","v"],
-	["Ghe","rghe","rgh"],
-	["Glu","glu","gl"],
-	["Jau","djau","dj"],
-	["Mi","hmi","hm"],
-	["Nge","nge","ng"],
-	["Nou","nou","n"],
-	["Snu","snu","sn"],
-	["Mau","mau","m"],
-	["Nai","nhai","nh"],
-	["Nlo","nlo","nl"],
-	["Mba","mba","mb"],
-	["Rhu","rrhu","rrh"],
-	["Lai","ltai","lt"],
-	["Rrau","rrau","rr"],
-	["Ro","rdo","rd"],
-	["Bra","bra","br"],
-	["Rhi","rhi","rh"],
-	["Rlou","rlou","rl"],
-	["Tre","tre","tr"],
-	["Hro","hro","hr"],
-	["Gwi","gwi","gw"],
-	["Ra","ra","r"],
-	["Swou","swou","sw"],
-	["Bhe","bhe","bh"],
-	["Whu","whu","wh"],
-	["Yau","yau","y"],
-	["Tlai","tlai","tl"],
-	["Hwou","hwou","hw"],
-	["Llu","llu","ll"],
-	["Le","le","l"],
-	["Zlau","zlau","zl"],
-	["Yai","yyai","yy"],
-	["Wo","wo","w"],
-	["Hla","hla","hl"],
-	["Dzli","dzli","dzl"]
-];
-
-dwarf.fnames = ["Dís"];
+dwarf.fnames = ["Dís", "Dís", "Dís", "Dís", "Dís", "Dís", "Dís", "Dís", "Dís", "Dís"];
 
 dwarf.mnames = ["Azaghâl", "Balin", "Bifur", "Bofur", "Bombur", "Borin", "Dáin ", "Dori", "Durin", "Dwalin", "Farin", "Fíli", "Flói", "Frár", "Frerin", "Frór", "Fundin", "Gamil", "Gimli", "Glóin", "Glóin", "Gróin", "Grór", "Ibûn", "Khîm", "Kíli", "Lóni", "Mîm", "Náin", "Náli", "Nár", "Narvi", "Nori", "Óin", "Ori", "Telchar", "Thorin", "Thráin ", "Thrór"];
 
+dwarf.fchain = construct_chain(dwarf.fnames);
+dwarf.mchain = construct_chain(dwarf.mnames);
+
+
+dwarf.clanList = ["Longbeards", "Firebeards", "Broadbeams", "Ironfists", "Stiffbeards", "Stonfoots", "Blacklocks"];
+
 	// clan generation
-	dwarf.generateClan = function() { // random clan
-		return rollD(dwarf.syllables.length) - 1;
-	};
+dwarf.generateClan = function() { // random clan
+	return rollD(dwarf.clanList.length) - 1;
+};
 
-	dwarf.getClan = function(person) {
-		//get clan name from clan ID
-		return dwarf.syllables[parseInt(person.clan)][0] + (person.gender == 'M' ? "fouf" : "khakh");
-	};
+dwarf.getClan = function(person) {
+	//get clan name from clan ID
+	return dwarf.clanList[person.clan];
+};
 
-	// *** begin cool dwarf name generation ***
-	dwarf.generateName = function(person) {
-		var roll1 = rollD(dwarf.syllables.length) - 1;
-		return dwarf.syllables[roll1][0] + dwarf.syllables[parseInt(person.clan)][1] + ((person.gender == "M") ? dwarf.syllables[parseInt(person.generation)%dwarf.syllables.length][2] : "");
-	};
+// *** begin cool dwarf name generation ***
+dwarf.generateName = function(person) {
+	return pickRandomName(person);
+};
 	
 	dwarf.generateFertility = function(fertyear, girl) { // return fertility based on age
 		var chance = 0;
@@ -214,38 +84,17 @@ dwarf.mnames = ["Azaghâl", "Balin", "Bifur", "Bofur", "Bombur", "Borin", "Dáin
 
 dwarf.initializeClans = function() {
 	var appendage = "";
-	for  (var i = 0; i < dwarf.syllables.length; i++) {
-		appendage = "<option value='" + i + "'>" + dwarf.syllables[i][0];
-		$("select#clan1SELECT").append(appendage + "fouf</option>");
-		$("select#clan2SELECT").append(appendage + "khakh</option>");
+	for  (var i = 0; i < scot.clanList.length; i++) {
+		appendage = "<option value='" + i + "'>" + dwarf.clanList[i] + "</option>";
+		$("select#clan1SELECT").append(appendage);
+		$("select#clan2SELECT").append(appendage);
 	}
 };
 	
 // Functions for showing the name inventory.
 
 dwarf.generateNameTable = function() {
-	if ($("div#nameTables").html() != "") {
-		$("div#nameTables table table").hide();
-		return;
-	}
-	var table = "<table>";
-	for (var i=0; i<dwarf.syllables.length; i++) {
-		if (i%8 == 0) table = table + "<tr>";
-		table = table + "<td><div onclick='$(this).siblings().show();'>Clan " + dwarf.syllables[i][0] + "khakh</div><table style='display:none;'>";
-		for (var j=0; j<dwarf.syllables.length; j++) {
-			if (j%8 == 0) table = table + "<tr>";
-			var tableId = "table-" + i + "-" + j;
-			table = table + "<td><span onclick='$(\"#" + tableId + "\").show()" + "' title='Clan " + dwarf.syllables[i][0] + "foaf'>" + dwarf.syllables[j][0] + dwarf.syllables[i][1] + "</span><table id = '" + tableId + "' style='display:none;'>";
-			for (k=0; k<dwarf.syllables.length; k++) {
-				if (k%8 == 0) table = table + "<tr>";
-				table = table + "<td>" + dwarf.syllables[j][0] + dwarf.syllables[i][1] + dwarf.syllables[k][2] + "</td>";
-				if (k%8 == 7) table = table + "</tr>";
-			}
-			table = table + "</table></td>";
-			if (j%8 == 7) table = table + "</tr>";
-		}
-		table = table + "</table></td>";
-		if (i%8 == 7) table = table + "</tr>";
-	}
-	$("div#nameTables").append(table);
+	//Always refresh.
+	$("div#nameTables").html("");
+	sampleGeneratedNames();
 };
