@@ -35,3 +35,7 @@ modern.generateFertility = function(fertyear, girl) {
 modern.generateName = function(person) {
 	return pickRandomName(person);
 };
+
+modern.generateNameTable = function() {
+	listNames();
+};

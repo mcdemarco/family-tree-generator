@@ -109,6 +109,9 @@ div#nameTables table table table {background-color: white;}
 div#nameTables table td, div#nameTables table table td {cursor:pointer;vertical-align:top;}
 div#nameTables table table table td {cursor:default;}
 
+div#nameTables table.nameList {border: 2px solid #7ebb9c; border-radius:5px;}
+div#nameTables table.nameList th {background-color: white;}
+div#nameTables table.nameList td {background-color: #efe;}
 
 /* tree style from http://thecodeplayer.com/experiments/css3-family-tree-multiple-parents.html */
 

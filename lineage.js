@@ -59,6 +59,8 @@ function selectRace() {
 	//Human type/fantasy race selection.
 	homo = raceSpace[$("select#raceSELECT").val()].object;
 	homo.initializeClans();
+	$("div#nameTables").html("");
+	disableNamesUi();
 }
 
 function serializePersonFromForm(form) {
@@ -146,16 +148,16 @@ function getSiblingNames(person) {
 	return siblings;
 }
 
-function generateRandomName(person) {
+function generateRandomName(gender) {
 	var tempName;
-	if (person.gender == "M") 
+	if (gender == "M")
 		 tempName = markov_name(homo.mchain);
 	else 
 		tempName = markov_name(homo.fchain);
 	if (tempName.length > 2 && tempName.indexOf('--') < 0) 
 		if (tempName.charAt(0) != '-' && tempName.charAt(1) != '-' && tempName.charAt(tempName.length - 1) != '-' && tempName.charAt(tempName.length - 2) != '-')
 			return tempName;
-	return generateRandomName(person);
+	return generateRandomName(gender);
 }
 
 function pickRandomName(person) {
@@ -168,6 +170,39 @@ function pickRandomName(person) {
 	return tempName;
 }
 
+function listNames(clans) {
+	if ($("div#nameTables").html() != "") {
+		return;
+	}
+	$("div#nameTables").html("<p>Names are chosen from the following stored list of names.</p>");
+	var limit = Math.max(homo.fnames.length,homo.mnames.length);
+	var table = "<table class='nameList' cellpadding=2><tr><th>Male Names</th><th>Female Names</th>";
+	if (clans) {
+		table += "<th>Clan Names</th>";
+		limit = Math.max(limit,homo.clanList.length);
+	}
+	table += "</tr>";
+	for (var i=0; i< limit; i++) {
+		table += "<tr><td>" + (homo.mnames[i] ? homo.mnames[i] : "") +  "</td><td>" + (homo.fnames[i] ? homo.fnames[i] : "") + "</td>" + (clans ? "<td>" + (homo.clanList[i] ? homo.clanList[i] : "") + "</td>" : "") + "</tr>";
+	}
+	table += "</table>";
+	$("div#nameTables").append(table);
+}
+
+function sampleGeneratedNames(limit) {
+	if (!limit) 
+		limit = 15;
+	if ($("div#nameTables").html() != "") {
+		return;
+	}
+	$("div#nameTables").html("<p>Names are generated randomly.  The following is a sample; click the Names button again for more.</p>");
+	var table = "<table class='nameList' cellpadding=2><tr><th>Male Names</th><th>Female Names</th></tr>";
+	for (var i=0; i< limit; i++) {
+		table += "<tr><td>" + generateRandomName("M") +  "</td><td>" + generateRandomName("F") + "</td></tr>";
+	}
+	table += "</table>";
+	$("div#nameTables").append(table);
+}
 
 // *** end name manipulation **
 

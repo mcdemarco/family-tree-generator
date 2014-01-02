@@ -225,13 +225,14 @@ dwarf.initializeClans = function() {
 
 dwarf.generateNameTable = function() {
 	if ($("div#nameTables").html() != "") {
+		$("div#nameTables table table").hide();
 		return;
 	}
 	var table = "<table>";
-	for (i=0; i<dwarf.syllables.length; i++) {
+	for (var i=0; i<dwarf.syllables.length; i++) {
 		if (i%8 == 0) table = table + "<tr>";
 		table = table + "<td><div onclick='$(this).siblings().show();'>Clan " + dwarf.syllables[i][0] + "khakh</div><table style='display:none;'>";
-		for (j=0; j<dwarf.syllables.length; j++) {
+		for (var j=0; j<dwarf.syllables.length; j++) {
 			if (j%8 == 0) table = table + "<tr>";
 			var tableId = "table-" + i + "-" + j;
 			table = table + "<td><span onclick='$(\"#" + tableId + "\").show()" + "' title='Clan " + dwarf.syllables[i][0] + "foaf'>" + dwarf.syllables[j][0] + dwarf.syllables[i][1] + "</span><table id = '" + tableId + "' style='display:none;'>";
@@ -247,8 +248,4 @@ dwarf.generateNameTable = function() {
 		if (i%8 == 7) table = table + "</tr>";
 	}
 	$("div#nameTables").append(table);
-};
-
-dwarf.resetNameTable = function() {
-	$("div#nameTables table table").hide();
 };

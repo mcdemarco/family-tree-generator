@@ -3,6 +3,7 @@
   <head>
     <title>Random Family Tree Generator</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="lineage.css"/>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <!--script language="JavaScript" src="js/jquery.min.js"></script-->
@@ -10,8 +11,8 @@
 <!--script language="JavaScript" src="http://davidbau.com/encode/seedrandom.js"></script-->
 <script language="JavaScript" src="js/seedrandom.js"></script>
 <script language="JavaScript" src="lineage.js"></script>
-<script language="JavaScript" src="js/homo.js"></script>
-<script language="JavaScript" src="js/scot.js"></script>
+<script language="JavaScript" src="js/homo.js" charset="utf-8"></script>
+<script language="JavaScript" src="js/scot.js" charset="utf-8"></script>
 <script language="JavaScript" src="js/egyptian.js"></script>
 <script language="JavaScript" src="js/modern.js"></script>
 <script language="JavaScript" src="js/dwarf.js"></script>
@@ -40,8 +41,7 @@
             <button onclick="enableTreeUi();">Show Tree</button>
             <button onclick="enableCsvUi();">Show CSV</button>
  	  </span>
-	  <button onclick="enableNamesUi();">View Names</button>
-	  <button class="namesUi" onclick="homo.resetNameTable();" style="display:none;">Reset Names</button></table>
+	  <button onclick="enableNamesUi();">Names</button>
         </div>
 </div>
 

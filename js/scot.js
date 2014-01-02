@@ -184,4 +184,6 @@ scot.generateName = function(person) {
 	return pickRandomName(person);
 };
 
-
+scot.generateNameTable = function() {
+	listNames(true);
+};

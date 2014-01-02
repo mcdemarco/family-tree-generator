@@ -96,6 +96,7 @@ function Homo() {
 	this.getClan = getClan;
 	this.getPTypeName = getPTypeName;
 	this.initializeClans = initializeClans;
+	this.generateNameTable = generateNameTable;
 
 	// clan generation
 	function generateClan() { // random clan
@@ -108,7 +109,7 @@ function Homo() {
 	}
 
 	function generateName(person) {
-		return generateRandomName(person);
+		return generateRandomName(person.gender);
 	}
 
 	function generateFertility(fertyear, girl) { // return fertility based on age
@@ -201,7 +202,8 @@ function Homo() {
 	}
 
 	function generateNameTable() {
-		return false;
+		//Always refresh.
+		$("div#nameTables").html("");
+		sampleGeneratedNames();
 	}
-
 }
