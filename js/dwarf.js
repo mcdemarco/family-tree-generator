@@ -84,6 +84,7 @@ dwarf.generateName = function(person) {
 
 dwarf.initializeClans = function() {
 	$("div#seedUi span.clanForm").show();
+	$("div#seedUi span.generationForm").hide();
 	var appendage = "";
 	for  (var i = 0; i < scot.clanList.length; i++) {
 		appendage = "<option value='" + i + "'>" + dwarf.clanList[i] + "</option>";

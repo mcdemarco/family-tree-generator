@@ -27,20 +27,20 @@
         <!-- This is where the genealogy settings are controlled: -->
         <div id="seedUi"><p>
           <form name="personForm" id="personForm">
-            P/Matriarch: <input name="name" type="text"/> Gender: <select name="gender" ><option value="" selected="selected">?</option><option value="M">M</option><option value="F">F</option></select> Year Born: <input name="byear" type="text" size="6" value="1000" /> Year Married: <input name="myear" type="text" size="6" /> Year Died: <input name="dyear" type="text" size="6" /> <span class="clanForm">Clan: <select name="clan" id="clan1SELECT"></select> <input name="parentNodeId" type="hidden" value="-1"/></span> Generation: <input name="generation" type="text" size="2" value="0"/>
+            P/Matriarch: <input name="name" type="text"/> Gender: <select name="gender" ><option value="" selected="selected">?</option><option value="M">M</option><option value="F">F</option></select> <span class="generationForm">Generation: <input name="generation" type="text" size="2" value="0"/></span> Year Born: <input name="byear" type="text" size="6" value="1000" /> Year Married: <input name="myear" type="text" size="6" /> Year Died: <input name="dyear" type="text" size="6" /> <span class="clanForm">Clan: <select name="clan" id="clan1SELECT"></select> <input name="parentNodeId" type="hidden" value="-1"/></span>
 	  </form>
           <form name="spouseForm" id="spouseForm">
-            Spouse: <input name="name" type="text" /> Year Born: <input name="byear" type="text" size="6" /> Year Died: <input name="dyear" type="text" size="6" /> <span class="clanForm">Clan: <select name="clan" id="clan2SELECT"></select></span> <input name="parentNodeId" type="hidden" value="0"/> <input name="spouseId" type="hidden" value="0"/> Generation: <input name="generation" type="text" size="2" value="0"/>
+            Spouse: <input name="name" type="text" /> <span class="generationForm">Generation: <input name="generation" type="text" size="2" value="0"/></span> Year Born: <input name="byear" type="text" size="6" /> Year Died: <input name="dyear" type="text" size="6" /> <span class="clanForm">Clan: <select name="clan" id="clan2SELECT"></select></span> <input name="parentNodeId" type="hidden" value="0"/> <input name="spouseId" type="hidden" value="0"/>
 	  </form>
           <form name="startform" id="startform">
 	    Random Seed: <input id="seed" name="seed" type="text" value="112233332211"/></span> Current Year: <input id="year" name="year" type="text" value=""/> Human type/fantasy race:  <select name="race" id="raceSELECT" onchange="selectRace();"></select>
           </form></p>
           <button name="generate" onclick="generateLineage();">Generate</button>
-	  <button onclick="reseedLineage();">Reseed</button>
 	  <span class="resultsUi" style="display:none;">
-	    <button id="listTab" onclick="enableTab(this.id);">Show List</button>
-	    <button id="treeTab" onclick="enableTab(this.id);">Show Tree</button>
-	    <button id="csvTab" onclick="enableTab(this.id);">Show CSV</button>
+	    <button onclick="reseedLineage();">Reseed</button>
+	    <button id="listTab" onclick="enableTab(this.id);">List View</button>
+	    <button id="treeTab" onclick="enableTab(this.id);">Tree View</button>
+	    <button id="csvTab" onclick="enableTab(this.id);">CSV View</button>
   	  </span>
 	  <button id="namesTab" onclick="enableTab(this.id);">Names</button>
 	  <button id="instructionsTab" onclick="enableTab(this.id);">Instructions</button>
@@ -66,18 +66,27 @@
 	<div id="nameTables" class="namesUi tab" style="display:none;"></div>
 
 	<div id="instructionsUi" class="tab">
-	  <p>Enter (optional) information about a patriarch and/or matriarch, then click the Generate button to create their family tree.  Names will be generated automatically along with a random <a href="http://en.wikipedia.org/wiki/Myers-Briggs_Type_Indicator" title="Myers-Briggs Type Indicator">MBTI</a> personality type.</p>
-	  <p>To reproduce a random tree, save the value of Random Seed and enter it again later.  To get the family as of a particular year, fill in Current Year; otherwise expand the tree with the Family buttons.</p>
+	  <p>Enter (optional) information about a patriarch and/or matriarch in the first two lines of the form above, then click the <span class="buttonInstruction">Generate</span> button to create their family tree (descendants).  Names will be generated automatically along with a random <a href="http://en.wikipedia.org/wiki/Myers-Briggs_Type_Indicator" title="Myers-Briggs Type Indicator">MBTI</a> personality type for each person.  
 
-	  <p>In the List view, you can edit a name and press return to change it, or press the R button to get a new random name.  The CSV version of the current family tree can be edited to change ages, sexes, etc.  To apply your changes, click the Load from CSV button.</p></p></div>
+	  <p>To get multiple generations of the family as of a particular year, fill in the Current Year; otherwise expand the tree with the <span class="buttonInstruction">Family</span> buttons.  The default type of lineage is medieval human; use the Human type/fantasy race dropdown to switch to other human cultures or fantasy races.  (Some include clans.)</p>
+
+	  <p>The default view of the lineage is a list, but a tree view and a CSV text version are also available.  Once a family tree has been generated, you can use the <span class="buttonInstruction">List View</span>, <span class="buttonInstruction">Tree View</span> and <span class="buttonInstruction">CSV View</span> buttons to switch between these views.</p>
+
+	  <p>Use the <span class="buttonInstruction">Reseed</span> button to generate a new random tree from the same patriarch and/or matriarch.  
+
+	  <p>In the List view, you can edit a name and press return to change it, or press the <span class="buttonInstruction">R</span> button next to the name to get a new random name.  The CSV version of the current family tree can be edited to change ages, sexes, etc.  To apply your changes, click the <span class="buttonInstruction">Load from CSV</span> button under the CSV box.</p>
+
+	  <p>To reproduce a random tree again later, save the value of Random Seed after you generate your tree.  Then enter it into Random Seed and click <span class="buttonInstruction">Generate</span> to recover your tree.  You can also reproduce the tree from the CSV; copy the text from the CSV box and save it to a file.  Then paste it back in to the CSV box and click the <span class="buttonInstruction">Load from CSV</span> button.  (You will need to use the CSV method to save a tree you've edited.)</p>
+
+	  <p>The <span class="buttonInstruction">Names</span> buttons shows a name list for the currently selected race.  The <span class="buttonInstruction">Instructions</span> button reopens these instructions.  The <span class="buttonInstruction">Clear</span> button completely clears the form and family.</p>
+	</div>
 </div>
 
         <div id="footer">
 	  By M. C. DeMarco. Source code available on <a href="https://github.com/mcdemarco/family-tree-generator">github</a>.<br/>
-	  Tree style based on <a href="http://thecodeplayer.com/walkthrough/css3-family-tree">TheCodePlayer CSS3 Family Tree</a>.<br/>
-	  Lists and CSV based on <span xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/InteractiveResource" property="dc:title" rel="dc:type"> <a href="https://code.google.com/p/random-family-tree-generator/">Random Family Tree Generator 1.3</a></span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://ja.partridgez.com" property="cc:attributionName" rel="cc:attributionURL">Jeff Partridge</a> and <a xmlns:cc="http://creativecommons.org/ns#" href="http://ja.partridgez.com" property="cc:attributionName" rel="cc:attributionURL">Todd Stumpf</a>.<br />
-	  Name generation from <a href="http://donjon.bin.sh/site/code/name/">donjon</a>, sometimes using name lists from <a href="http://tekeli.li/onomastikon/">Kate Monk's Onomastikon</a>.
-	  Fonts by Google Fonts. Background from <a href="http://subtlepatterns.com/strange-bullseyes/">Subtle Patterns</a>.<br/>
+	  Based on <span xmlns:dc="http://purl.org/dc/elements/1.1/" href="http://purl.org/dc/dcmitype/InteractiveResource" property="dc:title" rel="dc:type"> <a href="https://code.google.com/p/random-family-tree-generator/">Random Family Tree Generator 1.3</a></span> by <a xmlns:cc="http://creativecommons.org/ns#" href="http://ja.partridgez.com" property="cc:attributionName" rel="cc:attributionURL">Jeff Partridge</a> and <a xmlns:cc="http://creativecommons.org/ns#" href="http://ja.partridgez.com" property="cc:attributionName" rel="cc:attributionURL">Todd Stumpf</a>.<br />
+	  Some name generation from <a href="http://donjon.bin.sh/site/code/name/">donjon</a>; some name lists from <a href="http://tekeli.li/onomastikon/">Kate Monk's Onomastikon</a>.<br/>
+	  Tree style based on <a href="http://thecodeplayer.com/walkthrough/css3-family-tree">TheCodePlayer CSS3 Family Tree</a>. Background from <a href="http://subtlepatterns.com/strange-bullseyes/">Subtle Patterns</a>. Fonts by <a href="http://www.google.com/fonts">Google Fonts</a>.<br/>
 	  Myers-Briggs Type Indicator, Myers-Briggs, and MBTI are trademarks or registered trademarks of the MBTI<sup>&reg;</sup> Trust, Inc., in the United States and other countries.</div>
       </body>
     </html>

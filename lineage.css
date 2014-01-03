@@ -33,8 +33,8 @@ h1 {
     color:#efe;
 }
 
-#intro, #instructionsUi {
-    padding:5px;
+#instructionsUi {
+    padding:5px 10px;
     margin:5px;
 }
 
@@ -43,7 +43,18 @@ h1 {
     border:2px solid #900;
     border-radius:5px;
     background-color: #dfd;
+    padding:5px;
+    margin:5px;
     box-sizing:border-box;
+}
+
+span.buttonInstruction {
+    border:1px solid #900;
+    border-radius:7px;
+    background-color: #efe;
+    padding:1px 4px;
+    margin:2px;
+    white-space:nowrap;
 }
 
 #intro a:link, #intro a:visited, 

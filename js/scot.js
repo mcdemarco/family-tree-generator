@@ -173,6 +173,7 @@ scot.getClan = function(person) {
 
 scot.initializeClans = function() {
 	$("div#seedUi span.clanForm").show();
+	$("div#seedUi span.generationForm").hide();
 	var appendage = "";
 	for  (var i = 0; i < scot.clanList.length; i++) {
 		appendage = "<option value='" + i + "'>" + scot.clanList[i] + "</option>";

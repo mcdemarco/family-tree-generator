@@ -199,6 +199,7 @@ function Homo() {
 
 	function initializeClans() {
 		$("div#seedUi span.clanForm").hide();
+		$("div#seedUi span.generationForm").hide();
 	}
 
 	function generateNameTable() {

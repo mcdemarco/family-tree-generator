@@ -143,7 +143,7 @@ function getSiblingNames(person) {
 		return siblings;
 	}
 	//don't need to start i at zero because child pids are always greater than parent pids.
-	for (i=person.parentId2;i<linData.length;i++) {
+	for (var i=person.parentId2;i<linData.length;i++) {
 		if (linData[i].parentId2 == person.parentId2 && linData[i].pid != person.pid) {
 			siblings.push(linData[i].name);
 		}
@@ -379,7 +379,7 @@ function generateFamily(pid) {
 		// Determine current number of kids for parent
 		var kidCount = 0;
 		// As in getSiblingNames, we don't have to start from 0.
-		for (i=person.pid;i<linData.length;i++) {
+		for (var i=person.pid;i<linData.length;i++) {
 			if (linData[i].parentId2 == person.pid || linData[i].parentId1 == person.pid) {
 				kidCount++;
 			}
@@ -392,7 +392,7 @@ function generateFamily(pid) {
 
 function generateLineage() {
 	populateLineage();
-	if ($("div#content div.resultsUi").is(":hidden")) {
+	if ($("div#content div.resultsUi").is(":hidden") || ($("#lineageUi").is(":hidden") && $("#treeUi").is(":hidden") && $("#csvUi").is(":hidden"))) {
 		$("div.tab").hide();
 		$(".resultsUi").show();
 		$("#lineageUi").show();
@@ -733,7 +733,7 @@ $( document ).ready(function() {
 	$("select#clan2SELECT").append("<option value=''>Random Clan</option>");
 	
 	//Race switcher:
-	for (i=0; i<raceSpace.length; i++) {
+	for (var i=0; i<raceSpace.length; i++) {
 		$("select#raceSELECT").append("<option value='" + i + "'" + (raceSpace[i].isDefault ? "selected=selected" : "") + ">" + raceSpace[i].displayName +  "</option>");
 		if (raceSpace[i].isDefault) {
 			var homo = raceSpace[i].object;
@@ -821,7 +821,7 @@ $( document ).ready(function() {
     var parts = select_link(chain,'parts');
     var names = [];
 
-    for (i = 0; i < parts; i++) {
+    for (var i = 0; i < parts; i++) {
       var name_len = select_link(chain,'name_len');
       var c = select_link(chain,'initial');
       var name = c;

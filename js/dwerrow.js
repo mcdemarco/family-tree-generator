@@ -28,74 +28,6 @@ addRace("dwerrow", "Dwerrow", dwerrow, false);
 	dwerrow.MEAN_childDelay = 10;
 	dwerrow.STD_childDelay = 2;
 
-/* old style
-	dwerrow.syllables = [
-	["'A","'a","'"],
-	["Ko","ko","k"],
-	["Te","te","t"],
-	["Sae","sae","s"],
-	["Pi","pi","p"],
-	["Qoa","qoa","q"],
-	["Cea","ctea","ct"],
-	["Tsu","tsu","ts"],
-	["Hae","hae","h"],
-	["Goa","goa","g"],
-	["Di","di","d"],
-	["Zea","zea","z"],
-	["Bu","bu","b"],
-	["Ra","rga","rg"],
-	["De","dge","dg"],
-	["Dzo","dzo","dz"],
-	["Hea","hhea","hh"],
-	["Xa","xa","x"],
-	["Thu","thu","th"],
-	["She","she","sh"],
-	["Fo","fo","f"],
-	["Khae","khae","kh"],
-	["Kli","kli","kl"],
-	["Choa","tchoa","tch"],
-	["`E","`e","`"],
-	["Ghae","ghae","gh"],
-	["Dho","dho","dh"],
-	["Zhi","zhi","zh"],
-	["Voa","voa","v"],
-	["Ghea","rghea","rgh"],
-	["Glu","glu","gl"],
-	["Ja","dja","dj"],
-	["Mi","hmi","hm"],
-	["Ngea","ngea","ng"],
-	["Noa","noa","n"],
-	["Snu","snu","sn"],
-	["Ma","ma","m"],
-	["Ne","nhe","nh"],
-	["Nlo","nlo","nl"],
-	["Mbae","mbae","mb"],
-	["Rhu","rrhu","rrh"],
-	["Le","lte","lt"],
-	["Rra","rra","rr"],
-	["Ro","rdo","rd"],
-	["Brae","brae","br"],
-	["Rhi","rhi","rh"],
-	["Rloa","rloa","rl"],
-	["Trea","trea","tr"],
-	["Hro","hro","hr"],
-	["Gwi","gwi","gw"],
-	["Rae","rae","r"],
-	["Swoa","swoa","sw"],
-	["Bhea","bhea","bh"],
-	["Whu","whu","wh"],
-	["Ya","ya","y"],
-	["Tle","tle","tl"],
-	["Hwoa","hwoa","hw"],
-	["Llu","llu","ll"],
-	["Lea","lea","l"],
-	["Zla","zla","zl"],
-	["Ye","yye","yy"],
-	["Wo","wo","w"],
-	["Hlae","hlae","hl"],
-	["Dzli","dzli","dzl"]
-];
-*/
 	dwerrow.syllables = [
 	["'Au","'au","'"],
 	["Ko","ko","k"],
@@ -210,6 +142,7 @@ addRace("dwerrow", "Dwerrow", dwerrow, false);
 
 dwerrow.initializeClans = function() {
 	$("div#seedUi span.clanForm").show();
+	$("div#seedUi span.generationForm").show();
 	var appendage = "";
 	for  (var i = 0; i < dwerrow.syllables.length; i++) {
 		appendage = "<option value='" + i + "'>" + dwerrow.syllables[i][0];
