@@ -111,7 +111,7 @@ function generateUniqueName(person) {
 	//note that the program will hang here if enough distinct names aren't available
 	var tempSiblings = getSiblingNames(person);
 	var tempName = homo.generateName(person);
-	while (tempSiblings.indexOf(tempName) >= 0)
+	while (tempName != "Dís" && tempSiblings.indexOf(tempName) >= 0)
 		tempName = homo.generateName(person);
 	return tempName;
 }

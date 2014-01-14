@@ -36,7 +36,7 @@ dwarf.fchain = construct_chain(dwarf.fnames);
 dwarf.mchain = construct_chain(dwarf.mnames);
 
 
-dwarf.clanList = ["Longbeards", "Firebeards", "Broadbeams", "Ironfists", "Stiffbeards", "Stonfoots", "Blacklocks"];
+dwarf.clanList = ["Longbeards", "Firebeards", "Broadbeams", "Ironfists", "Stiffbeards", "Stonefoots", "Blacklocks"];
 
 	// clan generation
 dwarf.generateClan = function() { // random clan
