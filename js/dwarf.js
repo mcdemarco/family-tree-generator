@@ -48,11 +48,6 @@ dwarf.getClan = function(person) {
 	return dwarf.clanList[person.clan];
 };
 
-// *** begin cool dwarf name generation ***
-dwarf.generateName = function(person) {
-	return pickRandomName(person);
-};
-	
 	dwarf.generateFertility = function(fertyear, girl) { // return fertility based on age
 		var chance = 0;
 		/* dwarves */
