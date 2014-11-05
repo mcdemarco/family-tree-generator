@@ -283,3 +283,41 @@ div#nameTables table.nameList td {background-color: #efe;}
 
 		.tree li a.male {border-radius: 0px;}
 		.tree li a.female {border-radius: 13px;}
+
+/* timeline style */
+
+div#timeUi {
+    position: relative;
+}
+
+div#timeUi hr {
+    border-style: none;
+    color:gray;
+    background-color:gray;
+}
+
+div.time {
+    margin: 2px 0;
+    padding: 0 4px;
+    overflow: visible;
+    border: 1px dotted gray;
+    opacity: 1;
+    z-index: 5;
+}
+
+.time.color1 {background-color:#fff;}
+.time.color2 {background-color:#fcc;}
+.time.color3 {background-color:#fc9;}
+.time.color4 {background-color:#ff9;}
+.time.color5 {background-color:#cf9;}
+.time.color6 {background-color:#9f9;}
+.time.color7 {background-color:#9fc;}
+.time.color8 {background-color:#9ff;}
+.time.color9 {background-color:#9cf;}
+.time.color10 {background-color:#99f;}
+.time.color11 {background-color:#c9f;}
+.time.color12 {background-color:#f9f;}
+.time.color13 {background-color:#f99;}
+
+.time.male {border-radius: 0px;}
+.time.female {border-radius: 13px;}

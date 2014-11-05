@@ -22,6 +22,9 @@ var currentYearMode = false;
 //For spacing issues.  Increase spaceFactor if your trees still wrap.
 var spaceFactor = 60;
 
+var minYear;
+var timeFactor = 6;
+
 var raceSpace = [];
 
 
@@ -392,7 +395,7 @@ function generateFamily(pid) {
 
 function generateLineage() {
 	populateLineage();
-	if ($("div#content div.resultsUi").is(":hidden") || ($("#lineageUi").is(":hidden") && $("#treeUi").is(":hidden") && $("#csvUi").is(":hidden"))) {
+	if ($("div#content div.resultsUi").is(":hidden") || ($("#lineageUi").is(":hidden") && $("#treeUi").is(":hidden") && $("#timeUi").is(":hidden") && $("#csvUi").is(":hidden"))) {
 		$("div.tab").hide();
 		$(".resultsUi").show();
 		$("#lineageUi").show();
@@ -417,6 +420,13 @@ function enableTab(buttonId) {
 			$("#treeUi").css("width",Math.max($(window).width() - 25, linData.length * spaceFactor) + "px");
 			$("#treeUi").show();
 			break;
+		case "timeTab":
+			$("#footer").hide();
+			$("#timeUi").css("width",Math.max($(window).width() - 25, (currentYear - minYear) * timeFactor) + "px");
+			if (currentYearMode)
+				$("p#untime").hide();
+			$("#timeUi").show();
+			break;
 		case "csvTab":
 			$("#csvUi").show();
 			break;
@@ -435,12 +445,6 @@ function populateLineage() {
 	// Reset/Update our random sequence based on the (possibly new) seed...
 	Math.seedrandom(document.getElementById("seed").value);
 
-	// Clear out the lineage, list, tree, and CSV.
-	linData = [];
-	$("ul#person-1").html("");
-	$("#treeUi").html("");
-	$("#csvtxt").val("#pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouseId, parentId1, parentId2, parentNodeId\n");
-
 	//Check the mode.
 	if (document.startform.year.value != "" && !(isNaN(parseInt(document.startform.year.value)))) {
 		currentYear = parseInt(document.startform.year.value);
@@ -449,23 +453,37 @@ function populateLineage() {
 		currentYearMode = false;
 	}
 
+	// Clear out the lineage, list, tree, and CSV.
+	linData = [];
+	$("ul#person-1").html("");
+	$("#treeUi").html("");
+	if (currentYearMode)
+		$("#timeUi").html("");
+	else
+		$("#timeUi").html("<p id='untime'>Please fill in the current year and click <span class='buttonInstruction'>Generate</span> to view the timeline.</p>");
+
+	$("#csvtxt").val("#pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouseId, parentId1, parentId2, parentNodeId\n");
+
 	// Read in form data for person #1, add them to top of lineage chart.
 	var partialPerson = serializePersonFromForm($("form#personForm"));
 	var person = finishPerson(partialPerson,true);
-	
-	displayPerson(person);
 	linData[person.pid] = person;
 
 	// Read in (or produce) person #2, the spouse, and add them to the chart.
 	var partialSpouse = serializePersonFromForm($("form#spouseForm"));
 	var spouse = finishPerson(partialSpouse);
-
-	displayPerson(spouse);
 	linData[spouse.pid] = spouse;
+
+	// Need some linData to display timelines.
+	minYear = Math.min(linData[0].byear, linData[1].byear);
+	displayPerson(person);
+	displayPerson(spouse);
 
 	// Generate their direct desendants ...
 	generateKids(person, spouse);
 
+	if (currentYearMode)
+		$("#timeUi").append("<hr width=1 size=" + $("div#timeUi div").length * 26 + " style='position:absolute; top:0; left:" + (currentYear - minYear) * timeFactor + "px;'>");
 }
 
 function finishPerson(person,mustLive) {
@@ -618,6 +636,24 @@ function displayPerson(person,noCSV) {
 		$("#treep" + person.parentNodeId).siblings("ul").append(treepHtml);
 	else
 		$("#treep" + person.parentNodeId).after("<ul>" + treepHtml + "</ul>");
+
+	//Timeline section
+	if (currentYearMode) {
+		var timeHtml = "";
+		timeHtml += "<div id='timep" + person.pid + "' class='" + getColor(person) + " " + getGender(person) + " time' style='white-space:nowrap;margin-left:" + (person.byear - minYear) * timeFactor + "px;width:" + (person.dyear - person.byear) * timeFactor + "px;'>";
+		timeHtml += person.name + " (" + person.byear + "&ndash;" + person.dyear + ")</div>";
+		//see also: http://odyniec.net/articles/turning-lists-into-trees/
+
+//	if (person.pid == 0)
+		$("div#timeUi").append(timeHtml);
+/*	else if ("spouseId" in person)
+		$("#timep" + person.spouseId).after(timeHtml);
+	else if ($("#timep" + person.parentNodeId).siblings("ul").length > 0)
+		$("#treep" + person.parentNodeId).siblings("ul").append(treepHtml);
+	else
+		$("#treep" + person.parentNodeId).after("<ul>" + treepHtml + "</ul>");
+*/
+	}
 
 	//CSV section.
 	if (!noCSV) {

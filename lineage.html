@@ -21,7 +21,7 @@
       </head>
       <body>
 <div id="header">
-        <h1 align="center">Random Family Tree Generator 3.0</h1>
+        <h1 align="center">Random Family Tree Generator 3.1</h1>
         <div id="intro" style="display:none;"></div>
 
         <!-- This is where the genealogy settings are controlled: -->
@@ -40,6 +40,7 @@
 	    <button onclick="reseedLineage();">Reseed</button>
 	    <button id="listTab" onclick="enableTab(this.id);">List View</button>
 	    <button id="treeTab" onclick="enableTab(this.id);">Tree View</button>
+	    <button id="timeTab" onclick="enableTab(this.id);">Timeline View</button>
 	    <button id="csvTab" onclick="enableTab(this.id);">CSV View</button>
   	  </span>
 	  <button id="namesTab" onclick="enableTab(this.id);">Names</button>
@@ -55,6 +56,7 @@
             <div><ul id="person-1"></ul></div>
           </div>
           <div id="treeUi" class="tree tab" style="display:none;"></div>
+          <div id="timeUi" class="timeline tab" style="display:none;"></div>
           <div id="csvUi" class="tab" style="display:none;">
             <!-- This is where the CSV textfield is populated: -->
             <textarea id="csvtxt" cols="80" rows="25"></textarea><br/>
@@ -70,7 +72,7 @@
 
 	  <p>To get multiple generations of the family as of a particular year, fill in the Current Year; otherwise expand the tree with the <span class="buttonInstruction">Family</span> buttons.  The default type of lineage is medieval human; use the Human type/fantasy race dropdown to switch to other human cultures or fantasy races.  (Some include clans.)</p>
 
-	  <p>The default view of the lineage is a list, but a tree view and a CSV text version are also available.  Once a family tree has been generated, you can use the <span class="buttonInstruction">List View</span>, <span class="buttonInstruction">Tree View</span> and <span class="buttonInstruction">CSV View</span> buttons to switch between these views.</p>
+	  <p>The default view of the lineage is a list, but a tree view, a timeline view, and a CSV text version are also available.  Once a family tree has been generated, you can use the <span class="buttonInstruction">List View</span>, <span class="buttonInstruction">Tree View</span>, <span class="buttonInstruction">Timeline View</span>, and <span class="buttonInstruction">CSV View</span> buttons to switch between these views.  The Timeline View requires that you have the Current Year filled in.</p>
 
 	  <p>Use the <span class="buttonInstruction">Reseed</span> button to generate a new random tree from the same patriarch and/or matriarch.  
 
