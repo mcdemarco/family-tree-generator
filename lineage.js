@@ -422,9 +422,10 @@ function enableTab(buttonId) {
 			break;
 		case "timeTab":
 			$("#footer").hide();
-			$("#timeUi").css("width",Math.max($(window).width() - 25, (currentYear - minYear) * timeFactor) + "px");
+			var maxYear = Math.max(linData[0].dyear,linData[1].dyear,linData[linData.length - 1].dyear) - minYear;
 			if (currentYearMode)
-				$("p#untime").hide();
+				maxYear = Math.max(maxYear,currentYear);
+			$("#timeUi").css("width",Math.max($(window).width() - 25, (maxYear - minYear) * timeFactor) + "px");
 			$("#timeUi").show();
 			break;
 		case "csvTab":
@@ -457,11 +458,7 @@ function populateLineage() {
 	linData = [];
 	$("ul#person-1").html("");
 	$("#treeUi").html("");
-	if (currentYearMode)
-		$("#timeUi").html("");
-	else
-		$("#timeUi").html("<p id='untime'>Please fill in the current year and click <span class='buttonInstruction'>Generate</span> to view the timeline.</p>");
-
+	$("#timeUi").html("");
 	$("#csvtxt").val("#pid, name, gender, generation, byear, dyear, dage, myear, mage, ptype, clan, spouseId, parentId1, parentId2, parentNodeId\n");
 
 	// Read in form data for person #1, add them to top of lineage chart.
@@ -638,7 +635,7 @@ function displayPerson(person,noCSV) {
 		$("#treep" + person.parentNodeId).after("<ul>" + treepHtml + "</ul>");
 
 	//Timeline section
-	if (currentYearMode) {
+//	if (currentYearMode) {
 		var timeHtml = "";
 		timeHtml += "<div id='timep" + person.pid + "' class='" + getColor(person) + " " + getGender(person) + " time' style='white-space:nowrap;margin-left:" + (person.byear - minYear) * timeFactor + "px;width:" + (person.dyear - person.byear) * timeFactor + "px;'>";
 		timeHtml += person.name + " (" + person.byear + "&ndash;" + person.dyear + ")</div>";
@@ -653,7 +650,7 @@ function displayPerson(person,noCSV) {
 	else
 		$("#treep" + person.parentNodeId).after("<ul>" + treepHtml + "</ul>");
 */
-	}
+//	}
 
 	//CSV section.
 	if (!noCSV) {
