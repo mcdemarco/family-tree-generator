@@ -635,22 +635,20 @@ function displayPerson(person,noCSV) {
 		$("#treep" + person.parentNodeId).after("<ul>" + treepHtml + "</ul>");
 
 	//Timeline section
-//	if (currentYearMode) {
-		var timeHtml = "";
-		timeHtml += "<div id='timep" + person.pid + "' class='" + getColor(person) + " " + getGender(person) + " time' style='white-space:nowrap;margin-left:" + (person.byear - minYear) * timeFactor + "px;width:" + (person.dyear - person.byear) * timeFactor + "px;'>";
-		timeHtml += person.name + " (" + person.byear + "&ndash;" + person.dyear + ")</div>";
-		//see also: http://odyniec.net/articles/turning-lists-into-trees/
+	var timeHtml = "";
+	timeHtml += "<div class='timeWrapper' id='timeW" + person.pid + "'>";
+	timeHtml += "<div id='timep" + person.pid + "' class='" + getColor(person) + " " + getGender(person)+ " time' style='white-space:nowrap;margin-left:" + (person.byear - minYear) * timeFactor + "px;width:" + (person.dyear - person.byear) * timeFactor + "px;'>";
+	timeHtml += (("spouseId" in person) ? "= " : "") + person.name + " (" + person.byear + "&ndash;" + person.dyear + ")";
+	timeHtml += " <button type='button' onclick='$(\"div#timeW" + person.pid + " div.time\").css(\"height\",\"3px\").html(\"\");'>Hide</button>";
+	timeHtml += "</div></div>";
+	//see also: http://odyniec.net/articles/turning-lists-into-trees/
 
-//	if (person.pid == 0)
+	if (person.pid == 0)
 		$("div#timeUi").append(timeHtml);
-/*	else if ("spouseId" in person)
-		$("#timep" + person.spouseId).after(timeHtml);
-	else if ($("#timep" + person.parentNodeId).siblings("ul").length > 0)
-		$("#treep" + person.parentNodeId).siblings("ul").append(treepHtml);
+	else if ("spouseId" in person)
+		$("#timeW" + person.spouseId).append(timeHtml);
 	else
-		$("#treep" + person.parentNodeId).after("<ul>" + treepHtml + "</ul>");
-*/
-//	}
+		$("#timeW" + person.parentNodeId).append(timeHtml);
 
 	//CSV section.
 	if (!noCSV) {
