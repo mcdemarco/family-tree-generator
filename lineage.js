@@ -680,6 +680,7 @@ function loadCsv() {
 	readCsv();
 	$("ul#person-1").html("");
 	$("#treeUi").html("");
+	$("#timeUi").html("");
 	for (var i = 0; i < linData.length; i++)
 		displayPerson(linData[i],true);
 
