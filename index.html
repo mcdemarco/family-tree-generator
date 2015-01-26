@@ -1,38 +1,47 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Family Tree Generator by mcdemarco</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <title>Family Tree Generator by mcdemarco</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>Family Tree Generator</h1>
-        <p>A fictional family tree generator, based on the Random Family Tree Generator at google code.</p>
-        <p class="view"><a href="https://github.com/mcdemarco/family-tree-generator">View the Project on GitHub <small>mcdemarco/family-tree-generator</small></a></p>
-        <ul>
-          <li><a href="https://github.com/mcdemarco/family-tree-generator/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/mcdemarco/family-tree-generator/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/mcdemarco/family-tree-generator">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Family Tree Generator</h1>
+          <h2>A fictional family tree generator, based on the Random Family Tree Generator at google code.</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/mcdemarco/family-tree-generator/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/mcdemarco/family-tree-generator/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/mcdemarco/family-tree-generator" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h1>
 <a id="family-tree-generator" class="anchor" href="#family-tree-generator" aria-hidden="true"><span class="octicon octicon-link"></span></a>Family Tree Generator</h1>
+
+<p><a href="http://mcdemarco.net/tools/family-tree-generator/">A demo version</a> is available.</p>
+
+<h2>
+<a id="about" class="anchor" href="#about" aria-hidden="true"><span class="octicon octicon-link"></span></a>about</h2>
 
 <p>This version of the Family Tree Generator is by M. C. DeMarco.  In addition to generating reproducible random medieval family trees of descendants of a matriarch/patriarch pair (incrementally), it also supports the generation of non-human and otherwise non-medieval family trees, editing of any aspect of a generated tree, display of the output as an actual tree, a timeline, an indented list, or a CSV file, generation of full trees up to a specified date, various improved methods of name generation, a name list viewer, optional clan generation, and the display of detailed instructions for use.</p>
 
-<p>This is an entirely client-side JavaScript program; it will run in a web browser without a web server.  However, jQuery and the fonts are loaded from Google, so an internet connection is required.  A demo version is available at <a href="http://mcdemarco.net/tools/family-tree-generator/">http://mcdemarco.net/tools/family-tree-generator/</a></p>
+<p>This is an entirely client-side JavaScript program; it will run in a web browser without a web server.  However, jQuery and the fonts are loaded from Google, so an internet connection is required.</p>
 
 <h2>
 <a id="making-changes" class="anchor" href="#making-changes" aria-hidden="true"><span class="octicon octicon-link"></span></a>making changes</h2>
@@ -81,13 +90,15 @@ No licensing information was available for the tree style; I will inquire.</p>
 <p>I also abstracted more of the demographic statistics into variables or functions, which allowed me to change demographics when changing human type/fantasy race.  I removed the debugging code and simplified the UI code.</p>
 
 <p>I added editing of the tree and automatic generation of descendants up to a certain date, as well as some complicated naming code (in dwerrow.js), for my own needs in writing fiction.</p>
-      </section>
+        </section>
+
+        <footer>
+          Family Tree Generator is maintained by <a href="https://github.com/mcdemarco">mcdemarco</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
     </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/mcdemarco">mcdemarco</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-    
   </body>
 </html>
