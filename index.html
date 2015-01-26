@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Family Tree Generator by mcdemarco</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Family Tree Generator</h1>
+        <p>A fictional family tree generator, based on the Random Family Tree Generator at google code.</p>
+        <p class="view"><a href="https://github.com/mcdemarco/family-tree-generator">View the Project on GitHub <small>mcdemarco/family-tree-generator</small></a></p>
+        <ul>
+          <li><a href="https://github.com/mcdemarco/family-tree-generator/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/mcdemarco/family-tree-generator/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/mcdemarco/family-tree-generator">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="family-tree-generator" class="anchor" href="#family-tree-generator" aria-hidden="true"><span class="octicon octicon-link"></span></a>Family Tree Generator</h1>
+
+<p>This version of the Family Tree Generator is by M. C. DeMarco.  In addition to generating reproducible random medieval family trees of descendants of a matriarch/patriarch pair (incrementally), it also supports the generation of non-human and otherwise non-medieval family trees, editing of any aspect of a generated tree, display of the output as an actual tree, a timeline, an indented list, or a CSV file, generation of full trees up to a specified date, various improved methods of name generation, a name list viewer, optional clan generation, and the display of detailed instructions for use.</p>
+
+<p>This is an entirely client-side JavaScript program; it will run in a web browser without a web server.  However, jQuery and the fonts are loaded from Google, so an internet connection is required.  A demo version is available at <a href="http://mcdemarco.net/tools/family-tree-generator/">http://mcdemarco.net/tools/family-tree-generator/</a></p>
+
+<h2>
+<a id="making-changes" class="anchor" href="#making-changes" aria-hidden="true"><span class="octicon octicon-link"></span></a>making changes</h2>
+
+<p>To make your own changes to the family tree generator, you will need a copy of the code.  Click on <a href="https://github.com/mcdemarco/family-tree-generator/releases">releases</a> and download the latest one.  Unzip it if necessary and open lineage.html in your web browser.  (Please note that no obsolete browsers have been tested.)</p>
+
+<p>If you do not know JavaScript, it should still be fairly simple to edit the names list or the demographic variables in one of the human/fantasy race files in the js/ directory to make your desired changes.  Please note that some name lists are just examples for the random name generator to work with, while others are used as-is.  (See the sausage section below for details.)</p>
+
+<p>If you do know JavaScript, I would recommend making a new race along the lines of an existing one such as dwarf.js (but not homo.js).  You will need to load the file in lineage.html (with charset="utf-8" if your names use any non-ascii characters); if it is formatted correctly, it will be added to the human type/fantasy race list automatically.</p>
+
+<h2>
+<a id="credits" class="anchor" href="#credits" aria-hidden="true"><span class="octicon octicon-link"></span></a>credits</h2>
+
+<p>Based on Random Family Tree Generator v.1.3  by Todd Stumpf:
+<a href="http://code.google.com/p/random-family-tree-generator/">http://code.google.com/p/random-family-tree-generator/</a>
+which in turn was based on an older version of Random Family Tree Generator
+by Jeff Partridge, updated since to v2.0: <a href="http://partridgez.com/japartridge/lineage2.html">http://partridgez.com/japartridge/lineage2.html</a></p>
+
+<p>Tree style adapted from <a href="http://thecodeplayer.com/walkthrough/css3-family-tree">http://thecodeplayer.com/walkthrough/css3-family-tree</a>, 
+<a href="http://thecodeplayer.com/experiments/css3-family-tree-multiple-parents.html">http://thecodeplayer.com/experiments/css3-family-tree-multiple-parents.html</a>.</p>
+
+<p>Name generation by markov chain adapted from: <a href="http://donjon.bin.sh/site/code/name/">http://donjon.bin.sh/site/code/name/</a></p>
+
+<p>Name lists from Kate Monk's Onomastikon:  <a href="http://tekeli.li/onomastikon/">http://tekeli.li/onomastikon/</a></p>
+
+<h2>
+<a id="licensing" class="anchor" href="#licensing" aria-hidden="true"><span class="octicon octicon-link"></span></a>licensing</h2>
+
+<p>The original version of the Family Tree Generator was under a Creative Commons Attribution-Noncommercial-Share Alike-3.0 United States License.
+The google code version (on which this code was based) mentions the CC license as the "content license" and the GNU GPL v3 as the "code license."</p>
+
+<p>The name generation markov chain code I used was in the public domain.
+No licensing information was available for the tree style; I will inquire.</p>
+
+<p>No additional license restrictions are added in this version, except for copyright on the various name lists and naming languages.</p>
+
+<p>Myers-Briggs Type Indicator, Myers-Briggs, and MBTI are trademarks or registered trademarks of the MBTI® Trust, Inc., in the United States and other countries.</p>
+
+<h2>
+<a id="sausage" class="anchor" href="#sausage" aria-hidden="true"><span class="octicon octicon-link"></span></a>sausage</h2>
+
+<p>I made quite a few changes to the underlying code.  Most significantly, I stored the family tree in a data structure rather than in the html, which greatly simplified several chunks of code.</p>
+
+<p>I threw out the existing name generation and added three methods of my own:  random selection from a name list (Modern names, Scottish names and clan names), generation by markov chain from a name list (Medieval names, Egyptian names, and dwarf names), and generation from a syllable list (dwerrow names).</p>
+
+<p>I also abstracted more of the demographic statistics into variables or functions, which allowed me to change demographics when changing human type/fantasy race.  I removed the debugging code and simplified the UI code.</p>
+
+<p>I added editing of the tree and automatic generation of descendants up to a certain date, as well as some complicated naming code (in dwerrow.js), for my own needs in writing fiction.</p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/mcdemarco">mcdemarco</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
