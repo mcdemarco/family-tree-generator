@@ -143,6 +143,8 @@ addRace("dwerrow", "Dwerrow", dwerrow, false);
 dwerrow.initializeClans = function() {
 	$("div#seedUi span.clanForm").show();
 	$("div#seedUi span.generationForm").show();
+	$("select#clan1SELECT").html("").append("<option value=''>Random Clan</option>");
+	$("select#clan2SELECT").html("").append("<option value=''>Random Clan</option>");
 	var appendage = "";
 	for  (var i = 0; i < dwerrow.syllables.length; i++) {
 		appendage = "<option value='" + i + "'>" + dwerrow.syllables[i][0];
