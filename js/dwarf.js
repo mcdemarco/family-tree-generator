@@ -80,8 +80,8 @@ dwarf.getClan = function(person) {
 dwarf.initializeClans = function() {
 	$("div#seedUi span.clanForm").show();
 	$("div#seedUi span.generationForm").hide();
-	$("select#clan1SELECT").html("").append("<option value=''>Random Clan</option>");
-	$("select#clan2SELECT").html("").append("<option value=''>Random Clan</option>");
+	$("select#clan1SELECT").html("<option value=''>Random Clan</option>");
+	$("select#clan2SELECT").html("<option value=''>Random Clan</option>");
 	var appendage = "";
 	for  (var i = 0; i < dwarf.clanList.length; i++) {
 		appendage = "<option value='" + i + "'>" + dwarf.clanList[i] + "</option>";

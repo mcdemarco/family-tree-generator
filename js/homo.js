@@ -198,8 +198,8 @@ function Homo() {
 	// *** end personality type generation code ***
 
 	function initializeClans() {
-		$("select#clan1SELECT").html("").append("<option value=''>Random Clan</option>");
-		$("select#clan2SELECT").html("").append("<option value=''>Random Clan</option>");
+		$("select#clan1SELECT").html("<option value=''>Random Clan</option>");
+		$("select#clan2SELECT").html("<option value=''>Random Clan</option>");
 		$("div#seedUi span.clanForm").hide();
 		$("div#seedUi span.generationForm").hide();
 	}
