@@ -1,11 +1,14 @@
 Family Tree Generator
 =====================
 
+[A demo version](http://mcdemarco.net/tools/family-tree-generator/) is available.
+
+about
+-----
+
 This version of the Family Tree Generator is by M. C. DeMarco.  In addition to generating reproducible random medieval family trees of descendants of a matriarch/patriarch pair (incrementally), it also supports the generation of non-human and otherwise non-medieval family trees, editing of any aspect of a generated tree, display of the output as an actual tree, a timeline, an indented list, or a CSV file, generation of full trees up to a specified date, various improved methods of name generation, a name list viewer, optional clan generation, and the display of detailed instructions for use.
 
-This is an entirely client-side JavaScript program; it will run in a web browser without a web server.  However, jQuery and the fonts are loaded from Google, so an internet connection is required.  A demo version is available at http://mcdemarco.net/tools/family-tree-generator/
-
-
+This is an entirely client-side JavaScript program; it will run in a web browser without a web server.  However, jQuery and the fonts are loaded from Google, so an internet connection is required.
 
 making changes
 --------------
