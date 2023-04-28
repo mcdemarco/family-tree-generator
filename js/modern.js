@@ -26,8 +26,8 @@ modern.mnames = ["Александр", "Сергей", "Дмитрий", "Але
 
 modern.generateFertility = function(fertyear, girl) {
 	var chance = 0;
-	if (fertyear>=14 && fertyear <=44) {
-		chance = 6.3;
+	if (fertyear>=17 && fertyear <=40) {
+		chance = 20;
 	}
 	return chance;
 }
